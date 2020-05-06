@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" href="/assets/images/goat-logo.png">
+
+    <title>Schedule cron in Lambda to download a file and save it to S3 | Goats in Trees</title>
+
+    <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Schedule cron in Lambda to download a file and save it to S3 | Goats in Trees</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Schedule cron in Lambda to download a file and save it to S3" />
+<meta name="author" content="davelms" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This post will explain how to use AWS Lambda to download a file each day and save the file into an S3 bucket." />
+<meta property="og:description" content="This post will explain how to use AWS Lambda to download a file each day and save the file into an S3 bucket." />
+<meta property="og:site_name" content="Goats in Trees" />
+<meta property="og:image" content="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1_RhGZIe05Pj_kjGPDbBOmqQ.jpeg" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-04-06T16:30:57+00:00" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","url":"/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"/assets/images/goat-logo.png"},"name":"davelms"},"headline":"Schedule cron in Lambda to download a file and save it to S3","dateModified":"2020-04-06T16:30:57+00:00","datePublished":"2020-04-06T16:30:57+00:00","image":"/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1_RhGZIe05Pj_kjGPDbBOmqQ.jpeg","author":{"@type":"Person","name":"davelms"},"description":"This post will explain how to use AWS Lambda to download a file each day and save the file into an S3 bucket.","mainEntityOfPage":{"@type":"WebPage","@id":"/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link href="/assets/css/prism.css" rel="stylesheet">
+
+    <link href="/assets/css/theme.css" rel="stylesheet">
+
+    <script src="/assets/js/jquery.min.js"></script>
+
+</head>
+
+
+<!-- change your GA id in _config.yml -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-209086-18"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-209086-18');
+</script>
+
+
+
+
+<body>
+    <!-- defer loading of font and font awesome -->
+    <noscript id="deferred-styles">
+        <link href="https://fonts.googleapis.com/css?family=Sen:400,700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
+            integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    </noscript>
+
+    <!-- Begin Sidebar Navigation
+================================================== -->
+
+    <div class="sidebar">
+    </div>
+    <div class="nav-icon">
+        <div class="hamburger-bar"></div>
+    </div>
+    <div id="blackover-nav" class="blackover"></div>
+    <nav id="menu">
+        <ul>
+            <h3>Navigation</h3>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <script src="/assets/js/lunr.js"></script>
+
+<style>
+    
+</style>
+
+<div class="wrap-search">
+    <div class="d-flex align-items-center ml-auto">
+        <i class="fas fa-search show-search"></i>
+        <form class="bd-search ml-3" onSubmit="return lunr_search(document.getElementById('lunrsearch').value);">
+            <input type="text" class="form-control bigradius text-small launch-modal-search" id="lunrsearch" name="q" maxlength="255" value="" placeholder="Type and enter..."/>
+        </form>
+    </div>
+</div>
+
+<div id="lunrsearchresults">
+    <ul></ul>
+</div>
+
+<script src="/assets/js/lunrsearchengine.js"></script>
+
+
+    <!-- End Sidebar Navigation
+================================================== -->
+
+    <div class="site-content ">
+
+        <div class="container">
+
+            <!-- Site Logo/Name
+    ================================================== -->
+
+            <a class="navbar-brand" href="/">
+                <img src="/assets/images/goat-logo.png" alt="Goats in Trees">
+            </a>
+
+
+            <!-- Site Tag
+    ================================================== -->
+            
+
+            <!-- Content
+    ================================================== -->
+            <div class="main-content">
+                <div class="entry-header">
+    <!-- Post Title -->
+    <h1 class="posttitle">Schedule cron in Lambda to download a file and save it to S3</h1>
+    <!-- Author & Date  Box -->
+    
+    
+    <div class="d-flex align-items-center mt-4">
+        <div>
+            
+            <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                alt="Dave">
+            
+        </div>
+        <div>
+            Written by <a target="_blank" class="text-dark" href="https://www.davelms.co.uk">Dave</a> on
+            <span class="post-date"><time class="post-date"
+                    datetime="2020-04-06">06 Apr 2020</time></span>
+            
+        </div>
+    </div>
+    
+</div>
+
+<!-- Adsense under title if enabled from _config.yml (change your pub id and slot) -->
+
+
+<!-- Featured Image -->
+
+<div class="entry-featured-image">
+    
+    <img class="featured-image "
+        src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1_RhGZIe05Pj_kjGPDbBOmqQ.jpeg"
+        alt="Schedule cron in Lambda to download a file and save it to S3">
+    
+    
+</div>
+
+
+<!-- Subtitle -->
+
+<div class="article-post">
+    <h2 class="subtitle"> How to write an AWS Lambda (Node.js) function and schedule it daily to download a file from the internet and save it into an S3 bucket. </h2>
+</div>
+
+
+<!-- Content -->
+<!-- Post, Page Content
+================================================== -->
+<div class="article-post">
+    <!-- Toc if any -->
+    
+    <!-- End Toc -->
+    <p>This post will explain how to use <strong>AWS Lambda</strong> to download a file each day and save the file into an S3 bucket.</p>
+
+<p>Why did I pick Lambda? The task runs for ~1 second every day and I don’t really need a virtual machine for that — or any infrastructure in fact— I sought the cheapest and simplest solution that I could natively trigger my code on a schedule (cron). AWS Lambda ticked all the right boxes for me, and the cost of the solution is less than a $1 a year.</p>
+
+<p>Here’s the work brief that we’ll go through in this short tutorial.</p>
+
+<ol>
+  <li>
+    <p>The process should run once every hour of the day.</p>
+  </li>
+  <li>
+    <p>The process should download a file from an internet location (https) and save it into an S3 bucket.</p>
+  </li>
+  <li>
+    <p>The object metadata should include the content type from the origin.</p>
+  </li>
+  <li>
+    <p>It should be designed/written in such a way as we can run the same code for different source files.</p>
+  </li>
+</ol>
+
+<p><strong><em>I’m going to demonstrate how to do this directly via the Console, and I’ll follow up with setting up a development environment and using the AWS Serverless Application Model and command line to achieve the same.</em></strong></p>
+
+<p>All the source code for this article can be <a href="https://github.com/davelms/medium-articles/tree/master/lamda-download-example">downloaded from GitHub</a>.</p>
+
+<h2 id="approach-1--aws-console">Approach 1 — AWS Console</h2>
+
+<p>The steps we’re going to follow are;</p>
+
+<ol>
+  <li>
+    <p>Create an S3 bucket to hold our file</p>
+  </li>
+  <li>
+    <p>Create a Lambda function</p>
+  </li>
+  <li>
+    <p>Update IAM to allow our Lambda function to write to S3</p>
+  </li>
+  <li>
+    <p>Write our code and set some dynamic properties (source file, target bucket, and the target filename).</p>
+  </li>
+  <li>
+    <p>Create a Test and verify everything is working.</p>
+  </li>
+  <li>
+    <p>Configure a Schedule so the Lambda function will run every day.</p>
+  </li>
+</ol>
+
+<p>First step is to create our bucket in <strong>AWS S3</strong> — I selected all the default options, and I’ll be using a bucket called “our-lambda-demo”.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1Lr5Fw2mX6Fsp7AMFvptQrQ.png" alt="" /></p>
+
+<p>Next step is to head over to <strong>AWS Lambda</strong> and “Create function” where we are going to select to “Author from scratch”.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/11dn1UFFu8xLQotxdVyL9Rg.png" alt="" /></p>
+
+<p>I’ve named the function “downloadFileToS3” and left all the defaults in place.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1uj48T2dtn-4KJhwr05lXFg.png" alt="" /></p>
+
+<p>Once your function has been created, go to the “Permissions” tab and follow the link to our Execution Role in the <strong>AWS IAM Management Console</strong>.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1zeZhn5-ans_zQarGw0U47w.png" alt="" /></p>
+
+<p>Once in IAM, you will see that the default setup only has basic Lambda execution permissions. This includes the ability to write out to CloudWatch logs, but little else. So we need to give write access to S3.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1lsquDL4zwRQBR2UG0D4wPQ.png" alt="" /></p>
+
+<p>I’m going the “Add inline policy” route, but you could also go through “Attach policies” and add an existing managed policy such as “AmazonS3FullAccess”.</p>
+
+<p>You can use the dialogue to create a policy, or <a href="https://raw.githubusercontent.com/davelms/medium-articles/master/lamda-download-example/s3-policy.json">download the JSON</a> if you want to just copy mine (remember to change the bucket name).</p>
+
+<pre><code class="language-json">{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::our-lambda-demo/*"
+        }
+    ]
+}
+</code></pre>
+
+<p>Give your Policy a name and save.</p>
+
+<p>Back in Lambda, navigate to the code on the Configuration tab and we’re going to upload some code and its dependencies.</p>
+
+<p>Lambda provides us with access to the ‘aws-sdk’ automatically but anything else you will need to upload — the AWS SAM instructions show a more complete solution that allows you how to develop the code further, package everything together automatically, and deploy.</p>
+
+<p>For now, select “Upload a .zip file” and upload the provided index.zip file (<a href="https://github.com/davelms/medium-articles/raw/master/lamda-download-example/index.zip">shared on GitHub</a>).</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1RwinJSgsfIZWjong0lnWeg.png" alt="" /></p>
+
+<p>Once uploaded, you should see the index.js file with the function code and its dependencies under node_modules.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1LrlxPPQZ1oORl9TUxpBC1w.png" alt="" /></p>
+
+<p>You’ll see that this piece of code requires three environment variables to be set which you can add from the Configuration tab also.</p>
+
+<ol>
+  <li>
+    <p><strong>SOURCE_URI</strong> — the full path to the internet source we are downloading</p>
+  </li>
+  <li>
+    <p><strong>S3_BUCKET</strong> — the bucket we are writing to</p>
+  </li>
+  <li>
+    <p><strong>S3_KEY</strong> — the name of the file we are going to write into S3</p>
+  </li>
+</ol>
+
+<p>Scroll down to “Manage environment variables” and add the variables. Once done, you should have something that looks like this.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1AsBFflojj_x0ArUoq3wQ5w.png" alt="" /></p>
+
+<p>We should now be ready to test out our function. You can find “Test” at the upper right of the screen, use that to create a dummy test execution. Leave all the defaults in place and call it “MyTestEvent” and hit Create.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1gSgrp6BPpd8HGsk6yuNQ7Q.png" alt="" /></p>
+
+<p>Ensure your new test event is selected in the drop down and click “Test” again to run your test.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1POmnAwgteI-ASM0OZwqPPA.png" alt="" /></p>
+
+<p>All going well, and you should see output like this showing the completion of your test along with metadata about the job execution and a link to the CloudWatch logs.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1oTKyZAFrcl6xgORxGl6B7w.png" alt="" /></p>
+
+<p>Heading back to AWS S3 and we can see that our file was saved.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/16kVgIlZvS6SH2xS0jPepMQ.png" alt="" /></p>
+
+<p>And opening the file displays its contents.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/16FeA5m2MxJdzXCS4hl-hYA.png" alt="" /></p>
+
+<p><strong>Awesome!</strong> Next and final stage is to configure a schedule so that our job will continue to run and update the file in our S3 bucket.</p>
+
+<p>Back in the Configuration tab, select “+ Add trigger”.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1ZrKEHOFRQT3DzpZn3a1fTA.png" alt="" /></p>
+
+<p>From here we’re going to choose “CloudWatch Events/EventBridge” and create a new rule.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1Z2W5P4G99nFS7QoiNWIe7A.png" alt="" /></p>
+
+<p>Give your rule a name and create the schedule using Cron or rate expressions.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1MWXv70TccKoj1QsZPCwK0A.png" alt="" /></p>
+
+<p>Save and you should find your Trigger is now generated.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1iA_eRfzpgOPSzJxEXBW5JQ.png" alt="" /></p>
+
+<p>I updated mine to every minute to demo the success of running on a schedule.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1iquk3j_qk7fK0YeQpy0aXw.png" alt="" /></p>
+
+<p>So that’s it. <strong>Congratulations</strong>. We’ve written a Lambda function that runs on a schedule, will download a file and save that file to an S3 bucket.</p>
+
+<h2 id="approach-2--aws-serverless-application-model">Approach 2 — AWS Serverless Application Model</h2>
+
+<p>This section will repeat the same process — from scratch — using <strong>AWS Serverless Application Model</strong>, which is an “open-source framework that you can use to build serverless applications on AWS”.</p>
+
+<p>AWS SAM can be used for local running and testing of our <strong>NodeJS</strong> Lambda function, and helps us to build and deploy the application. It’s a really cool tool, and behind the scenes it creates a declarative CloudFormation template that defines the stack and all the associated services required.</p>
+
+<h3 id="setting-up-your-development-environment">Setting up your development environment</h3>
+
+<ul>
+  <li>
+    <p><a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html">Install AWS SAM</a></p>
+  </li>
+  <li>
+    <p><a href="https://nodejs.org/en/download/">Install Node.js</a> (because our example was written in Node.js).</p>
+  </li>
+</ul>
+
+<p>Although we don’t <em>need</em> the <strong>AWS CLI</strong> installed to use AWS SAM, I have version 2 installed. If you don’t have the CLI installed, you’ll need to create a credentials file or set your AWS credentials as environment variables.</p>
+
+<p>I’ve just reinstalled everything today, so here’s what I have.</p>
+
+<pre><code class="language-shell">$ aws --version
+aws-cli/2.0.6 Python/3.7.5 Windows/10 botocore/2.0.0dev10
+$ sam --version
+SAM CLI, version 0.47.0
+$ node -v
+v12.16.1
+$ npm -v
+6.13.4
+</code></pre>
+
+<p>Just a reminder that all the source code for this article can be <a href="https://github.com/davelms/medium-articles/tree/master/lamda-download-example">downloaded from GitHub</a>.</p>
+
+<p><strong>I’m going to assume no prior knowledge of Node.js development, but feel free to skip through the project initialization stage.</strong></p>
+
+<p>We start off in an empty directory and we initialize using npm.</p>
+
+<pre><code class="language-shell">$ npm init
+</code></pre>
+
+<p>Give your application a name and you can leave all the other defaults as-is. On completion, you will get a default “package.json” file.</p>
+
+<p>We need to add a few dependencies for our function to work (‘request-promise’ and ‘request’), so follow these two commands to get going.</p>
+
+<pre><code class="language-shell">$ npm install request-promise --save
+$ npm install request --save
+</code></pre>
+
+<p>You’ll notice that your “package.json” has been updated and you should have a file structure like this.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1dSeFNkEJA-F-mY5udoq7fA.png" alt="" /></p>
+
+<p>With our project initialized and dependencies in place, we are now going to create the Lambda function code, so create a file called “index.js” and copy the contents from here: <a href="https://raw.githubusercontent.com/davelms/medium-articles/master/lamda-download-example/source/index.js">index.js on GitHub</a></p>
+
+<h3 id="function-source-code">Function source code</h3>
+
+<p>The code is trivial to meet our objectives.</p>
+
+<pre><code class="language-js">const request = require('request-promise')
+const aws = require('aws-sdk');
+
+const s3 = new aws.S3();
+
+exports.handler = async (event, context, callback) =&gt; {
+
+  const options = {
+    uri: process.env.SOURCE_URI,
+    encoding: null,
+    resolveWithFullResponse: true
+  };
+
+  const response = await request(options)
+
+  const s3Response = await s3.upload({
+    Bucket: process.env.S3_BUCKET,
+    Key: process.env.S3_KEY,
+    ContentType: response.headers['content-type'],
+    Body: response.body
+  }).promise()
+
+  return callback(null, s3Response);
+
+};
+</code></pre>
+
+<p>We take in three parameters (as environment variables) and use these to download a file and save to S3. If you skipped the Console demonstration, a reminder of those three parameters that you can see in the code;</p>
+
+<ol>
+  <li>
+    <p><strong>SOURCE_URI</strong> — the full path to the internet source we are downloading</p>
+  </li>
+  <li>
+    <p><strong>S3_BUCKET</strong> — the bucket we are writing to</p>
+  </li>
+  <li>
+    <p><strong>S3_KEY</strong> — the name of the file we are going to write into S3</p>
+  </li>
+</ol>
+
+<p>So far we’ve got our code and dependencies in place. Now to begin looking at <strong>AWS Serverless Application Model</strong> or SAM.</p>
+
+<p>All AWS SAM operations require a template file (“template.yaml” by default) that defines all the resources we require. This is an extension to CloudFormation so you’ll recognise there are plenty of overlaps.</p>
+
+<p>To get started we need create our SAM template in our root directory. Call the file <code>template.yaml</code>.</p>
+
+<pre><code class="language-yaml">AWSTemplateFormatVersion : '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  downloadFileToS3:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs12.x
+      Policies: AmazonS3FullAccess
+      Timeout: 10
+      Environment:
+        Variables:
+          SOURCE_URI: https://raw.githubusercontent.com/davelms/medium-articles/master/lamda-download-example/test.txt
+          S3_BUCKET: our-lambda-demo
+          S3_KEY: our-example-file
+      MemorySize: 128
+</code></pre>
+
+<p>This initial template file was very basic and is just to get started. You’ll see we define our handler and runtime, the policy we’re using (the managed AmazonS3FullAccess), and the environment variables.</p>
+
+<p>Your project folder should now look like this.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/18RgxTIFoPoGN4CjkAlaJXQ.png" alt="" /></p>
+
+<h3 id="create-target-bucket-in-s3">Create target bucket in S3</h3>
+
+<p>I’m using the command line throughout for this part of the tutorial, but you can use the Console of course. Remember earlier that I installed the AWS CLI.</p>
+
+<pre><code class="language-shell">$ aws s3 mb s3://our-lambda-demo
+make_bucket: our-lambda-demo
+$ aws s3 ls
+2020-04-10 16:15:38 our-lambda-demo
+</code></pre>
+
+<h3 id="optional-stage--local-testing-with-aws-sam--requires-docker">Optional Stage — local testing with AWS SAM — requires Docker</h3>
+
+<p><em>Local testing requires Docker to be installed on your workstation.</em></p>
+
+<p>AWS SAM provides a local Docker execution environment that allows for the testing of your Lambda function code without needing to upload to AWS — this is invoked using the <strong>sam local invoke</strong> command.</p>
+
+<pre><code class="language-shell">sam local invoke --no-event
+</code></pre>
+
+<p>All being well, you should see output like this showing the Lambda function has been successfully executed on your local workstation and the file was created successfully.</p>
+
+<p>The code shared previously returns the output from the <code>s3.upload()</code> command, and we can see that in the JSON in the screenshot.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1QwfhA7LaD1yynfqYxczfjA.png" alt="" /></p>
+
+<p>Let’s view the contents of the bucket to confirm our file was saved.</p>
+
+<pre><code class="language-shell">$ aws s3 ls s3://our-lambda-demo
+2020-04-10 16:17:03         85 our-example-file
+</code></pre>
+
+<h3 id="build-package-and-deploy-to-aws">Build, package, and deploy to AWS</h3>
+
+<p>Now that we have successfully created our function, <em>and optionally tested it</em>, we are ready to deploy it to AWS.</p>
+
+<p>AWS SAM provides a couple of <em>guided</em> stages here:</p>
+
+<ul>
+  <li><strong>sam build</strong> followed by <strong>sam deploy</strong></li>
+</ul>
+
+<p>First of all, lets use AWS SAM to build our application.</p>
+
+<pre><code class="language-shell">$ sam build
+Building resource 'downloadFileToS3'
+Running NodejsNpmBuilder:NpmPack
+Running NodejsNpmBuilder:CopyNpmrc
+Running NodejsNpmBuilder:CopySource
+Running NodejsNpmBuilder:NpmInstall
+Running NodejsNpmBuilder:CleanUpNpmrc
+
+Build Succeeded
+
+Built Artifacts  : .aws-sam\build
+Built Template   : .aws-sam\build\template.yaml
+
+Commands you can use next
+=========================
+[*] Invoke Function: sam local invoke
+[*] Deploy: sam deploy --guided
+</code></pre>
+
+<p>You’ll notice a new directory has been created called <strong>.aws-sam/</strong></p>
+
+<p>Now we’re going to deploy to AWS and use all the default options.</p>
+
+<pre><code class="language-shell">$ sam deploy --guided
+</code></pre>
+
+<p>You’ll see a lot of output as resources are generated (too much to paste here).</p>
+
+<p>Also notice how it’s backed off to CloudFormation. We have a stack, function, and role created for us automatically.</p>
+
+<p>And if you head over to S3, you’ll find a new bucket was created automatically to contain your versioned, packaged code.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1Yl_JyEDEWU8VQYjDygnpsA.png" alt="" /></p>
+
+<p>So lets go to the Console to see what was created. And we can run a simple test there too. Starting off in <strong>CloudFormation</strong> we can see the sam-app stack.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1mSvCgt9JrCLtUsbrSWPrmA.png" alt="" /></p>
+
+<p>And across in <strong>AWS Lambda</strong> we can see the function was created successfully. Let’s create a Test and run it to verify… all good…</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/17Okfv09z4ZS1Tzf8PLx_qg.png" alt="" /></p>
+
+<h3 id="adding-a-schedule-trigger">Adding a schedule trigger</h3>
+
+<p>So far, we are invoking our new function manually, let’s update the template to include our Schedule under Events. We’re going to add this code.</p>
+
+<pre><code class="language-yaml">  Events:
+    downloadFileToS3ScheduledEvent:
+      Type: Schedule
+      Properties:
+        Schedule: rate(1 minute)
+</code></pre>
+
+<p>Your code should look like this with the additional schedule included.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1UWGrvQKokhtFB6aPWts-5w.png" alt="" /></p>
+
+<p>Next we follow the same process as before, click through all the defaults.</p>
+
+<pre><code class="language-shell">$ sam build 
+$ sam deploy --guided
+</code></pre>
+
+<p>You’ll see that CloudFormation will only update for the changes it recognises need to be applied. Heading back to the Console and we can see that the “CloudWatch Events/EventBridge” Trigger has been created for us.</p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/15lbCnYhbCs78Xr84Zk-YcA.png" alt="" /></p>
+
+<p>And a quick check of the job run history, and we can see that it’s run a few times so that’s <strong>all worked as expected.</strong></p>
+
+<p><img src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1N-R8EbMjw6_Bpx7S_ZwiKA.png" alt="" /></p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>In this article, I demonstrated;</p>
+
+<ul>
+  <li>
+    <p>a Lambda function that will download a file from the internet and save it to an S3 bucket, and we passed in parameters so we can re-use the code.</p>
+  </li>
+  <li>
+    <p>how to schedule Lambda functions to run on a standard cron schedule.</p>
+  </li>
+  <li>
+    <p>how to achieve all the requirements within the AWS Management Console and by using the AWS Serverless Application Module.</p>
+  </li>
+</ul>
+
+<h2 id="a-note-from-the-author">A note from the author</h2>
+
+<p>Thank you for reading this article — I hope you found this article useful and I look forward to your comments and feedback.</p>
+
+<p>A reminder that all the source code for this article can be <a href="https://github.com/davelms/medium-articles/tree/master/lamda-download-example">downloaded from GitHub</a>. If you want to learn more about AWS SAM, check out the <a href="https://docs.aws.amazon.com/serverless-application-model/index.html">AWS Serverless Application Module documentation</a>.</p>
+
+<p>You can follow me on <a href="https://twitter.com/davelms">Twitter</a> and connect on <a href="https://www.linkedin.com/in/davelms/">LinkedIn</a>.</p>
+
+</div>
+
+<!-- Rating -->
+
+
+<!-- Author Box if enabled from _config.yml -->
+<!-- Author Box -->
+
+
+<div class="d-flex authorbox align-items-center">
+    <div class="col-md-2 mr-4 text-center">
+        
+        <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x" alt="Dave">
+        
+    </div>
+    <div class="col-md-10"> 
+        <a target="_blank" class="text-dark h4" href="https://www.davelms.co.uk">About Dave</a>   <a target="_blank" href="https://twitter.com/davelms" class="btn-sm"><i class="fab fa-twitter"></i></a>        
+        <span class="author-description d-block mt-2">DevOps | AWS | GCP.  Editor of Goats in Trees.</span>            
+    </div>
+</div>
+
+
+
+<!-- Comments if not disabled with comments: false -->
+<!-- Comments
+================================================== -->
+
+
+<!-- Share -->
+<div class="share">
+    <p>
+        Share
+    </p>
+    <ul>
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://twitter.com/intent/tweet?text=Schedule cron in Lambda to download a file and save it to S3&url=/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fab fa-twitter"></i>
+            </a>
+        </li>
+
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://facebook.com/sharer.php?u=/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/" onclick="window.open(this.href, 'facebook-share', 'width=550,height=435');return false;">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+        </li>
+
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/" onclick="window.open(this.href, 'width=550,height=435');return false;">
+                <i class="fab fa-linkedin-in"></i>
+            </a>
+        </li>
+
+    </ul>
+</div>
+
+
+<!-- Related Post -->
+<!-- Related Posts
+================================================== -->
+<div class=" related-posts ">  
+
+    
+    <h2 class="text-center mb-4">Explore more like this</h2>
+    
+    
+    <div class="d-flex justify-content-center align-items-center">
+    
+    <!-- Categories -->
+    
+    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/categories#Cloud">Cloud</a>                
+    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/categories#DevOps">DevOps</a>                
+    
+
+    <!-- Tags -->  
+    
+                    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/tags#AWS">AWS</a>               
+                    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/tags#Lambda">Lambda</a>               
+                    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/tags#Nodejs">Nodejs</a>               
+    
+
+    </div>
+
+    
+    
+    
+    <div class="blog-grid-container">
+        
+        
+            
+            
+        
+            
+        
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/use-ansible-to-create-and-configure-ec2-instances-on-aws/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/use-ansible-to-create-and-configure-ec2-instances-on-aws/bill-oxford--fGqsewtsJY-unsplash.jpg"
+                    alt="Use Ansible to create and configure EC2 instances on AWS">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/use-ansible-to-create-and-configure-ec2-instances-on-aws/">Use Ansible to create and configure EC2 instances on AWS</a>
+                
+            </h2>
+            <h4 class="card-text">Quick how to tutorial to using Ansible to stand up EC2 instances on AWS. Over the next 5 minutes, we’ll create an initial jumpbox in our default VPC and install...</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">25 Apr 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/convert-an-old-php-application-to-docker-containers/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/convert-an-old-php-application-to-docker-containers/1_aE5KJkbslMZO6Zid9JSLiw.png"
+                    alt="Convert an old PHP application to Docker containers">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/convert-an-old-php-application-to-docker-containers/">Convert an old PHP application to Docker containers</a>
+                
+            </h2>
+            <h4 class="card-text">Take an old PHP 5 web application and convert it to Docker containers, using the latest PHP 7, Composer, Node.js, Grunt, and Bower.</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">19 Apr 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/7-youtube-channels-every-cloud-engineer-should-subscribe-to/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/7-youtube-channels-every-cloud-engineer-should-subscribe-to/1_BGFxSRpeRJoK6FUM2uxyzA.jpeg"
+                    alt="7 YouTube channels every Cloud Engineer should subscribe to">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/7-youtube-channels-every-cloud-engineer-should-subscribe-to/">7 YouTube channels every Cloud Engineer should subscribe to</a>
+                
+            </h2>
+            <h4 class="card-text">AWS, GCP, and Cloud channels on YouTube to subscribe to for training, how-to videos, and to keep up to date with the latest Cloud service news.</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">29 Mar 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+                
+        </div>        
+</div>
+
+<!-- Review with LD-JSON, adapt it for your needs if you like, but make sure you test the generated HTML source code first: 
+https://search.google.com/structured-data/testing-tool/u/0/
+================================================== -->
+
+            </div>
+
+            
+            <!-- Newsletter
+    ================================================== -->
+            <div class="newsletter text-center">
+                <span class="h4"><img src="/assets/images/goat-logo.png" class="newsletter-logo"
+                        alt="Goats in Trees"> &nbsp; Never miss a <b>story</b> from us, subscribe to our
+                    newsletter</span>
+                <form action="https://goatsintrees.us8.list-manage.com/subscribe/post?u=f1ba23fce94cc889510e995fd&amp;id=b045064b1d" method="post" name="mc-embedded-subscribe-form"
+                    class="wj-contact-form validate" target="_blank" novalidate>
+                    <div class="mc-field-group d-inline-flex">
+                        <input type="email" placeholder="Your e-mail" name="EMAIL" class="required email" id="mce-EMAIL"
+                            autocomplete="on" required>
+                        <input type="submit" value="Subscribe" name="subscribe" class="heart">
+                    </div>
+                </form>
+            </div>
+            
+
+        </div>
+
+        <!-- Begin Footer
+================================================== -->
+        <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 text-center text-lg-left">
+                        Copyright © 2020 Goats in Trees
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- End Footer
+================================================== -->
+
+    </div> <!-- /.site-content -->
+
+    <!-- Scripts (if you need bootstrap.js, please add it yourself. I didn't use it for performance reasons, it was not needed in this theme)
+================================================== -->
+
+    <script src="/assets/js/prism.js"></script>
+
+    <script src="/assets/js/theme.js"></script>
+
+    
+
+    
+    <script id="dsq-count-scr" src="//demowebsite.disqus.com/count.js"></script>
+    
+
+</body>
+
+</html>

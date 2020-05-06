@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" href="/assets/images/goat-logo.png">
+
+    <title>Solve a Sudoku with JavaScript | Goats in Trees</title>
+
+    <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Solve a Sudoku with JavaScript | Goats in Trees</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Solve a Sudoku with JavaScript" />
+<meta name="author" content="davelms" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Rules of the game" />
+<meta property="og:description" content="Rules of the game" />
+<meta property="og:site_name" content="Goats in Trees" />
+<meta property="og:image" content="/assets/images/solve-a-sudoku-using-javascript/jonathan-ybema-CkTCayl4VD8-unsplash.jpg" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-05-02T14:28:24+00:00" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","url":"/solve-a-sudoku-using-javascript/","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"/assets/images/goat-logo.png"},"name":"davelms"},"headline":"Solve a Sudoku with JavaScript","dateModified":"2020-05-02T14:28:24+00:00","datePublished":"2020-05-02T14:28:24+00:00","image":"/assets/images/solve-a-sudoku-using-javascript/jonathan-ybema-CkTCayl4VD8-unsplash.jpg","author":{"@type":"Person","name":"davelms"},"description":"Rules of the game","mainEntityOfPage":{"@type":"WebPage","@id":"/solve-a-sudoku-using-javascript/"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link href="/assets/css/prism.css" rel="stylesheet">
+
+    <link href="/assets/css/theme.css" rel="stylesheet">
+
+    <script src="/assets/js/jquery.min.js"></script>
+
+</head>
+
+
+<!-- change your GA id in _config.yml -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-209086-18"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-209086-18');
+</script>
+
+
+
+
+<body>
+    <!-- defer loading of font and font awesome -->
+    <noscript id="deferred-styles">
+        <link href="https://fonts.googleapis.com/css?family=Sen:400,700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
+            integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    </noscript>
+
+    <!-- Begin Sidebar Navigation
+================================================== -->
+
+    <div class="sidebar">
+    </div>
+    <div class="nav-icon">
+        <div class="hamburger-bar"></div>
+    </div>
+    <div id="blackover-nav" class="blackover"></div>
+    <nav id="menu">
+        <ul>
+            <h3>Navigation</h3>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <script src="/assets/js/lunr.js"></script>
+
+<style>
+    
+</style>
+
+<div class="wrap-search">
+    <div class="d-flex align-items-center ml-auto">
+        <i class="fas fa-search show-search"></i>
+        <form class="bd-search ml-3" onSubmit="return lunr_search(document.getElementById('lunrsearch').value);">
+            <input type="text" class="form-control bigradius text-small launch-modal-search" id="lunrsearch" name="q" maxlength="255" value="" placeholder="Type and enter..."/>
+        </form>
+    </div>
+</div>
+
+<div id="lunrsearchresults">
+    <ul></ul>
+</div>
+
+<script src="/assets/js/lunrsearchengine.js"></script>
+
+
+    <!-- End Sidebar Navigation
+================================================== -->
+
+    <div class="site-content ">
+
+        <div class="container">
+
+            <!-- Site Logo/Name
+    ================================================== -->
+
+            <a class="navbar-brand" href="/">
+                <img src="/assets/images/goat-logo.png" alt="Goats in Trees">
+            </a>
+
+
+            <!-- Site Tag
+    ================================================== -->
+            
+
+            <!-- Content
+    ================================================== -->
+            <div class="main-content">
+                <div class="entry-header">
+    <!-- Post Title -->
+    <h1 class="posttitle">Solve a Sudoku with JavaScript</h1>
+    <!-- Author & Date  Box -->
+    
+    
+    <div class="d-flex align-items-center mt-4">
+        <div>
+            
+            <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                alt="Dave">
+            
+        </div>
+        <div>
+            Written by <a target="_blank" class="text-dark" href="https://www.davelms.co.uk">Dave</a> on
+            <span class="post-date"><time class="post-date"
+                    datetime="2020-05-02">02 May 2020</time></span>
+            
+        </div>
+    </div>
+    
+</div>
+
+<!-- Adsense under title if enabled from _config.yml (change your pub id and slot) -->
+
+
+<!-- Featured Image -->
+
+<div class="entry-featured-image">
+    
+    <img class="featured-image "
+        src="/assets/images/solve-a-sudoku-using-javascript/jonathan-ybema-CkTCayl4VD8-unsplash.jpg"
+        alt="Solve a Sudoku with JavaScript">
+    
+    
+    <em>Photo by Jonathan Ybema on Unsplash</em>
+    
+</div>
+
+
+<!-- Subtitle -->
+
+<div class="article-post">
+    <h2 class="subtitle"> A walk through of an algorithm to solve popular Sudoku number challenges, with examples written in JavaScript. </h2>
+</div>
+
+
+<!-- Content -->
+<!-- Post, Page Content
+================================================== -->
+<div class="article-post">
+    <!-- Toc if any -->
+    
+    <!-- End Toc -->
+    <h3 id="rules-of-the-game">Rules of the game</h3>
+
+<p>A brief summary for those that are not familiar with the rules of Sudoku. A completed Sudoku is a 9 x 9 grid, where each <strong>row</strong>, <strong>column</strong>, and each <strong>3 x 3 square</strong> must contain each of the numbers 1–9 (and once only). The grid below depicts a single row, column and square adhering to these constraints.</p>
+
+<p><img src="/assets/images/solve-a-sudoku-using-javascript/1z8WmYA6O2t0px1dtdr3ZjA.png" alt="" /></p>
+
+<p>Games are presented with a partially completed grid and degrees of complexity given how many cells are pre-populated and how those are positioned (offering ‘clues’). They range from Easy through to Expert.</p>
+
+<h3 id="game-input">Game input</h3>
+
+<p>For the benefit of the challenge, we can assume we will begin the game with an array of length 9 (rows). Each row is itself an array of length 9 (cells).</p>
+
+<p>Values will be integers 0–9, where zero indicates a blank.</p>
+
+<p><img src="/assets/images/solve-a-sudoku-using-javascript/11nNuurGCY_Hy9UMmqSLHQA.png" alt="Example Sudoku taken from Wikipedia" />
+<em>Example Sudoku taken from Wikipedia</em></p>
+
+<h3 id="helper-functions">Helper functions</h3>
+
+<p>Regardless of algorithm (I will talk later through two approaches I took), a few helper functions are always useful. Source code is shared at the end.</p>
+
+<ul>
+  <li>
+    <p><strong><em>get_row(board, row)</em></strong> — since the game board is an array of rows, this is trivial and just a luxury method !</p>
+  </li>
+  <li>
+    <p><strong><em>get_column(board, column)</em></strong> — return all cells for the provided column.</p>
+  </li>
+  <li>
+    <p><strong><em>get_square(board, square)</em></strong> — we can logically split the board into nine 3 x 3 squares, and given <em>(row,col)</em> coordinates we can identify the square and then return all the cells from within the same square.</p>
+  </li>
+  <li>
+    <p><strong><em>is_solved(board)</em></strong> — given a completed board, is it correct i.e. have we finished the puzzle? This function should check every row, every column, and every square has the full set of values 1–9.</p>
+  </li>
+  <li>
+    <p><strong><em>print_board(board)</em></strong> — a function that helps visualize the board/grid. The output below is the starting position of the board for the game array pictured earlier.</p>
+  </li>
+</ul>
+
+<pre><code class="language-bash">|=======|=======|=======|
+| . . . | . . . | . . . |
+| . . . | . . 3 | . 8 5 |
+| . . 1 | . 2 . | . . . |
+|=======|=======|=======|
+| . . . | 5 . 7 | . . . |
+| . . 4 | . . . | 1 . . |
+| . 9 . | . . . | . . . |
+|=======|=======|=======|
+| 5 . . | . . . | . 7 3 |
+| . . 2 | . 1 . | . . . |
+| . . . | . 4 . | . . 9 |
+|=======|=======|=======|
+</code></pre>
+
+<h3 id="two-approaches">Two approaches</h3>
+
+<p>I came to this challenge from two perspectives and in the end I used both techniques — using a combination was quicker for complex Sudoku puzzles.</p>
+
+<p><strong>Approach 1.</strong> The first approach is applying <strong>brute force</strong> to the problem. We can apply a <a href="https://en.wikipedia.org/wiki/Backtracking">backtracking</a> algorithm by iterating over all the empty cells, beginning with the value 1 and checking it’s valid. We then move to the next empty cell, set that to 1 and check it’s valid. And so on. At any point we encounter an impossible solution (a cell with no valid values), we try the next value, and then the next. Should we exhaust all combinations in the current cell, we backtrack a loop, increment the previous cell value and begin again.</p>
+
+<p>With such an approach, it’s not uncommon to backtrack all the way to start several times. To implement this approach we can use a simple loop and apply recursion (a function that calls itself with an altered or cut-down problem space) — the logic is only a few lines.</p>
+
+<p>I found a brute force approach solved all Sudoku games — but that came at a <em>performance cost</em>. (albeit a fraction of a second).</p>
+
+<p><strong>Approach 2.</strong> That’s why I introduced a second approach — <strong>one value cell constraint</strong> function — which when used on its own solved all the Easy-Medium problems I threw at it, without ever needing to fallback to brute force at all. Here we apply techniques a person solving a puzzle would use — as such the logic is quite a bit longer.</p>
+
+<p>We take each empty cell and identify the possible values it can hold — updating each blank cell as an array of its possible values.</p>
+
+<p>If any cell can contain <strong>one value only</strong>, we formally set it to that value in the master game grid. So in this rather trivial example, the cell marked “?” only has a single possible value (9).</p>
+
+<p><img src="/assets/images/solve-a-sudoku-using-javascript/1mln22mRW6KuDs0cW3yTqXA.png" alt="" /></p>
+
+<p>What if we have more than one possible value for a cell? In this case, we compare each possible value <em>x</em> to the others cells in the row, column, and square. If <em>x</em> only appears as a possibility for this cell, <em>regardless of what other possibilities this cell may have</em>, it is guaranteed that this cell has this value.</p>
+
+<p>To elaborate, in this next example the cell marked “?” could at first-pass have the possibilities <code>[1, 2, 3, 4, 5, 8, 9]</code>. However, when we look at either the row or the square, we would not find the value 1 as a possibility in any other cell (marked as an ‘x’). Therefore we know 100% that the cell “?” has to be where the 1 gets placed. A human would simply apply this rule in their head.</p>
+
+<p><img src="/assets/images/solve-a-sudoku-using-javascript/1KReNwJxgft4XNwnYrxbmHQ.png" alt="" /></p>
+
+<p>Approach two takes iterating these two loops throughout the table until no more updates can be applied — <strong>and it solves most simple to medium complexity Sudoku problems.</strong></p>
+
+<p>It also makes cracking a complex Sudoku— via brute force — <strong>much quicker</strong> too, because we have pre-populated many of the cells ahead of time.</p>
+
+<h3 id="final-solution">Final solution</h3>
+
+<p>The solution is a combination of the two approaches;</p>
+
+<ol>
+  <li>
+    <p><strong>One value cell constraint</strong> — most non-complex solutions are solved here.</p>
+  </li>
+  <li>
+    <p><strong>Brute force / backtracking</strong> — within here we can re-use logic from (1), i.e. each time we pick a value we can then “look ahead” and fill in any cells that now only have a single possible value, cutting the problem space down (or quickly eliminating the selection we made as impossible).</p>
+  </li>
+</ol>
+
+<p>The combination of both approaches solved my earlier performance issue with complex Sudoku challenges with using brute force alone.</p>
+
+<h3 id="the-code">The code</h3>
+
+<p>The entry function is <code>solved(board)</code> and this calls functions implementing the two approaches previously described. We iterate over our <strong>one value cell constraint</strong> function, so long as updates are still being applied (i.e. cells are being filled in because they have only one possible value). That loop ends when we have either solved the Sudoku or it is no longer filling in any cells.</p>
+
+<p>If we have not solved the Sudoku, we then fall back to the <strong>brute force</strong> function. We assume the grid can be solved — i.e. no trying to catch us out — so at the end we return the board as a completed solution.</p>
+
+<pre><code class="language-js">function solve(board) {
+
+  let updated = true, solved = false
+    
+  while (updated &amp;&amp; !solved) {
+    updated = one_value_cell_constraint(board)
+    solved = is_solved(board)
+  }
+
+  if (!solved) {
+    board = backtrack_based(board)
+  }
+
+  return board
+}
+</code></pre>
+
+<p>In the <code>one_value_cell_constraint</code> function (shown below) we keep record of <code>updated</code> and any change to the grid keeps us going for another iteration — as we are live editing the game grid, each loop within the function builds upon the previous updates.</p>
+
+<p>Internally, we make use of a function called <code>complete_cell</code> which we also use in the brute force logic later. This function looks for all possible values for the cell — if there is a single value, it sets the cell to that value; if there are multiple values it sets the cell to an array containing all its possible values (e.g. <code>[1, 4, 5]</code>).</p>
+
+<p>The next section picks up any cells having a range of possibilities and looks at the corresponding row, column, and square to see if a possible value <code>appears_once_only</code>. If it does then we set the cell to that value.</p>
+
+<pre><code class="language-js">function one_value_cell_constraint(board) {
+
+  updated = false
+
+  // Convert every gap into an array of possibilities
+  for (let r = 0; r &lt; 9; r++) {
+    for (let c = 0; c &lt; 9; c++) {
+      if (board[r][c] == 0) {
+        updated = complete_cell(board, r, c) || updated
+      }
+    }
+  }
+
+  // Look out for any possibility that appears as a possibility
+  // once-only in the row, column, or quadrant.
+  for (let r = 0; r &lt; 9; r++) {
+    for (let c = 0; c &lt; 9; c++) {
+      if (Array.isArray(board[r][c])) {
+        let possibilities = board[r][c]
+        updated = 
+          appears_once_only(board, possibilities, 
+              get_row(board, r), r, c) ||
+          appears_once_only(board, possibilities, 
+              get_column(board, c), r, c) ||
+          appears_once_only(board, possibilities, 
+              get_square(board, square_coordinates[r][c]), r, c) || updated
+      }
+    }
+  }
+
+  // Reinitialize gaps back to zero before ending
+  for (let r = 0; r &lt; 9; r++) {
+    for (let c = 0; c &lt; 9; c++) {
+      if (Array.isArray(board[r][c])) {
+        board[r][c] = 0
+      }
+    }
+  }
+
+  return updated
+}
+</code></pre>
+
+<p>Finally, the <strong>brute force</strong> logic is in our <code>backtrack_based</code> function.</p>
+
+<p>As we may follow dead ends, we work against copies of the array — even though JavaScript passes the board in <em>by value</em>, all the objects within the array are references — the JSON library helps deep-clone the array.</p>
+
+<p>We iterate each empty cell and initially re-use the <code>complete_cell</code> function we referred to earlier. This will fill in the cell if it’s only got a single possible value — useful when we get to the very last empty cell, this will essentially solve the board so we include a <code>is_solved</code> check here and return the solved board.</p>
+
+<p>Assuming instead we get a list of possible values, we iterate these possibilities in turn — set the cell to the first value in the list, and recursively call the function. At some stage, one recursion will end successfully (with <code>complete_cell</code> filling in the final cell), but most likely we will hit a ‘dead end’. Should we exhaust all possible values, we return false and backtrack.</p>
+
+<pre><code class="language-js">function backtrack_based(orig_board) {
+
+  // Create a temporary board for our recursion.
+  let board = JSON.parse(JSON.stringify(orig_board));
+
+  for (let r = 0; r &lt; 9; r++) {
+    for (let c = 0; c &lt; 9; c++) {
+      if (board[r][c] == 0) {
+        complete_cell(board, r, c)
+        if (is_solved(board)) return board;
+
+        let cell = board[r][c]
+        if (Array.isArray(cell)) {
+          for (let i = 0; i &lt; cell.length; i++) {
+
+            // Create a temporary board for each recursion.
+            let board_2 = JSON.parse(JSON.stringify(board));
+
+            // Choose a value
+            board_2[r][c] = cell[i]
+
+            // Recurse again using new board
+            if (completed_board = backtrack_based(board_2)) {
+              return completed_board;
+            }
+          }
+          return false // dead end
+        }
+      }
+    }
+  }
+
+  return false;
+}
+</code></pre>
+
+<h3 id="conclusion-and-examples">Conclusion and examples</h3>
+
+<p>First of all — <strong>the code worked</strong>, including against the <em>“Sudoku designed to work against the brute force algorithm”</em>. Applying two different techniques together was a valuable learning point.</p>
+
+<p><img src="/assets/images/solve-a-sudoku-using-javascript/1PS-CY6dpimCTQ-hfZXfRkg.png" alt="" /></p>
+
+<p>The code could be optimized, although performance is sub-second even for the most difficult. Copying arrays per recursion introduces a memory overhead that I could have worked through.</p>
+
+<h3 id="some-example-games-and-solutions">Some example games and solutions</h3>
+
+<p><img src="/assets/images/solve-a-sudoku-using-javascript/1IkVH6XOsS-GQQKiTrBDQLg.png" alt="" /></p>
+
+<p><img src="/assets/images/solve-a-sudoku-using-javascript/10iueM3J8223Vx6aOBQuYPA.png" alt="" /></p>
+
+<p><img src="/assets/images/solve-a-sudoku-using-javascript/1epVMv5hNJCsY2LRRtYvdqg.png" alt="" /></p>
+
+<h3 id="further-reading">Further Reading</h3>
+
+<ul>
+  <li>
+    <p><a href="https://github.com/davelms/medium-articles/blob/master/sudoku-solver/sudoku.js">Source code</a> for this solution can be found on GitHub.</p>
+  </li>
+  <li>
+    <p><a href="https://en.wikipedia.org/wiki/Sudoku_solving_algorithms">Wikipedia article on “Sudoku solving algorithms”</a></p>
+  </li>
+</ul>
+
+<h2 id="a-note-from-the-author">A note from the author</h2>
+
+<p>Thanks for reading and I hope you enjoyed the article and found it useful.</p>
+
+<p>You can follow me on <a href="https://twitter.com/davelms">Twitter</a> and connect on <a href="https://www.linkedin.com/in/davelms/">LinkedIn</a>.</p>
+
+</div>
+
+<!-- Rating -->
+
+
+<!-- Author Box if enabled from _config.yml -->
+<!-- Author Box -->
+
+
+<div class="d-flex authorbox align-items-center">
+    <div class="col-md-2 mr-4 text-center">
+        
+        <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x" alt="Dave">
+        
+    </div>
+    <div class="col-md-10"> 
+        <a target="_blank" class="text-dark h4" href="https://www.davelms.co.uk">About Dave</a>   <a target="_blank" href="https://twitter.com/davelms" class="btn-sm"><i class="fab fa-twitter"></i></a>        
+        <span class="author-description d-block mt-2">DevOps | AWS | GCP.  Editor of Goats in Trees.</span>            
+    </div>
+</div>
+
+
+
+<!-- Comments if not disabled with comments: false -->
+<!-- Comments
+================================================== -->
+
+
+<!-- Share -->
+<div class="share">
+    <p>
+        Share
+    </p>
+    <ul>
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://twitter.com/intent/tweet?text=Solve a Sudoku with JavaScript&url=/solve-a-sudoku-using-javascript/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fab fa-twitter"></i>
+            </a>
+        </li>
+
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://facebook.com/sharer.php?u=/solve-a-sudoku-using-javascript/" onclick="window.open(this.href, 'facebook-share', 'width=550,height=435');return false;">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+        </li>
+
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=/solve-a-sudoku-using-javascript/" onclick="window.open(this.href, 'width=550,height=435');return false;">
+                <i class="fab fa-linkedin-in"></i>
+            </a>
+        </li>
+
+    </ul>
+</div>
+
+
+<!-- Related Post -->
+<!-- Related Posts
+================================================== -->
+<div class=" related-posts ">  
+
+    
+    <h2 class="text-center mb-4">Explore more like this</h2>
+    
+    
+    <div class="d-flex justify-content-center align-items-center">
+    
+    <!-- Categories -->
+    
+    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/categories#Coding">Coding</a>                
+    
+
+    <!-- Tags -->  
+    
+                    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/tags#javascript">javascript</a>               
+    
+
+    </div>
+
+    
+    
+    
+    <div class="blog-grid-container">
+        
+        
+            
+            
+        
+            
+        
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+        
+        
+        </div>        
+</div>
+
+<!-- Review with LD-JSON, adapt it for your needs if you like, but make sure you test the generated HTML source code first: 
+https://search.google.com/structured-data/testing-tool/u/0/
+================================================== -->
+
+            </div>
+
+            
+            <!-- Newsletter
+    ================================================== -->
+            <div class="newsletter text-center">
+                <span class="h4"><img src="/assets/images/goat-logo.png" class="newsletter-logo"
+                        alt="Goats in Trees"> &nbsp; Never miss a <b>story</b> from us, subscribe to our
+                    newsletter</span>
+                <form action="https://goatsintrees.us8.list-manage.com/subscribe/post?u=f1ba23fce94cc889510e995fd&amp;id=b045064b1d" method="post" name="mc-embedded-subscribe-form"
+                    class="wj-contact-form validate" target="_blank" novalidate>
+                    <div class="mc-field-group d-inline-flex">
+                        <input type="email" placeholder="Your e-mail" name="EMAIL" class="required email" id="mce-EMAIL"
+                            autocomplete="on" required>
+                        <input type="submit" value="Subscribe" name="subscribe" class="heart">
+                    </div>
+                </form>
+            </div>
+            
+
+        </div>
+
+        <!-- Begin Footer
+================================================== -->
+        <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 text-center text-lg-left">
+                        Copyright © 2020 Goats in Trees
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- End Footer
+================================================== -->
+
+    </div> <!-- /.site-content -->
+
+    <!-- Scripts (if you need bootstrap.js, please add it yourself. I didn't use it for performance reasons, it was not needed in this theme)
+================================================== -->
+
+    <script src="/assets/js/prism.js"></script>
+
+    <script src="/assets/js/theme.js"></script>
+
+    
+
+    
+    <script id="dsq-count-scr" src="//demowebsite.disqus.com/count.js"></script>
+    
+
+</body>
+
+</html>

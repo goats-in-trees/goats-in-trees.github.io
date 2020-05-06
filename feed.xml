@@ -1,0 +1,2113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Goats in Trees</title>
+    <description>Goats Love Technology. Articles about Cloud, DevOps, and all things tech.</description>
+    <link>/</link>
+    <atom:link href="/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Wed, 06 May 2020 21:39:52 +0000</pubDate>
+    <lastBuildDate>Wed, 06 May 2020 21:39:52 +0000</lastBuildDate>
+    <generator>Jekyll v4.0.0</generator>
+    
+      <item>
+        <title>Solve a Sudoku with JavaScript</title>
+        <description>&lt;h3 id=&quot;rules-of-the-game&quot;&gt;Rules of the game&lt;/h3&gt;
+
+&lt;p&gt;A brief summary for those that are not familiar with the rules of Sudoku. A completed Sudoku is a 9 x 9 grid, where each &lt;strong&gt;row&lt;/strong&gt;, &lt;strong&gt;column&lt;/strong&gt;, and each &lt;strong&gt;3 x 3 square&lt;/strong&gt; must contain each of the numbers 1–9 (and once only). The grid below depicts a single row, column and square adhering to these constraints.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/solve-a-sudoku-using-javascript/1z8WmYA6O2t0px1dtdr3ZjA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Games are presented with a partially completed grid and degrees of complexity given how many cells are pre-populated and how those are positioned (offering ‘clues’). They range from Easy through to Expert.&lt;/p&gt;
+
+&lt;h3 id=&quot;game-input&quot;&gt;Game input&lt;/h3&gt;
+
+&lt;p&gt;For the benefit of the challenge, we can assume we will begin the game with an array of length 9 (rows). Each row is itself an array of length 9 (cells).&lt;/p&gt;
+
+&lt;p&gt;Values will be integers 0–9, where zero indicates a blank.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/solve-a-sudoku-using-javascript/11nNuurGCY_Hy9UMmqSLHQA.png&quot; alt=&quot;Example Sudoku taken from Wikipedia&quot; /&gt;
+&lt;em&gt;Example Sudoku taken from Wikipedia&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;helper-functions&quot;&gt;Helper functions&lt;/h3&gt;
+
+&lt;p&gt;Regardless of algorithm (I will talk later through two approaches I took), a few helper functions are always useful. Source code is shared at the end.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;&lt;em&gt;get_row(board, row)&lt;/em&gt;&lt;/strong&gt; — since the game board is an array of rows, this is trivial and just a luxury method !&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;&lt;em&gt;get_column(board, column)&lt;/em&gt;&lt;/strong&gt; — return all cells for the provided column.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;&lt;em&gt;get_square(board, square)&lt;/em&gt;&lt;/strong&gt; — we can logically split the board into nine 3 x 3 squares, and given &lt;em&gt;(row,col)&lt;/em&gt; coordinates we can identify the square and then return all the cells from within the same square.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;&lt;em&gt;is_solved(board)&lt;/em&gt;&lt;/strong&gt; — given a completed board, is it correct i.e. have we finished the puzzle? This function should check every row, every column, and every square has the full set of values 1–9.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;&lt;em&gt;print_board(board)&lt;/em&gt;&lt;/strong&gt; — a function that helps visualize the board/grid. The output below is the starting position of the board for the game array pictured earlier.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;|=======|=======|=======|
+| . . . | . . . | . . . |
+| . . . | . . 3 | . 8 5 |
+| . . 1 | . 2 . | . . . |
+|=======|=======|=======|
+| . . . | 5 . 7 | . . . |
+| . . 4 | . . . | 1 . . |
+| . 9 . | . . . | . . . |
+|=======|=======|=======|
+| 5 . . | . . . | . 7 3 |
+| . . 2 | . 1 . | . . . |
+| . . . | . 4 . | . . 9 |
+|=======|=======|=======|
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;two-approaches&quot;&gt;Two approaches&lt;/h3&gt;
+
+&lt;p&gt;I came to this challenge from two perspectives and in the end I used both techniques — using a combination was quicker for complex Sudoku puzzles.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Approach 1.&lt;/strong&gt; The first approach is applying &lt;strong&gt;brute force&lt;/strong&gt; to the problem. We can apply a &lt;a href=&quot;https://en.wikipedia.org/wiki/Backtracking&quot;&gt;backtracking&lt;/a&gt; algorithm by iterating over all the empty cells, beginning with the value 1 and checking it’s valid. We then move to the next empty cell, set that to 1 and check it’s valid. And so on. At any point we encounter an impossible solution (a cell with no valid values), we try the next value, and then the next. Should we exhaust all combinations in the current cell, we backtrack a loop, increment the previous cell value and begin again.&lt;/p&gt;
+
+&lt;p&gt;With such an approach, it’s not uncommon to backtrack all the way to start several times. To implement this approach we can use a simple loop and apply recursion (a function that calls itself with an altered or cut-down problem space) — the logic is only a few lines.&lt;/p&gt;
+
+&lt;p&gt;I found a brute force approach solved all Sudoku games — but that came at a &lt;em&gt;performance cost&lt;/em&gt;. (albeit a fraction of a second).&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Approach 2.&lt;/strong&gt; That’s why I introduced a second approach — &lt;strong&gt;one value cell constraint&lt;/strong&gt; function — which when used on its own solved all the Easy-Medium problems I threw at it, without ever needing to fallback to brute force at all. Here we apply techniques a person solving a puzzle would use — as such the logic is quite a bit longer.&lt;/p&gt;
+
+&lt;p&gt;We take each empty cell and identify the possible values it can hold — updating each blank cell as an array of its possible values.&lt;/p&gt;
+
+&lt;p&gt;If any cell can contain &lt;strong&gt;one value only&lt;/strong&gt;, we formally set it to that value in the master game grid. So in this rather trivial example, the cell marked “?” only has a single possible value (9).&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/solve-a-sudoku-using-javascript/1mln22mRW6KuDs0cW3yTqXA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;What if we have more than one possible value for a cell? In this case, we compare each possible value &lt;em&gt;x&lt;/em&gt; to the others cells in the row, column, and square. If &lt;em&gt;x&lt;/em&gt; only appears as a possibility for this cell, &lt;em&gt;regardless of what other possibilities this cell may have&lt;/em&gt;, it is guaranteed that this cell has this value.&lt;/p&gt;
+
+&lt;p&gt;To elaborate, in this next example the cell marked “?” could at first-pass have the possibilities &lt;code&gt;[1, 2, 3, 4, 5, 8, 9]&lt;/code&gt;. However, when we look at either the row or the square, we would not find the value 1 as a possibility in any other cell (marked as an ‘x’). Therefore we know 100% that the cell “?” has to be where the 1 gets placed. A human would simply apply this rule in their head.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/solve-a-sudoku-using-javascript/1KReNwJxgft4XNwnYrxbmHQ.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Approach two takes iterating these two loops throughout the table until no more updates can be applied — &lt;strong&gt;and it solves most simple to medium complexity Sudoku problems.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;It also makes cracking a complex Sudoku— via brute force — &lt;strong&gt;much quicker&lt;/strong&gt; too, because we have pre-populated many of the cells ahead of time.&lt;/p&gt;
+
+&lt;h3 id=&quot;final-solution&quot;&gt;Final solution&lt;/h3&gt;
+
+&lt;p&gt;The solution is a combination of the two approaches;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;One value cell constraint&lt;/strong&gt; — most non-complex solutions are solved here.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Brute force / backtracking&lt;/strong&gt; — within here we can re-use logic from (1), i.e. each time we pick a value we can then “look ahead” and fill in any cells that now only have a single possible value, cutting the problem space down (or quickly eliminating the selection we made as impossible).&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The combination of both approaches solved my earlier performance issue with complex Sudoku challenges with using brute force alone.&lt;/p&gt;
+
+&lt;h3 id=&quot;the-code&quot;&gt;The code&lt;/h3&gt;
+
+&lt;p&gt;The entry function is &lt;code&gt;solved(board)&lt;/code&gt; and this calls functions implementing the two approaches previously described. We iterate over our &lt;strong&gt;one value cell constraint&lt;/strong&gt; function, so long as updates are still being applied (i.e. cells are being filled in because they have only one possible value). That loop ends when we have either solved the Sudoku or it is no longer filling in any cells.&lt;/p&gt;
+
+&lt;p&gt;If we have not solved the Sudoku, we then fall back to the &lt;strong&gt;brute force&lt;/strong&gt; function. We assume the grid can be solved — i.e. no trying to catch us out — so at the end we return the board as a completed solution.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;function solve(board) {
+
+  let updated = true, solved = false
+    
+  while (updated &amp;amp;&amp;amp; !solved) {
+    updated = one_value_cell_constraint(board)
+    solved = is_solved(board)
+  }
+
+  if (!solved) {
+    board = backtrack_based(board)
+  }
+
+  return board
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In the &lt;code&gt;one_value_cell_constraint&lt;/code&gt; function (shown below) we keep record of &lt;code&gt;updated&lt;/code&gt; and any change to the grid keeps us going for another iteration — as we are live editing the game grid, each loop within the function builds upon the previous updates.&lt;/p&gt;
+
+&lt;p&gt;Internally, we make use of a function called &lt;code&gt;complete_cell&lt;/code&gt; which we also use in the brute force logic later. This function looks for all possible values for the cell — if there is a single value, it sets the cell to that value; if there are multiple values it sets the cell to an array containing all its possible values (e.g. &lt;code&gt;[1, 4, 5]&lt;/code&gt;).&lt;/p&gt;
+
+&lt;p&gt;The next section picks up any cells having a range of possibilities and looks at the corresponding row, column, and square to see if a possible value &lt;code&gt;appears_once_only&lt;/code&gt;. If it does then we set the cell to that value.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;function one_value_cell_constraint(board) {
+
+  updated = false
+
+  // Convert every gap into an array of possibilities
+  for (let r = 0; r &amp;lt; 9; r++) {
+    for (let c = 0; c &amp;lt; 9; c++) {
+      if (board[r][c] == 0) {
+        updated = complete_cell(board, r, c) || updated
+      }
+    }
+  }
+
+  // Look out for any possibility that appears as a possibility
+  // once-only in the row, column, or quadrant.
+  for (let r = 0; r &amp;lt; 9; r++) {
+    for (let c = 0; c &amp;lt; 9; c++) {
+      if (Array.isArray(board[r][c])) {
+        let possibilities = board[r][c]
+        updated = 
+          appears_once_only(board, possibilities, 
+              get_row(board, r), r, c) ||
+          appears_once_only(board, possibilities, 
+              get_column(board, c), r, c) ||
+          appears_once_only(board, possibilities, 
+              get_square(board, square_coordinates[r][c]), r, c) || updated
+      }
+    }
+  }
+
+  // Reinitialize gaps back to zero before ending
+  for (let r = 0; r &amp;lt; 9; r++) {
+    for (let c = 0; c &amp;lt; 9; c++) {
+      if (Array.isArray(board[r][c])) {
+        board[r][c] = 0
+      }
+    }
+  }
+
+  return updated
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Finally, the &lt;strong&gt;brute force&lt;/strong&gt; logic is in our &lt;code&gt;backtrack_based&lt;/code&gt; function.&lt;/p&gt;
+
+&lt;p&gt;As we may follow dead ends, we work against copies of the array — even though JavaScript passes the board in &lt;em&gt;by value&lt;/em&gt;, all the objects within the array are references — the JSON library helps deep-clone the array.&lt;/p&gt;
+
+&lt;p&gt;We iterate each empty cell and initially re-use the &lt;code&gt;complete_cell&lt;/code&gt; function we referred to earlier. This will fill in the cell if it’s only got a single possible value — useful when we get to the very last empty cell, this will essentially solve the board so we include a &lt;code&gt;is_solved&lt;/code&gt; check here and return the solved board.&lt;/p&gt;
+
+&lt;p&gt;Assuming instead we get a list of possible values, we iterate these possibilities in turn — set the cell to the first value in the list, and recursively call the function. At some stage, one recursion will end successfully (with &lt;code&gt;complete_cell&lt;/code&gt; filling in the final cell), but most likely we will hit a ‘dead end’. Should we exhaust all possible values, we return false and backtrack.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;function backtrack_based(orig_board) {
+
+  // Create a temporary board for our recursion.
+  let board = JSON.parse(JSON.stringify(orig_board));
+
+  for (let r = 0; r &amp;lt; 9; r++) {
+    for (let c = 0; c &amp;lt; 9; c++) {
+      if (board[r][c] == 0) {
+        complete_cell(board, r, c)
+        if (is_solved(board)) return board;
+
+        let cell = board[r][c]
+        if (Array.isArray(cell)) {
+          for (let i = 0; i &amp;lt; cell.length; i++) {
+
+            // Create a temporary board for each recursion.
+            let board_2 = JSON.parse(JSON.stringify(board));
+
+            // Choose a value
+            board_2[r][c] = cell[i]
+
+            // Recurse again using new board
+            if (completed_board = backtrack_based(board_2)) {
+              return completed_board;
+            }
+          }
+          return false // dead end
+        }
+      }
+    }
+  }
+
+  return false;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;conclusion-and-examples&quot;&gt;Conclusion and examples&lt;/h3&gt;
+
+&lt;p&gt;First of all — &lt;strong&gt;the code worked&lt;/strong&gt;, including against the &lt;em&gt;“Sudoku designed to work against the brute force algorithm”&lt;/em&gt;. Applying two different techniques together was a valuable learning point.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/solve-a-sudoku-using-javascript/1PS-CY6dpimCTQ-hfZXfRkg.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The code could be optimized, although performance is sub-second even for the most difficult. Copying arrays per recursion introduces a memory overhead that I could have worked through.&lt;/p&gt;
+
+&lt;h3 id=&quot;some-example-games-and-solutions&quot;&gt;Some example games and solutions&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/solve-a-sudoku-using-javascript/1IkVH6XOsS-GQQKiTrBDQLg.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/solve-a-sudoku-using-javascript/10iueM3J8223Vx6aOBQuYPA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/solve-a-sudoku-using-javascript/1epVMv5hNJCsY2LRRtYvdqg.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;further-reading&quot;&gt;Further Reading&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://github.com/davelms/medium-articles/blob/master/sudoku-solver/sudoku.js&quot;&gt;Source code&lt;/a&gt; for this solution can be found on GitHub.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Sudoku_solving_algorithms&quot;&gt;Wikipedia article on “Sudoku solving algorithms”&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;a-note-from-the-author&quot;&gt;A note from the author&lt;/h2&gt;
+
+&lt;p&gt;Thanks for reading and I hope you enjoyed the article and found it useful.&lt;/p&gt;
+
+&lt;p&gt;You can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Sat, 02 May 2020 14:28:24 +0000</pubDate>
+        <link>/solve-a-sudoku-using-javascript/</link>
+        <guid isPermaLink="true">/solve-a-sudoku-using-javascript/</guid>
+        
+        <category>javascript</category>
+        
+        
+        <category>Coding</category>
+        
+      </item>
+    
+      <item>
+        <title>Use Ansible to create and configure EC2 instances on AWS</title>
+        <description>&lt;h3 id=&quot;inspiration&quot;&gt;Inspiration&lt;/h3&gt;
+
+&lt;p&gt;I’ve been using the awesome A Cloud Guru “&lt;a href=&quot;https://help.acloud.guru/hc/en-us/sections/360000271216-Cloud-Playground&quot;&gt;Cloud Playground&lt;/a&gt;” sandboxes to progress through some of their training content. These environments are fully-functional AWS accounts and allow the user to follow along the Cloud certification tutorials and training — a great new feature of &lt;a href=&quot;https://learn.acloud.guru/&quot;&gt;A Cloud Guru&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;A sandbox lasts 5 hours, which is usually ample enough time to follow along, but every so often I find that I come back the next day and want to recreate some baseline infrastructure and pick up from where I left off.&lt;/p&gt;
+
+&lt;p&gt;That inspired me to look at &lt;strong&gt;Infrastructure as Code&lt;/strong&gt; and build out a repeatable platform from code blueprints.&lt;/p&gt;
+
+&lt;p&gt;I’ve experience using &lt;a href=&quot;https://www.terraform.io/&quot;&gt;Terraform&lt;/a&gt; by Hashicorp, and I understand &lt;a href=&quot;https://www.hashicorp.com/resources/ansible-terraform-better-together/&quot;&gt;using Terraform and Ansible together&lt;/a&gt;. I’m also aware of AWS CloudFormation, and also how I could snapshot an image and create an AMI.&lt;/p&gt;
+
+&lt;p&gt;However, since &lt;strong&gt;Ansible&lt;/strong&gt; is also a cloud infrastructure provisioning tool, my use-case looked a good challenge to demonstrate using the Ansible modules for AWS. Let’s get stuck in.&lt;/p&gt;
+
+&lt;h3 id=&quot;dependencies&quot;&gt;Dependencies&lt;/h3&gt;
+
+&lt;p&gt;On your machine, have the following installed.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Ansible&lt;/li&gt;
+  &lt;li&gt;Python ≥ 2.6, with boto, boto3, and botocore.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I also have AWS CLI, and have configured the “Cloud Sandbox” AWS Access Key and AWS Secret Id using &lt;code&gt;aws configure&lt;/code&gt;. You don’t have to do this way, but I tend to find having the AWS CLI to hand as well is easier all round — follow the &lt;a href=&quot;https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html&quot;&gt;boto installation instructions&lt;/a&gt; for other options.&lt;/p&gt;
+
+&lt;h3 id=&quot;what-were-going-to-create&quot;&gt;What we’re going to create&lt;/h3&gt;
+
+&lt;p&gt;Our goal is to &lt;strong&gt;create an EC2 instance&lt;/strong&gt; in the default VPC — located in North Virginia (us-east-1) in the case of the Cloud Sandboxes.&lt;/p&gt;
+
+&lt;p&gt;We’re going to make that EC2 instance &lt;strong&gt;accessible over ssh from our IP only&lt;/strong&gt;. For that we will need to create an &lt;strong&gt;EC2 key pair&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;We’re going to ensure that the instance has a few tools — for the purpose of demonstration, we’ll let Ansible &lt;strong&gt;install packages&lt;/strong&gt; onto the EC2 instance.&lt;/p&gt;
+
+&lt;h3 id=&quot;steps-to-follow&quot;&gt;Steps to follow&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Create an EC2 key pair (if one does not already exist — Ansible has built-in idempotency, one of is many plus points) and save the private key to file.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Determine information about the default VPC and its subnets. Randomly select a subnet from the list to host our EC2 instance.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Determine our public IP address and create a security group allowing ssh access from our IP address (&lt;em&gt;only&lt;/em&gt;).&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Create an EC2 instance in the selected subnet and associated with the security group, and we’ll update our inventory with the new host.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Install git and php to the jumpbox.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Check out our new instance.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;initialize-project-and-set-up-our-variables&quot;&gt;Initialize project and set up our variables&lt;/h3&gt;
+
+&lt;p&gt;I’ve started off the exercise with a brand new, empty project directory and in there created three empty directories:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-shell&quot;&gt;inventory/
+roles/
+keys/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Navigate into &lt;code&gt;inventory/ &lt;/code&gt;and create a file called &lt;code&gt;local&lt;/code&gt; as shown below.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-ini&quot;&gt;[local]
+127.0.0.1 ansible_connection=local
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Create another file called &lt;code&gt;ec2&lt;/code&gt; with just the following contents. The playbooks will append host information into here later.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-ini&quot;&gt;[jumpbox]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When we run our commands, we can specify this inventory directory with the option &lt;code&gt;-i inventory&lt;/code&gt; and Ansible will pick up the contents from here.&lt;/p&gt;
+
+&lt;p&gt;I created a &lt;code&gt;roles/&lt;/code&gt; directory and in there ran &lt;code&gt;ansible-galaxy init create-ec2-instances&lt;/code&gt; to create a basic *roles *outline structure to manage the tasks.&lt;/p&gt;
+
+&lt;p&gt;For the purposes of these tutorial, I’ve referenced the following variables which helps avoid some hard-coding in the tasks. The AMI is that of a standard Amazon Linux 2 in us-east-1.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-yaml&quot;&gt;region_name: 'us-east-1'
+key_name: 'my_keypair'
+ami_id: 'ami-0323c3dd2da7fb37d'
+instance_type: 't2.micro'
+instance_name: 'jumpbox'
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;step-1-create-a-new-ec2-key-pair&quot;&gt;Step 1. Create a new EC2 key pair.&lt;/h2&gt;
+
+&lt;p&gt;Our first step is to let Ansible create a new EC2 key pair. We register the output and then we can write the &lt;code&gt;private_key&lt;/code&gt; contents into a local pem file in the &lt;code&gt;keys/&lt;/code&gt; directory. Don’t forget the file permissions.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-yaml&quot;&gt;- name: Create a new EC2 key pair
+  ec2_key:
+    name: &quot;&quot;
+    region: &quot;&quot;
+    register: ec2_key
+- name: Save private key
+  copy: content=&quot;&quot; dest=&quot;./keys/.pem&quot; mode=0600
+  when: ec2_key.changed
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;step-2-obtain-networking-information-from-aws&quot;&gt;Step 2. Obtain networking information from AWS.&lt;/h3&gt;
+
+&lt;p&gt;There are two pieces of AWS network information we want to know, and fortunately Ansible provides a way to query for both of these.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Default VPC&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Subnets in that default VPC&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;If we were building out a larger piece of infrastructure — i.e. in our own AWS Account — we would probably want to &lt;em&gt;create&lt;/em&gt; a brand new VPC and subnets, which is also feasible with Ansible. Here though, finding and using the default is sufficient.&lt;/p&gt;
+
+&lt;p&gt;In the yaml below you will see three tasks.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Firstly, we filter the VPC list on whether it has the &lt;code&gt;isDefault&lt;/code&gt; flag set. You can filter on all kinds of attributes and these match against the AWS CLI. We save the resultant response into &lt;code&gt;default_vpc&lt;/code&gt; — you will see from the next step, it is an array (in our case, of 1 entry) and it is the value of &lt;code&gt;vpc_id&lt;/code&gt; that we are interested in.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Secondly, we query the subnets to extract all those associated with the default VPC using the &lt;code&gt;vpc_id&lt;/code&gt; as a filter. We register this as &lt;code&gt;subnet_info&lt;/code&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Finally, we use &lt;a href=&quot;https://palletsprojects.com/p/jinja/&quot;&gt;jinja&lt;/a&gt; to extract all the subnet id values from &lt;code&gt;subnet_info&lt;/code&gt; into a list, and then select one at random — that’ll be the subnet we’ll create our instance into.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-yaml&quot;&gt;
+- name: Obtain default VPC information
+  ec2_vpc_net_facts:
+    filters:
+      &quot;isDefault&quot;: &quot;true&quot;
+  register: default_vpc
+
+- name: Obtain subnets for default VPC
+  ec2_vpc_subnet_facts:
+    filters:
+      vpc-id: &quot;{{ default_vpc['vpcs'][0]['vpc_id'] }}&quot;
+  register: subnet_info
+
+# Use jinja to select a random subnet from the list of subnet ids
+- set_fact:
+    vpc_id: &quot;{{ default_vpc['vpcs'][0]['vpc_id'] }}&quot;
+    random_subnet: &quot;{{ subnet_info.subnets|map(attribute='id')|list|random }}&quot;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;step-3-secure-our-instance&quot;&gt;Step 3. Secure our instance.&lt;/h3&gt;
+
+&lt;p&gt;We want to ensure that only we can access our new server.&lt;/p&gt;
+
+&lt;p&gt;First of all, we ask Ansible what our public IP is. We can do this by using the &lt;code&gt;ipify_facts&lt;/code&gt; module (&lt;strong&gt;top tip&lt;/strong&gt;: you can run this straight from a command line using &lt;code&gt;ansible -m ipify_facts&lt;/code&gt; to quickly get at this information too).&lt;/p&gt;
+
+&lt;p&gt;Once we have our public IP address, we can create a new Security Group that allows SSH access only from that IP.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-yaml&quot;&gt;---
+# Gather IP facts from ipify.org, will be saved to ipify_public_ip
+- name: Get my public IP
+  ipify_facts:
+
+# Create Security Group and save the output into security_group
+- name: Create Security Group
+  ec2_group:
+    name: &quot;-sg&quot;
+    description: Security Group for 
+    vpc_id: &quot;&quot;
+    region: &quot;&quot;
+    rules:
+      - proto: tcp
+        ports:
+          - 22
+        cidr_ip: &quot;/32&quot;
+        rule_desc: &quot;allow port 22 from &quot;
+  register: security_group
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;step-4-create-the-ec2-instances&quot;&gt;Step 4. Create the EC2 instances.&lt;/h3&gt;
+
+&lt;p&gt;We’re now ready for the final step and can create an EC2 instance. Most of the values we’ve set up as variables or picked up along the way (e.g. the &lt;code&gt;vpc_subnet_id&lt;/code&gt;) so it’s just filling in the blanks at this stage.&lt;/p&gt;
+
+&lt;p&gt;You’ll see we can combine &lt;code&gt;exact_count=1&lt;/code&gt; with &lt;code&gt;instance_tags&lt;/code&gt; and &lt;code&gt;count_tag&lt;/code&gt; to ensure that if we re-run the playbook, we will not create more instances. I’ve noticed through experimentation that this is applied *within the same subnet — *my random subnet selector means I create a few more instances than I wanted, but we could hard-code the subnet and ensure we do only get one.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-yaml&quot;&gt;- name: Create EC2 instances
+  ec2:
+    key_name: &quot;&quot;
+    region: &quot;&quot;
+    instance_type: &quot;&quot;
+    image: &quot;&quot;
+    vpc_subnet_id: &quot;&quot;
+    group: &quot;-sg&quot;
+    wait: yes
+    instance_tags:
+      Name: jumpbox
+      Env: sandbox
+    count_tag: 
+      Name: jumpbox
+      Env: sandbox
+    exact_count: 1
+    assign_public_ip: yes
+  register: ec2
+  
+- name: Add the newly created EC2 instance(s) to the local host group
+  local_action: lineinfile 
+                path=&quot;inventory/ec2&quot;
+                regexp= 
+                insertafter=&quot;[jumpbpox]&quot; 
+                line=&quot; ansible_user=ec2-user ansible_ssh_private_key_file=keys/.pem ansible_ssh_extra_args='-o StrictHostKeyChecking=no'&quot;
+  with_items: &quot;&quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once the instance has been created, we append the new host in our &lt;code&gt;inventory/ec2&lt;/code&gt; file that we created at the start. You should find you get something like this.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/use-ansible-to-create-and-configure-ec2-instances-on-aws/1-bAVqRCaOdaI_NRldslCuQ.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Because we are dynamically updating the inventory, we can optionally include &lt;code&gt;refresh_inventory &lt;/code&gt;and a pause for 30 seconds — gives AWS just enough time to start the VM up and ensure sshd is running. These are important if you’re heading straight into the configuration.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-yaml&quot;&gt;- meta: refresh_inventory
+- pause:
+    seconds: 30
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;bringing-steps-14-together&quot;&gt;Bringing Steps 1–4 together&lt;/h3&gt;
+
+&lt;p&gt;At this stage, we’ve got all our tasks set up inside the &lt;code&gt;create-ec2-instances &lt;/code&gt;role and our &lt;code&gt;roles/create-ec2-instances/tasks/main.yml&lt;/code&gt; looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-yaml&quot;&gt;- name: Create jumpbox in default VPC
+  block:
+    - import_tasks: key-pair.yml
+    - import_tasks: network-information.yml
+    - import_tasks: security-group.yml
+    - import_tasks: ec2.yml
+    - meta: refresh_inventory
+    - pause:
+        seconds: 30
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We can create a playbook in the root project directory (call it what you like, I called mine &lt;code&gt;create-ec2.yml&lt;/code&gt;). Note that we specify &lt;code&gt;hosts: local&lt;/code&gt; for the AWS infrastructure tasks.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-yaml&quot;&gt;# Create jumpbox on an EC2 instance
+
+- hosts: local
+  gather_facts: False
+  roles:
+    - role: create-ec2-instances
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Simply run the command &lt;code&gt;ansible-playbook create-ec2.yml -i inventory&lt;/code&gt; to run through the playbook to create our key, security group, and instance.&lt;/p&gt;
+
+&lt;h3 id=&quot;step-5-configure-the-jumpbox&quot;&gt;Step 5. Configure the jumpbox.&lt;/h3&gt;
+
+&lt;p&gt;In this playbook, we’re going to update yum so that the server is up to date and install a couple of packages — selected at random to demonstrate a step to set up of our jumpbox. I opted for git and php — it’s only a demo.&lt;/p&gt;
+
+&lt;p&gt;Note our new playbook references &lt;code&gt;hosts: jumpbox&lt;/code&gt; which picks out the hosts from the &lt;code&gt;inventory/ec2&lt;/code&gt; file that we dynamically appended to in Step 4.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-yaml&quot;&gt;- hosts: jumpbox
+  become: True
+  gather_facts: True
+  tasks:
+
+    - name: Upgrade all yum packages
+      yum:
+        name: '*'
+        state: latest
+
+    - name: Install packages
+      yum:
+        name: &quot;&quot;
+      vars:
+        packages:
+          - git
+          - php
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;step-6-check-it-all-out&quot;&gt;Step 6. Check it all out.&lt;/h3&gt;
+
+&lt;p&gt;At this stage;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;we should have a jumpbox created in the default VPC in our AWS Account.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;our instance should be accessible over ssh only to our IP address.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;the jumpbox should have our packages pre-installed and ready to use.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Let’s check it out, just to be sure and ssh into it — remember the auto-generated private key has been saved into the &lt;code&gt;keys/&lt;/code&gt; directory.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/use-ansible-to-create-and-configure-ec2-instances-on-aws/1Fb3d18E_D9AmtTs3RC90LA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;All completed — the server is created and accessible. A quick check and we have &lt;code&gt;git&lt;/code&gt; and &lt;code&gt;php&lt;/code&gt; installed as expected. Job done.&lt;/p&gt;
+
+&lt;h3 id=&quot;a-note-from-the-author&quot;&gt;A note from the author&lt;/h3&gt;
+
+&lt;p&gt;Thank you for reading this article — I hope you found it useful. As mentioned in the introduction, there are many ways to accomplish this task and I look forward to your comments and feedback.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/davelms/medium-articles/tree/master/ansible-aws&quot;&gt;All source code&lt;/a&gt; for this demonstration can be downloaded at GitHub.&lt;/p&gt;
+
+&lt;p&gt;You can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Sat, 25 Apr 2020 15:29:56 +0000</pubDate>
+        <link>/use-ansible-to-create-and-configure-ec2-instances-on-aws/</link>
+        <guid isPermaLink="true">/use-ansible-to-create-and-configure-ec2-instances-on-aws/</guid>
+        
+        <category>ansible</category>
+        
+        <category>AWS</category>
+        
+        
+        <category>DevOps</category>
+        
+        <category>Cloud</category>
+        
+      </item>
+    
+      <item>
+        <title>Convert an old PHP application to Docker containers</title>
+        <description>&lt;h2 id=&quot;backstory&quot;&gt;Backstory&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.php.net/&quot;&gt;PHP&lt;/a&gt; was always the go-to language for me. I started exploring PHP in 2000, around the time of PHP 4 launch, in an effort to convert an increasingly popular website that was written as lots of individual, static HTML pages. I began work on writing a Content Management System from scratch, and the CMS was still distributing 30,000 articles some 17 years later.&lt;/p&gt;
+
+&lt;p&gt;This walk through is about another PHP application — it was written using the latest PHP 5 features at the time, and was left happily running in a single Amazon EC2 “classic” instance since 2015.&lt;/p&gt;
+
+&lt;p&gt;When I started this migration, the last commit was July 30th 2016.&lt;/p&gt;
+
+&lt;h2 id=&quot;existing-platform&quot;&gt;Existing platform&lt;/h2&gt;
+
+&lt;p&gt;The frontend was left running a variety of third party libraries, notably &lt;a href=&quot;https://getbootstrap.com/&quot;&gt;Bootstrap&lt;/a&gt; 3.3 and &lt;a href=&quot;https://jquery.com/&quot;&gt;jQuery&lt;/a&gt; 2.2.&lt;/p&gt;
+
+&lt;p&gt;The server-side was &lt;a href=&quot;https://symfony.com/&quot;&gt;Symfony&lt;/a&gt; 3.1 and templates were &lt;a href=&quot;https://twig.symfony.com/&quot;&gt;Twig&lt;/a&gt; 1.x.&lt;/p&gt;
+
+&lt;p&gt;Data was obtained from an external API using &lt;em&gt;guzzle&lt;/em&gt; and locally cached using &lt;em&gt;doctrine cache&lt;/em&gt; 1.6. Logging was done with &lt;em&gt;monolog&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Build toolkit included &lt;a href=&quot;https://nodejs.org/&quot;&gt;Node.js&lt;/a&gt; for npm (package manager), &lt;a href=&quot;https://gruntjs.com/&quot;&gt;Grunt&lt;/a&gt; (javascript task runner), and &lt;a href=&quot;https://bower.io/&quot;&gt;Bower&lt;/a&gt; (web package manager).&lt;/p&gt;
+
+&lt;p&gt;CSS stylesheets were written in sass, so we included a parser to create css, concatenate, and minimize. Javascript was consolidated, obfuscated (“uglified”), and also minified.&lt;/p&gt;
+
+&lt;p&gt;To get a feel for the build steps, here’s the “build-all” grunt task:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;grunt.registerTask('build-all', ['clean:all', 'concat', 'uglify', 'sass', 'cssmin', 'bowercopy', 'copy', 'string-replace:version', 'composer:dist:install:optimize-autoloader', 'composer:dist:update:optimize-autoloader']);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And finally, as you can see from the above, I was using &lt;a href=&quot;https://getcomposer.org/&quot;&gt;Composer&lt;/a&gt; for PHP dependency management.&lt;/p&gt;
+
+&lt;p&gt;And finally the server itself was using Nginx with php-fpm.&lt;/p&gt;
+
+&lt;p&gt;Everything was stuck in the year 2015. My development server had long since been destroyed. I couldn’t do any changes; I didn’t even have PHP installed any more.&lt;/p&gt;
+
+&lt;h2 id=&quot;aspiration&quot;&gt;Aspiration&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Upgrade front end to the latest versions of Bootstrap and jQuery.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Update server side runtime libraries to the latest version — apply necessary code changes required as a result, but no other functional changes.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Upgrade the built-kit to the latest versions — but no other changes to the tasks or tools used.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Deploy to an up-to-date operating system, with PHP 7.x.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;My overarching constraint for the above was that I didn’t want to have to work through and recreate an entire development platform to do it. I wanted to find a way I could achieve the upgrade without needing to stack my Windows laptop with grunt, bower, nodejs, composer, PHP, just for this one task.&lt;/p&gt;
+
+&lt;p&gt;I turned to &lt;strong&gt;Docker&lt;/strong&gt; to save the day.&lt;/p&gt;
+
+&lt;h2 id=&quot;creating-a-build-container&quot;&gt;Creating a build container&lt;/h2&gt;
+
+&lt;p&gt;My build server required the following tools to be installed:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;PHP 7.x&lt;/li&gt;
+  &lt;li&gt;Composer&lt;/li&gt;
+  &lt;li&gt;Node.js&lt;/li&gt;
+  &lt;li&gt;Grunt&lt;/li&gt;
+  &lt;li&gt;Bower&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Transitively, for SASS parsing, I subsequently found I needed:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Ruby&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;php-and-composer-build-time&quot;&gt;PHP and Composer (build time)&lt;/h3&gt;
+
+&lt;p&gt;Given this was used at &lt;em&gt;build time&lt;/em&gt;, I wasn’t concerned about having a bloated image so I decided to go for a full PHP installation as the base image. I used the latest PHP image (on Alpine) for my build environment (which I gave the label “buildenv”).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-docker&quot;&gt;FROM php:7.4.1-alpine AS buildenv
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Unfortunately, Composer isn’t included by default and while I could follow the Composer installation instructions, we only need the final ‘composer’ binary file. Luckily, there’s an official Composer image to use. So we reference that image in our layers, and copy the composer binary over into our buildenv.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-docker&quot;&gt;FROM composer:1.9.1 AS composer 
+FROM php:7.4.1-alpine AS buildenv 
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;At this stage, we have an Alpine 3.10 operating system with PHP 7.4.1 and Composer 1.9 available.&lt;/p&gt;
+
+&lt;h3 id=&quot;nodejs-grunt-bower-build-time&quot;&gt;Node.js, Grunt, Bower (build time)&lt;/h3&gt;
+
+&lt;p&gt;Building upon the previous layer, I then looked to the other build tools I required. These I grouped into a single layer, and installed the packages and ensured npm was up to date. Job done.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-docker&quot;&gt;RUN apk add --update nodejs npm &amp;amp;&amp;amp; \
+    npm update -g npm &amp;amp;&amp;amp; \
+    npm install -g grunt-cli &amp;amp;&amp;amp; \
+    npm install -g bower 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;ruby-build-time&quot;&gt;Ruby (build time)&lt;/h3&gt;
+
+&lt;p&gt;A bit of trial and error determined that the sass parser required Ruby. This is in its own layer to keep it separate while I worked out the packages I needed to install. More than I thought and remembered.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-docker&quot;&gt;RUN apk add --update ruby ruby-bundler ruby-dev \
+    ruby-rdoc build-base gcc &amp;amp;&amp;amp; \
+    gem install sass
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;create-a-working-directory&quot;&gt;Create a working directory&lt;/h3&gt;
+
+&lt;p&gt;I always like to do everything inside a working directory, so I create /app and work inside here for all subsequent stages.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-docker&quot;&gt;RUN mkdir /app 
+WORKDIR /app
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;downloading-the-application-dependencies&quot;&gt;Downloading the application dependencies&lt;/h3&gt;
+
+&lt;p&gt;Remarkable looking back at all of the stages to get through before we can commence the application build. In summary, we have these steps for downloading the build time and runtime dependencies we require;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;npm install&lt;/strong&gt; — download the javascript build libraries into node_modules&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;composer install&lt;/strong&gt; — PHP server side runtime dependencies, such as Twig and Symfony.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;bower update&lt;/strong&gt; — download all the client side runtime libraries, such as jQuery.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-docker&quot;&gt;# Copy npm dependencies
+COPY package.json .
+RUN npm install  
+
+# Copy composer and download dependencies
+COPY composer.json .
+RUN composer install 
+
+# Copy bower and download dependencies
+RUN apk add --update git
+RUN echo '{ &quot;allow_root&quot;: true }' &amp;gt; /root/.bowerrc
+COPY bower.json .
+RUN bower update
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To briefly explain the above techniques.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;I copy only the files needed for the job (e.g. package.json, composer.json, or bower.json) — that’s so that I can isolate changes and limit recreating layers unnecessarily. Some of these steps can take 5 minutes to complete so I don’t want to trigger a full rebuild because I changed an unrelated file.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Bower — needs git, so this stage I added that. Secondly, bower throws a warning when it is run as ‘root’ user — so the second line suppresses that.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;So now we have a build environment that has an Alpine 3.10 operating system with PHP 7.4.1 and Composer 1.9 available. It has the latest versions of nodejs, grunt, and bower, and we have downloaded all the build-time and runtime dependencies that we require.&lt;/p&gt;
+
+&lt;p&gt;I think now we’re ready to build the application.&lt;/p&gt;
+
+&lt;h3 id=&quot;building-the-application&quot;&gt;Building the application&lt;/h3&gt;
+
+&lt;p&gt;In Docker terms, this may feel like an anticlimax. Because I’m using grunt, the existing build-all task that I created back in 2015 will still do the job.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-docker&quot;&gt;# Copy all the remaining source code
+COPY src/ /app/src
+COPY Gruntfile.js .
+RUN grunt build-all
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is where all the work is done. You can skip this if you want, but I’ve shared so you can see the original build task. You might find this snippet useful to take some concepts into your own project.&lt;/p&gt;
+
+&lt;p&gt;In summary, what we are doing is:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;cleaning our build directory&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;concatenating all javascript source code into a single file.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;obfuscating the javascript code&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;using sass parser to create our css stylesheets&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;minifying the css stylesheets&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;copying all our javascript and css, third party css, and fonts over to our final distribution directory&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;copy all server-side source code into the directory ready for Composer&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;update version number placeholder&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;run Composer to create an optimized production-ready runtime&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;It wasn’t all plain sailing when I upgraded my libraries to their latest version. Some changes were easy, sure, but a few required code updates — after all, I had to accommodate 5 years of deprecated features and changes. But all in all, it wasn’t as painful as I expected.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-javascript&quot;&gt;module.exports = function (grunt) {
+
+    // Project configuration.
+    grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
+        clean: {
+            all: {
+                src: [&quot;dist&quot;, &quot;tmp&quot;, &quot;.sass-cache&quot;],
+                options: {
+                    force: true
+                }
+            },
+            web: {
+                src: [&quot;dist/web&quot;, &quot;dist/templates&quot;, &quot;dist/compilation_cache&quot;, &quot;dist/doctrine_cache&quot;, &quot;tmp&quot;, &quot;.sass-cache&quot;],
+                options: {
+                    force: true
+                }
+            }
+        },
+        jshint: {
+            all: ['src/js/*.js']
+        },
+        concat: {
+            all: {
+                src: ['src/js/*.js'],
+                dest: 'tmp/js/&amp;lt;%= pkg.name %&amp;gt;.js'
+            }
+        },
+        sass: {
+            dist: {
+                files: {
+                    'tmp/css/&amp;lt;%= pkg.name %&amp;gt;.css': 'src/scss/main.scss'
+                }
+            }
+        },
+        cssmin: {
+            target: {
+                options: {
+                    banner: '/*! &amp;lt;%= pkg.name %&amp;gt; &amp;lt;%= grunt.template.today(&quot;yyyy-mm-dd&quot;) %&amp;gt; */'
+                },
+                files: [{
+                    expand: true,
+                    cwd: 'tmp/css/',
+                    src: ['*.css', '!*.min.css'],
+                    dest: 'dist/web/css/',
+                    ext: '.min.css'
+                }]
+            }
+        },
+        uglify: {
+            options: {
+                banner: '/*! &amp;lt;%= pkg.name %&amp;gt; &amp;lt;%= grunt.template.today(&quot;yyyy-mm-dd&quot;) %&amp;gt; */\n'
+            },
+            build: {
+                src: 'tmp/js/&amp;lt;%= pkg.name %&amp;gt;.js',
+                dest: 'dist/web/js/&amp;lt;%= pkg.name %&amp;gt;.min.js'
+            }
+        },
+        bowercopy: {
+            javascript: {
+                options: {
+                    destPrefix: 'dist/web/js'
+                },
+                files: {
+                    'jquery.min.js': 'jquery/dist/jquery.min.js',
+                    'bootstrap.min.js': 'bootstrap/dist/js/bootstrap.min.js',
+                    'html5shiv.min.js': 'html5shiv/dist/html5shiv.min.js',
+                    'respond.min.js': 'respond/dest/respond.min.js',
+                    'underscore.min.js': 'underscore/underscore-min.js',
+                    'jquery.dataTables.min.js': 'datatables.net/js/jquery.dataTables.min.js',
+                    'dataTables.bootstrap.min.js': 'datatables.net-bs/js/dataTables.bootstrap.min.js'
+                }
+            },
+            css: {
+                options: {
+                    destPrefix: 'dist/web/css'
+                },
+                files: {
+                    'bootstrap.min.css': 'bootstrap/dist/css/bootstrap.min.css',
+                    'bootstrap-theme.min.css': 'bootstrap/dist/css/bootstrap-theme.min.css',
+                    'font-awesome.min.css': 'components-font-awesome/css/font-awesome.min.css',
+                    'dataTables.bootstrap.min.css': 'datatables.net-bs/css/dataTables.bootstrap.min.css'
+                }
+            },
+            bootstrap_fonts: {
+                files: {
+                    'dist/web/fonts': 'bootstrap/dist/fonts/*.*'
+                }
+            },
+            font_awesome_fonts: {
+                files: {
+                    'dist/web/fonts': 'components-font-awesome/fonts/*.*'
+                }
+            }
+        },
+        copy: {
+            main: {
+                files: [
+                    {expand: true, cwd: 'src/php/web/', src: ['**'], dest: 'dist/web/'},
+                    {expand: true, cwd: 'src/php/lib/', src: ['**'], dest: 'dist/lib/'},
+                    {expand: true, cwd: 'src/static/', src: ['**'], dest: 'dist/web/'},
+                    {expand: true, cwd: 'src/ico/', src: ['**'], dest: 'dist/web/ico/'},
+                    {expand: true, cwd: 'src/img/', src: ['**'], dest: 'dist/web/img/'},
+                    {expand: true, cwd: 'src/css/', src: ['**'], dest: 'dist/web/css/'},
+                    {expand: true, cwd: 'src/config/', src: ['**'], dest: 'dist/config/'},
+                    {expand: true, cwd: 'src/templates/', src: ['**'], dest: 'dist/templates/'},
+                    {src: ['composer.json'], dest: 'dist/'}
+                ]
+            }
+        },
+        composer: {
+            dist: {
+                options: {
+                    cwd: 'dist'
+                }
+            }
+        },
+        'string-replace': {
+            version: {
+                files: {
+                    'dist/config/settings.ini': 'dist/config/settings.ini'
+                },
+                options: {
+                    replacements: [{
+                        pattern: '%APPLICATION_VERSION%',
+                        replacement: '&amp;lt;%= pkg.version %&amp;gt;-&amp;lt;%= grunt.template.today(&quot;yyyymmdd&quot;) %&amp;gt;'
+                    }]
+                }
+            }
+        }
+    });
+
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-sass');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-composer');
+    grunt.loadNpmTasks('grunt-bowercopy');
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-string-replace');
+
+    grunt.registerTask('build-all', ['clean:all', 'concat', 'uglify', 'sass', 'cssmin', 'bowercopy', 'copy', 'string-replace:version', 'composer:dist:install:optimize-autoloader', 'composer:dist:update:optimize-autoloader']);
+
+    grunt.registerTask('build-web', ['clean:web', 'concat', 'uglify', 'sass', 'cssmin', 'bowercopy', 'copy', 'string-replace:version']);
+
+    grunt.registerTask('run-composer', ['composer:dist:install:optimize-autoloader', 'composer:dist:update:optimize-autoloader']);
+
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;At this stage we have a buildenv containing a directory &lt;code&gt;/app/dist/&lt;/code&gt; with all our final build output ready to be run.&lt;/p&gt;
+
+&lt;h2 id=&quot;building-the-runtime-image&quot;&gt;Building the runtime image&lt;/h2&gt;
+
+&lt;p&gt;So far everything we have done is in our ‘buildenv’. But we don’t want all this bloatware in our final image. So we start again with a slim operating system, and I chose Alpine.&lt;/p&gt;
+
+&lt;p&gt;On top of that, we need PHP but this time we only need a small subset of the PHP packages to run this application (your mileage will vary). And for this particular runtime, we still have Nginx.&lt;/p&gt;
+
+&lt;p&gt;As you will see later, I am also using &lt;em&gt;supervisor&lt;/em&gt; to manage the processes to ensure php-fpm and nginx are kept running.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-docker&quot;&gt;# Create final image
+FROM alpine:3.11.0 
+
+# Install packages 
+RUN apk upgrade &amp;amp;&amp;amp; apk --no-cache add php7 php7-fpm \
+    php7-json php7-openssl \
+    nginx supervisor curl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;configuration&quot;&gt;Configuration&lt;/h3&gt;
+
+&lt;p&gt;Our three processes each need some configuration, so we copy those into place in the image. These trivial configuration files have been shared in the &lt;a href=&quot;https://github.com/davelms/medium-articles/tree/master/php-to-docker&quot;&gt;example repository on GitHub&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;In summary, the configuration is simply to allow Nginx to listen on port 8080 and redirect requests to php-fpm to handle.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-docker&quot;&gt;# Configure nginx 
+COPY config/nginx.conf /etc/nginx/nginx.conf 
+
+# Configure php-fpm 
+COPY config/fpm-pool.conf /etc/php7/php-fpm.d/www.conf 
+COPY config/php.ini /etc/php7/conf.d/zzz_custom.ini   
+
+# Configure supervisord 
+COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;use-nobody-user-to-own-directories&quot;&gt;Use nobody user to own directories&lt;/h3&gt;
+
+&lt;p&gt;We’re using the ‘nobody’ user, so we need to ensure directory permissions are aligned.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-docker&quot;&gt;RUN chown -R nobody.nobody /run &amp;amp;&amp;amp; \
+    chown -R nobody.nobody /var/lib/nginx &amp;amp;&amp;amp; \
+    chown -R nobody.nobody /var/log/nginx
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We now have our runtime image, with PHP and Nginx installed and configured. But we still need our application.&lt;/p&gt;
+
+&lt;h3 id=&quot;copy-the-final-distribution-from-the-build-environment&quot;&gt;Copy the final distribution from the build environment&lt;/h3&gt;
+
+&lt;p&gt;Let’s create the directory &lt;code&gt;/var/www/html&lt;/code&gt; and switch to the nobody user, then copy all the distribution contents over from the ‘buildenv’.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-docker&quot;&gt;# Setup document root 
+RUN mkdir -p /var/www/html   
+
+# Switch to use a non-root user from here on 
+USER nobody 
+
+# Add application 
+WORKDIR /var/www/html 
+COPY --chown=nobody --from=buildenv /app/dist/ /var/www/html/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;expose-the-port&quot;&gt;Expose the port&lt;/h3&gt;
+
+&lt;p&gt;Nearly at the end now — we need to expose the port that Nginx will be reachable on.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-docker&quot;&gt;# Expose the port nginx is reachable on 
+EXPOSE 8080
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;ensure-services-are-running&quot;&gt;Ensure services are running&lt;/h3&gt;
+
+&lt;p&gt;The final stage now is to use supervisord to ensure that Nginx and php-fpm are running and able to serve requests.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-docker&quot;&gt;# Let supervisord start nginx &amp;amp; php-fpm 
+CMD [&quot;/usr/bin/supervisord&quot;, &quot;-c&quot;, &quot;/etc/supervisor/conf.d/supervisord.conf&quot;]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;And that’s it — we can build the image and run it locally. Our runtime has a low footprint because we used a slim base image and only installed the absolute bare-minimum packages we required to run our application.&lt;/p&gt;
+
+&lt;p&gt;Your situation will obviously be different, the libraries you use may be more complex — but I hope the overview gives a sense of what can be accomplished.&lt;/p&gt;
+
+&lt;p&gt;For &lt;strong&gt;build automation&lt;/strong&gt;, I then combined **GitHub **with **DockerHub **so that future commits automatically kick off a build and the creation of a new versioned image.&lt;/p&gt;
+
+&lt;p&gt;And I deployed that into &lt;strong&gt;Google Cloud Run&lt;/strong&gt;, where the exact same image I ran on my laptop I could also happily run in Production.&lt;/p&gt;
+
+&lt;p&gt;I killed off my Amazon EC2 “classic” micro instance after almost 6 years, and reduced the cost of running to pennies a year.&lt;/p&gt;
+
+&lt;p&gt;And by choosing Docker, I had a maintainable platform to keep on top of.&lt;/p&gt;
+
+&lt;h3 id=&quot;the-final-dockerfile&quot;&gt;The final Dockerfile&lt;/h3&gt;
+
+&lt;p&gt;I ended up with a single Dockerfile, applying the &lt;a href=&quot;https://docs.docker.com/develop/develop-images/multistage-build/&quot;&gt;Docker multi-stage build technique&lt;/a&gt;, and ultimately created a cut-down, slim runtime image. I could have consolidated a few layers, and break out, but once the initial set up was done, I could spin out new images in under a minute so I left it all as one.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-dockerfile&quot;&gt;FROM composer:1.9.1 AS composer
+
+FROM php:7.4.1-alpine AS buildenv
+
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+
+RUN apk add --update nodejs npm &amp;amp;&amp;amp; \
+    npm update -g npm &amp;amp;&amp;amp; \
+    npm install -g grunt-cli &amp;amp;&amp;amp; \
+    npm install -g bower
+
+RUN apk add --update ruby ruby-bundler ruby-dev ruby-rdoc build-base gcc &amp;amp;&amp;amp; \
+    gem install sass
+
+RUN mkdir /app 
+WORKDIR /app
+
+# Copy npm dependencies
+COPY package.json .
+RUN npm install 
+
+# Copy composer and download dependencies
+COPY composer.json .
+RUN composer install
+
+# Copy bower and download dependencies
+RUN apk add --update git
+RUN echo '{ &quot;allow_root&quot;: true }' &amp;gt; /root/.bowerrc
+COPY bower.json .
+RUN bower update 
+
+# Copy all the remaining source code
+COPY src/ /app/src
+COPY Gruntfile.js .
+RUN grunt build-all
+
+# Create final image
+FROM alpine:3.11.0
+
+# Install packages 
+RUN apk upgrade &amp;amp;&amp;amp; apk --no-cache add php7 php7-fpm php7-json php7-openssl \
+    nginx supervisor curl
+
+# Configure nginx 
+COPY config/nginx.conf /etc/nginx/nginx.conf
+
+# Configure PHP-FPM 
+COPY config/fpm-pool.conf /etc/php7/php-fpm.d/www.conf 
+COPY config/php.ini /etc/php7/conf.d/zzz_custom.ini  
+
+# Configure supervisord 
+COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Make sure files/folders needed by the processes are accessable when they run under the nobody user 
+RUN chown -R nobody.nobody /run &amp;amp;&amp;amp; \   
+    chown -R nobody.nobody /var/lib/nginx &amp;amp;&amp;amp; \
+    chown -R nobody.nobody /var/log/nginx
+
+# Setup document root 
+RUN mkdir -p /var/www/html  
+
+# Create cache directories
+RUN mkdir /var/www/html/compilation_cache &amp;amp;&amp;amp; chown nobody.nobody /var/www/html/compilation_cache &amp;amp;&amp;amp; \
+    mkdir /var/www/html/doctrine_cache &amp;amp;&amp;amp; chown nobody.nobody /var/www/html/doctrine_cache
+
+# Switch to use a non-root user from here on 
+USER nobody
+
+# Add application 
+WORKDIR /var/www/html 
+COPY --chown=nobody --from=buildenv /app/dist/ /var/www/html/
+
+# Expose the port nginx is reachable on 
+EXPOSE 8080  
+
+# Let supervisord start nginx &amp;amp; php-fpm 
+CMD [&quot;/usr/bin/supervisord&quot;, &quot;-c&quot;, &quot;/etc/supervisor/conf.d/supervisord.conf&quot;]  
+
+# Configure a healthcheck to validate that everything is up &amp;amp; running 
+HEALTHCHECK --timeout=10s CMD curl --silent --fail http://127.0.0.1:8080/fpm-ping
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;a-note-from-the-author&quot;&gt;A note from the author&lt;/h2&gt;
+
+&lt;p&gt;Thank you for reading this article — I hope you found this article useful and I look forward to your comments and feedback.&lt;/p&gt;
+
+&lt;p&gt;Source code is available from this &lt;a href=&quot;https://github.com/davelms/medium-articles/tree/master/php-to-docker&quot;&gt;example repository on GitHub&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;You can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Sun, 19 Apr 2020 09:03:07 +0000</pubDate>
+        <link>/convert-an-old-php-application-to-docker-containers/</link>
+        <guid isPermaLink="true">/convert-an-old-php-application-to-docker-containers/</guid>
+        
+        <category>docker</category>
+        
+        <category>PHP</category>
+        
+        
+        <category>DevOps</category>
+        
+      </item>
+    
+      <item>
+        <title>Schedule cron in Lambda to download a file and save it to S3</title>
+        <description>&lt;p&gt;This post will explain how to use &lt;strong&gt;AWS Lambda&lt;/strong&gt; to download a file each day and save the file into an S3 bucket.&lt;/p&gt;
+
+&lt;p&gt;Why did I pick Lambda? The task runs for ~1 second every day and I don’t really need a virtual machine for that — or any infrastructure in fact— I sought the cheapest and simplest solution that I could natively trigger my code on a schedule (cron). AWS Lambda ticked all the right boxes for me, and the cost of the solution is less than a $1 a year.&lt;/p&gt;
+
+&lt;p&gt;Here’s the work brief that we’ll go through in this short tutorial.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;The process should run once every hour of the day.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;The process should download a file from an internet location (https) and save it into an S3 bucket.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;The object metadata should include the content type from the origin.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;It should be designed/written in such a way as we can run the same code for different source files.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;I’m going to demonstrate how to do this directly via the Console, and I’ll follow up with setting up a development environment and using the AWS Serverless Application Model and command line to achieve the same.&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;All the source code for this article can be &lt;a href=&quot;https://github.com/davelms/medium-articles/tree/master/lamda-download-example&quot;&gt;downloaded from GitHub&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;approach-1--aws-console&quot;&gt;Approach 1 — AWS Console&lt;/h2&gt;
+
+&lt;p&gt;The steps we’re going to follow are;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Create an S3 bucket to hold our file&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Create a Lambda function&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Update IAM to allow our Lambda function to write to S3&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Write our code and set some dynamic properties (source file, target bucket, and the target filename).&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Create a Test and verify everything is working.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Configure a Schedule so the Lambda function will run every day.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;First step is to create our bucket in &lt;strong&gt;AWS S3&lt;/strong&gt; — I selected all the default options, and I’ll be using a bucket called “our-lambda-demo”.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1Lr5Fw2mX6Fsp7AMFvptQrQ.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Next step is to head over to &lt;strong&gt;AWS Lambda&lt;/strong&gt; and “Create function” where we are going to select to “Author from scratch”.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/11dn1UFFu8xLQotxdVyL9Rg.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I’ve named the function “downloadFileToS3” and left all the defaults in place.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1uj48T2dtn-4KJhwr05lXFg.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Once your function has been created, go to the “Permissions” tab and follow the link to our Execution Role in the &lt;strong&gt;AWS IAM Management Console&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1zeZhn5-ans_zQarGw0U47w.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Once in IAM, you will see that the default setup only has basic Lambda execution permissions. This includes the ability to write out to CloudWatch logs, but little else. So we need to give write access to S3.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1lsquDL4zwRQBR2UG0D4wPQ.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I’m going the “Add inline policy” route, but you could also go through “Attach policies” and add an existing managed policy such as “AmazonS3FullAccess”.&lt;/p&gt;
+
+&lt;p&gt;You can use the dialogue to create a policy, or &lt;a href=&quot;https://raw.githubusercontent.com/davelms/medium-articles/master/lamda-download-example/s3-policy.json&quot;&gt;download the JSON&lt;/a&gt; if you want to just copy mine (remember to change the bucket name).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-json&quot;&gt;{
+    &quot;Version&quot;: &quot;2012-10-17&quot;,
+    &quot;Statement&quot;: [
+        {
+            &quot;Sid&quot;: &quot;VisualEditor0&quot;,
+            &quot;Effect&quot;: &quot;Allow&quot;,
+            &quot;Action&quot;: &quot;s3:PutObject&quot;,
+            &quot;Resource&quot;: &quot;arn:aws:s3:::our-lambda-demo/*&quot;
+        }
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Give your Policy a name and save.&lt;/p&gt;
+
+&lt;p&gt;Back in Lambda, navigate to the code on the Configuration tab and we’re going to upload some code and its dependencies.&lt;/p&gt;
+
+&lt;p&gt;Lambda provides us with access to the ‘aws-sdk’ automatically but anything else you will need to upload — the AWS SAM instructions show a more complete solution that allows you how to develop the code further, package everything together automatically, and deploy.&lt;/p&gt;
+
+&lt;p&gt;For now, select “Upload a .zip file” and upload the provided index.zip file (&lt;a href=&quot;https://github.com/davelms/medium-articles/raw/master/lamda-download-example/index.zip&quot;&gt;shared on GitHub&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1RwinJSgsfIZWjong0lnWeg.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Once uploaded, you should see the index.js file with the function code and its dependencies under node_modules.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1LrlxPPQZ1oORl9TUxpBC1w.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;You’ll see that this piece of code requires three environment variables to be set which you can add from the Configuration tab also.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;SOURCE_URI&lt;/strong&gt; — the full path to the internet source we are downloading&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;S3_BUCKET&lt;/strong&gt; — the bucket we are writing to&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;S3_KEY&lt;/strong&gt; — the name of the file we are going to write into S3&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Scroll down to “Manage environment variables” and add the variables. Once done, you should have something that looks like this.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1AsBFflojj_x0ArUoq3wQ5w.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;We should now be ready to test out our function. You can find “Test” at the upper right of the screen, use that to create a dummy test execution. Leave all the defaults in place and call it “MyTestEvent” and hit Create.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1gSgrp6BPpd8HGsk6yuNQ7Q.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Ensure your new test event is selected in the drop down and click “Test” again to run your test.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1POmnAwgteI-ASM0OZwqPPA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;All going well, and you should see output like this showing the completion of your test along with metadata about the job execution and a link to the CloudWatch logs.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1oTKyZAFrcl6xgORxGl6B7w.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Heading back to AWS S3 and we can see that our file was saved.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/16kVgIlZvS6SH2xS0jPepMQ.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;And opening the file displays its contents.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/16FeA5m2MxJdzXCS4hl-hYA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Awesome!&lt;/strong&gt; Next and final stage is to configure a schedule so that our job will continue to run and update the file in our S3 bucket.&lt;/p&gt;
+
+&lt;p&gt;Back in the Configuration tab, select “+ Add trigger”.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1ZrKEHOFRQT3DzpZn3a1fTA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;From here we’re going to choose “CloudWatch Events/EventBridge” and create a new rule.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1Z2W5P4G99nFS7QoiNWIe7A.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Give your rule a name and create the schedule using Cron or rate expressions.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1MWXv70TccKoj1QsZPCwK0A.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Save and you should find your Trigger is now generated.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1iA_eRfzpgOPSzJxEXBW5JQ.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I updated mine to every minute to demo the success of running on a schedule.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1iquk3j_qk7fK0YeQpy0aXw.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So that’s it. &lt;strong&gt;Congratulations&lt;/strong&gt;. We’ve written a Lambda function that runs on a schedule, will download a file and save that file to an S3 bucket.&lt;/p&gt;
+
+&lt;h2 id=&quot;approach-2--aws-serverless-application-model&quot;&gt;Approach 2 — AWS Serverless Application Model&lt;/h2&gt;
+
+&lt;p&gt;This section will repeat the same process — from scratch — using &lt;strong&gt;AWS Serverless Application Model&lt;/strong&gt;, which is an “open-source framework that you can use to build serverless applications on AWS”.&lt;/p&gt;
+
+&lt;p&gt;AWS SAM can be used for local running and testing of our &lt;strong&gt;NodeJS&lt;/strong&gt; Lambda function, and helps us to build and deploy the application. It’s a really cool tool, and behind the scenes it creates a declarative CloudFormation template that defines the stack and all the associated services required.&lt;/p&gt;
+
+&lt;h3 id=&quot;setting-up-your-development-environment&quot;&gt;Setting up your development environment&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html&quot;&gt;Install AWS SAM&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://nodejs.org/en/download/&quot;&gt;Install Node.js&lt;/a&gt; (because our example was written in Node.js).&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Although we don’t &lt;em&gt;need&lt;/em&gt; the &lt;strong&gt;AWS CLI&lt;/strong&gt; installed to use AWS SAM, I have version 2 installed. If you don’t have the CLI installed, you’ll need to create a credentials file or set your AWS credentials as environment variables.&lt;/p&gt;
+
+&lt;p&gt;I’ve just reinstalled everything today, so here’s what I have.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-shell&quot;&gt;$ aws --version
+aws-cli/2.0.6 Python/3.7.5 Windows/10 botocore/2.0.0dev10
+$ sam --version
+SAM CLI, version 0.47.0
+$ node -v
+v12.16.1
+$ npm -v
+6.13.4
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Just a reminder that all the source code for this article can be &lt;a href=&quot;https://github.com/davelms/medium-articles/tree/master/lamda-download-example&quot;&gt;downloaded from GitHub&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;I’m going to assume no prior knowledge of Node.js development, but feel free to skip through the project initialization stage.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;We start off in an empty directory and we initialize using npm.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-shell&quot;&gt;$ npm init
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Give your application a name and you can leave all the other defaults as-is. On completion, you will get a default “package.json” file.&lt;/p&gt;
+
+&lt;p&gt;We need to add a few dependencies for our function to work (‘request-promise’ and ‘request’), so follow these two commands to get going.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-shell&quot;&gt;$ npm install request-promise --save
+$ npm install request --save
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You’ll notice that your “package.json” has been updated and you should have a file structure like this.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1dSeFNkEJA-F-mY5udoq7fA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;With our project initialized and dependencies in place, we are now going to create the Lambda function code, so create a file called “index.js” and copy the contents from here: &lt;a href=&quot;https://raw.githubusercontent.com/davelms/medium-articles/master/lamda-download-example/source/index.js&quot;&gt;index.js on GitHub&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;function-source-code&quot;&gt;Function source code&lt;/h3&gt;
+
+&lt;p&gt;The code is trivial to meet our objectives.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-js&quot;&gt;const request = require('request-promise')
+const aws = require('aws-sdk');
+
+const s3 = new aws.S3();
+
+exports.handler = async (event, context, callback) =&amp;gt; {
+
+  const options = {
+    uri: process.env.SOURCE_URI,
+    encoding: null,
+    resolveWithFullResponse: true
+  };
+
+  const response = await request(options)
+
+  const s3Response = await s3.upload({
+    Bucket: process.env.S3_BUCKET,
+    Key: process.env.S3_KEY,
+    ContentType: response.headers['content-type'],
+    Body: response.body
+  }).promise()
+
+  return callback(null, s3Response);
+
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We take in three parameters (as environment variables) and use these to download a file and save to S3. If you skipped the Console demonstration, a reminder of those three parameters that you can see in the code;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;SOURCE_URI&lt;/strong&gt; — the full path to the internet source we are downloading&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;S3_BUCKET&lt;/strong&gt; — the bucket we are writing to&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;S3_KEY&lt;/strong&gt; — the name of the file we are going to write into S3&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;So far we’ve got our code and dependencies in place. Now to begin looking at &lt;strong&gt;AWS Serverless Application Model&lt;/strong&gt; or SAM.&lt;/p&gt;
+
+&lt;p&gt;All AWS SAM operations require a template file (“template.yaml” by default) that defines all the resources we require. This is an extension to CloudFormation so you’ll recognise there are plenty of overlaps.&lt;/p&gt;
+
+&lt;p&gt;To get started we need create our SAM template in our root directory. Call the file &lt;code&gt;template.yaml&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-yaml&quot;&gt;AWSTemplateFormatVersion : '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  downloadFileToS3:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs12.x
+      Policies: AmazonS3FullAccess
+      Timeout: 10
+      Environment:
+        Variables:
+          SOURCE_URI: https://raw.githubusercontent.com/davelms/medium-articles/master/lamda-download-example/test.txt
+          S3_BUCKET: our-lambda-demo
+          S3_KEY: our-example-file
+      MemorySize: 128
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This initial template file was very basic and is just to get started. You’ll see we define our handler and runtime, the policy we’re using (the managed AmazonS3FullAccess), and the environment variables.&lt;/p&gt;
+
+&lt;p&gt;Your project folder should now look like this.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/18RgxTIFoPoGN4CjkAlaJXQ.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;create-target-bucket-in-s3&quot;&gt;Create target bucket in S3&lt;/h3&gt;
+
+&lt;p&gt;I’m using the command line throughout for this part of the tutorial, but you can use the Console of course. Remember earlier that I installed the AWS CLI.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-shell&quot;&gt;$ aws s3 mb s3://our-lambda-demo
+make_bucket: our-lambda-demo
+$ aws s3 ls
+2020-04-10 16:15:38 our-lambda-demo
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;optional-stage--local-testing-with-aws-sam--requires-docker&quot;&gt;Optional Stage — local testing with AWS SAM — requires Docker&lt;/h3&gt;
+
+&lt;p&gt;&lt;em&gt;Local testing requires Docker to be installed on your workstation.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;AWS SAM provides a local Docker execution environment that allows for the testing of your Lambda function code without needing to upload to AWS — this is invoked using the &lt;strong&gt;sam local invoke&lt;/strong&gt; command.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-shell&quot;&gt;sam local invoke --no-event
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;All being well, you should see output like this showing the Lambda function has been successfully executed on your local workstation and the file was created successfully.&lt;/p&gt;
+
+&lt;p&gt;The code shared previously returns the output from the &lt;code&gt;s3.upload()&lt;/code&gt; command, and we can see that in the JSON in the screenshot.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1QwfhA7LaD1yynfqYxczfjA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Let’s view the contents of the bucket to confirm our file was saved.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-shell&quot;&gt;$ aws s3 ls s3://our-lambda-demo
+2020-04-10 16:17:03         85 our-example-file
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;build-package-and-deploy-to-aws&quot;&gt;Build, package, and deploy to AWS&lt;/h3&gt;
+
+&lt;p&gt;Now that we have successfully created our function, &lt;em&gt;and optionally tested it&lt;/em&gt;, we are ready to deploy it to AWS.&lt;/p&gt;
+
+&lt;p&gt;AWS SAM provides a couple of &lt;em&gt;guided&lt;/em&gt; stages here:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;sam build&lt;/strong&gt; followed by &lt;strong&gt;sam deploy&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;First of all, lets use AWS SAM to build our application.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-shell&quot;&gt;$ sam build
+Building resource 'downloadFileToS3'
+Running NodejsNpmBuilder:NpmPack
+Running NodejsNpmBuilder:CopyNpmrc
+Running NodejsNpmBuilder:CopySource
+Running NodejsNpmBuilder:NpmInstall
+Running NodejsNpmBuilder:CleanUpNpmrc
+
+Build Succeeded
+
+Built Artifacts  : .aws-sam\build
+Built Template   : .aws-sam\build\template.yaml
+
+Commands you can use next
+=========================
+[*] Invoke Function: sam local invoke
+[*] Deploy: sam deploy --guided
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You’ll notice a new directory has been created called &lt;strong&gt;.aws-sam/&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Now we’re going to deploy to AWS and use all the default options.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-shell&quot;&gt;$ sam deploy --guided
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You’ll see a lot of output as resources are generated (too much to paste here).&lt;/p&gt;
+
+&lt;p&gt;Also notice how it’s backed off to CloudFormation. We have a stack, function, and role created for us automatically.&lt;/p&gt;
+
+&lt;p&gt;And if you head over to S3, you’ll find a new bucket was created automatically to contain your versioned, packaged code.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1Yl_JyEDEWU8VQYjDygnpsA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So lets go to the Console to see what was created. And we can run a simple test there too. Starting off in &lt;strong&gt;CloudFormation&lt;/strong&gt; we can see the sam-app stack.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1mSvCgt9JrCLtUsbrSWPrmA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;And across in &lt;strong&gt;AWS Lambda&lt;/strong&gt; we can see the function was created successfully. Let’s create a Test and run it to verify… all good…&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/17Okfv09z4ZS1Tzf8PLx_qg.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;adding-a-schedule-trigger&quot;&gt;Adding a schedule trigger&lt;/h3&gt;
+
+&lt;p&gt;So far, we are invoking our new function manually, let’s update the template to include our Schedule under Events. We’re going to add this code.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-yaml&quot;&gt;  Events:
+    downloadFileToS3ScheduledEvent:
+      Type: Schedule
+      Properties:
+        Schedule: rate(1 minute)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Your code should look like this with the additional schedule included.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1UWGrvQKokhtFB6aPWts-5w.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Next we follow the same process as before, click through all the defaults.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-shell&quot;&gt;$ sam build 
+$ sam deploy --guided
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You’ll see that CloudFormation will only update for the changes it recognises need to be applied. Heading back to the Console and we can see that the “CloudWatch Events/EventBridge” Trigger has been created for us.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/15lbCnYhbCs78Xr84Zk-YcA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;And a quick check of the job run history, and we can see that it’s run a few times so that’s &lt;strong&gt;all worked as expected.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1N-R8EbMjw6_Bpx7S_ZwiKA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;In this article, I demonstrated;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;a Lambda function that will download a file from the internet and save it to an S3 bucket, and we passed in parameters so we can re-use the code.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;how to schedule Lambda functions to run on a standard cron schedule.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;how to achieve all the requirements within the AWS Management Console and by using the AWS Serverless Application Module.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;a-note-from-the-author&quot;&gt;A note from the author&lt;/h2&gt;
+
+&lt;p&gt;Thank you for reading this article — I hope you found this article useful and I look forward to your comments and feedback.&lt;/p&gt;
+
+&lt;p&gt;A reminder that all the source code for this article can be &lt;a href=&quot;https://github.com/davelms/medium-articles/tree/master/lamda-download-example&quot;&gt;downloaded from GitHub&lt;/a&gt;. If you want to learn more about AWS SAM, check out the &lt;a href=&quot;https://docs.aws.amazon.com/serverless-application-model/index.html&quot;&gt;AWS Serverless Application Module documentation&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;You can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Mon, 06 Apr 2020 16:30:57 +0000</pubDate>
+        <link>/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/</link>
+        <guid isPermaLink="true">/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/</guid>
+        
+        <category>AWS</category>
+        
+        <category>Lambda</category>
+        
+        <category>Nodejs</category>
+        
+        
+        <category>DevOps</category>
+        
+        <category>Cloud</category>
+        
+      </item>
+    
+      <item>
+        <title>7 YouTube channels every Cloud Engineer should subscribe to</title>
+        <description>&lt;p&gt;Let’s be honest at the start; these are the YouTube channels that &lt;em&gt;I subscribe to&lt;/em&gt; for training, resources, and to help me keep abreast of all the latest AWS, GCP, and Cloud service news. So jumping straight in and in no particular order…&lt;/p&gt;
+
+&lt;h2 id=&quot;1--google-cloud-platform&quot;&gt;#1 — Google Cloud Platform&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/7-youtube-channels-every-cloud-engineer-should-subscribe-to/1RXJ5zlwbl2l1WtMwTqrgig.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;First up is the &lt;a href=&quot;https://www.youtube.com/channel/UCJS9pqu9BzkAMNTmzNMNhvg&quot;&gt;Google Cloud Platform&lt;/a&gt;. There’s quite a few playlists in here and videos are uploaded almost daily. Selecting three of my favourites playlists;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;“&lt;a href=&quot;https://www.youtube.com/playlist?list=PLIivdWyY5sqIOyeovvRapCjXCZykZMLAe&quot;&gt;Get Cooking In Cloud&lt;/a&gt;” — love these short 5-minute videos, a whole series of “How to…” scenarios and topics, and there are regular sub-series such as Pub/Sub. These videos take the form of practical scenario based problems, and talk through the solutions within the Google Cloud Platform; they teach us the &lt;em&gt;recipe&lt;/em&gt; in keeping with the cooking analogy.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;“&lt;a href=&quot;https://www.youtube.com/playlist?list=PLIivdWyY5sqIxUCyOq0-FPNn5GZ2-XR45&quot;&gt;This Week in Cloud&lt;/a&gt;” — keeping abreast of the latest updates across the various Cloud platforms is never easy. They move so fast. That’s why I find weekly 2-minute catch-ups like “This Week In Cloud” very useful. Here we get to hear about all the features releases, enhancements, and changes within the Google Cloud Platform.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;“Stack Doctor” — not yet a playlist, but regular themed content around Service Level Indicators (SLIs), Service Level Objectives (SLOs), and the Cloud Monitoring suite (formerly Stackdriver). These resonate for me as Site Reliability Engineering Lead in the UK in our organisation.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Finally, “&lt;a href=&quot;https://www.youtube.com/playlist?list=PLIivdWyY5sqIij_cgINUHZDMnGjVx3rxi&quot;&gt;Cloud Minute&lt;/a&gt;” is a series of 73 videos demonstrating — all in under one minute each — how to accomplish tasks on the Google Cloud Platform. An awesome reference to bookmark, although no longer being added to.&lt;/p&gt;
+
+&lt;h2 id=&quot;2--a-cloud-guru&quot;&gt;#2 — A Cloud Guru&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/7-youtube-channels-every-cloud-engineer-should-subscribe-to/1vncb-jrnbT5zNwEsadkBQA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;For those that don’t know it, &lt;a href=&quot;https://acloud.guru/&quot;&gt;A Cloud Guru&lt;/a&gt; is an awesome cloud training platform and the &lt;a href=&quot;https://www.youtube.com/channel/UCp8lLM2JP_1pv6E0NQ38pqw&quot;&gt;A Cloud Guru YouTube channel&lt;/a&gt; contains some of their free-to-all weekly updates.&lt;/p&gt;
+
+&lt;p&gt;I’m focussed myself right now on AWS and GCP, but there’s plenty of Azure content as well.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;“&lt;a href=&quot;https://www.youtube.com/playlist?list=PLI1_CQcV71RmeydXo-5K7DAxLsUX6SVhL&quot;&gt;AWS This Week&lt;/a&gt;” — as the name suggests, this is a weekly breakdown of all the latest updates to the AWS platform. It is complemented by “&lt;a href=&quot;https://www.youtube.com/playlist?list=PLI1_CQcV71RnXJOV9pZSRxnNPbMsNBxoD&quot;&gt;GCP This Month&lt;/a&gt;”, a similar playlist but for the Google Cloud Platform — although “This Week In Cloud” on the Google Cloud Platform channel has likely beaten A Cloud Guru to it for many new announcements.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;“&lt;a href=&quot;https://www.youtube.com/playlist?list=PLI1_CQcV71RnSeiizLChZXNz27nemT0sy&quot;&gt;Kubernetes This Month&lt;/a&gt;” — a monthly roundup by Nigel Poulton, author of Docker Deep Dive and The Kubernetes Book, with a catch up of all the recent announcements in all things Kubernetes, Docker, and related domain. The videos always include a deep dive into one or two announcements per month to focus on the important new releases.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;3--amazon-web-services&quot;&gt;#3 — Amazon Web Services&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/7-youtube-channels-every-cloud-engineer-should-subscribe-to/1eDQrLUtxfj9WvLsLUvETnw.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now a jump across to AWS and the “&lt;a href=&quot;https://www.youtube.com/channel/UCd6MoB9NC6uYN2grvUNT-Zg&quot;&gt;Amazon Web Services&lt;/a&gt;” channel. Every few days I tend to sift through all the new videos and select those that appeal — it’s a very busy channel — looking back at my viewing history, those I select often fall into one of these two playlists.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;“&lt;a href=&quot;https://www.youtube.com/playlist?list=PLhr1KZpdzukcONwoeZOK3oCZiOngt4-o4&quot;&gt;AWS Demos&lt;/a&gt;” and “&lt;a href=&quot;https://www.youtube.com/playlist?list=PLhr1KZpdzukfdjsOHZ-BazZt1iK1J8UUw&quot;&gt;AWS Knowledge Center Videos&lt;/a&gt;” — I can’t quite work out the difference between these two playlists as the content always seems to overlap in context. Similar to Google’s “Cloud Minute” and “Get Cooking In Cloud”, these playlists feature videos that are short and cover solving specific tasks on Amazon Web Services platform. There is a broad mix of troubleshooting guides for common issues and solutions that focus towards the SysOps Administrator audience, and some that are aimed to Developers and Architects.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;At times, it’s well worth just working through &lt;a href=&quot;https://www.youtube.com/user/AmazonWebServices/videos&quot;&gt;all the AWS videos&lt;/a&gt; to find something that is interesting — some of the discussions with companies around their solutions (“&lt;a href=&quot;https://www.youtube.com/playlist?list=PLhr1KZpdzukdeX8mQ2qO73bg6UKQHYsHb&quot;&gt;This is My Architecture&lt;/a&gt;”) yields some interesting content.&lt;/p&gt;
+
+&lt;h2 id=&quot;4--google-developers&quot;&gt;#4 — Google Developers&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/7-youtube-channels-every-cloud-engineer-should-subscribe-to/16Q4O_nFg1N732tmyiWOk8w.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Over 2 million people subscribe to the “&lt;a href=&quot;https://www.youtube.com/channel/UC_x5XG1OV2P6uZZ5FSM9Ttw&quot;&gt;Google Developers&lt;/a&gt;” channel. Wow. Not specifically “Cloud”, but plenty of overlaps and tool chains — we develop, host, and run applications at the end of the day — so worth adding a developer channel to the list. There are videos and playlists here covering a wide variety of topics, including Android and Flutter development.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;“&lt;a href=&quot;https://www.youtube.com/playlist?list=PLOU2XLYxmsII8REpkzsy1bJHj6G1WEVA1&quot;&gt;The Google Developer Show&lt;/a&gt;” — this is the main playlist I like to check out each week on the Google Developers channel— as the name suggests, it’s a weekly update on the latest developer news from across Google.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;5--hashicorp&quot;&gt;#5 — Hashicorp&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/7-youtube-channels-every-cloud-engineer-should-subscribe-to/1DZSPr-dDn2SIm5aznrujPw.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;As Cloud Engineers, we’re probably all familiar of Terraform that many of us will have used as our Infrastructure as Code provisioning tool. Likewise, we may also have used Vault for Secrets Management.&lt;/p&gt;
+
+&lt;p&gt;The “&lt;a href=&quot;https://www.youtube.com/channel/UC-AdvAxaagE9W2f0webyNUQ&quot;&gt;Hashicorp&lt;/a&gt;” channel is updated regularly and has a lot of Cloud-related content and some great videos describing the fundamentals of building out secure infrastructures.&lt;/p&gt;
+
+&lt;p&gt;There are plenty of in-depth “how to” guides and patterns, spanning virtual machines and Containers, and some of my favourites include explaining how to do secure introduction when building out the Cloud platform.&lt;/p&gt;
+
+&lt;h2 id=&quot;6--kodekloud&quot;&gt;#6 — KodeKloud&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/7-youtube-channels-every-cloud-engineer-should-subscribe-to/1mVmNZHRinM2Jpcgu8PAtpA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The “&lt;a href=&quot;https://www.youtube.com/channel/UCSWj8mqQCcrcBlXPi4ThRDQ&quot;&gt;KodeKloud&lt;/a&gt;” channel is updated monthly and covers a variety of hands-on training series.&lt;/p&gt;
+
+&lt;p&gt;I subscribe mostly for the “&lt;a href=&quot;https://www.youtube.com/playlist?list=PL2We04F3Y_40PSZyTcOUuH4flMxbxkhDe&quot;&gt;Docker&lt;/a&gt;” and “&lt;a href=&quot;https://www.youtube.com/playlist?list=PL2We04F3Y_43dAehLMT5GxJhtk3mJtkl5&quot;&gt;Kubernetes&lt;/a&gt;” series, which have videos pitched toward Absolute Beginners and work themselves through to the more expert topics. They are well-presented and I have many of them saved for reference.&lt;/p&gt;
+
+&lt;p&gt;There are other topics such as Ansible, Puppet, and OpenShift.&lt;/p&gt;
+
+&lt;h2 id=&quot;7--serverless&quot;&gt;#7 — Serverless&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/7-youtube-channels-every-cloud-engineer-should-subscribe-to/17OUaZvg1ULxIE46rgi6O2g.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I first came across “&lt;a href=&quot;https://www.youtube.com/channel/UCFYG383lawh9Hrs_DEKTtdg&quot;&gt;Serverless&lt;/a&gt;” thinking it was a channel dedicated to the &lt;em&gt;serverless&lt;/em&gt; topic .&lt;/p&gt;
+
+&lt;p&gt;In fact they are the creators of the &lt;a href=&quot;https://serverless.com/&quot;&gt;Serverless Framework&lt;/a&gt; which “gives you everything you need to develop, deploy, monitor and secure serverless applications on any cloud.”&lt;/p&gt;
+
+&lt;p&gt;Despite not being what I was looking for, I stuck around; not because I use the Serverless Framework, but because their video content is great.&lt;/p&gt;
+
+&lt;p&gt;I reference this channel for general guidance, serverless patterns, and developer how to references in topics such as auth0 and AWS services such as Lambda or DynamoDB (among many others). It’s easy to abstract the core topic away from the Serverless Framework itself.&lt;/p&gt;
+
+&lt;h2 id=&quot;so-thats-my-current-top-7--but-what-else&quot;&gt;So that’s my current top 7 — but what else?&lt;/h2&gt;
+
+&lt;p&gt;With “&lt;a href=&quot;https://www.youtube.com/channel/UClGShptNEuvTWGAAfpa2Etw&quot;&gt;Linux Academy&lt;/a&gt;” recent sync-up with A Cloud Guru, it’s not clear what is happening to their YouTube channel. It’s not had any new videos since the announcement in 2019. All the same — some really useful archives of content here that are useful to any Cloud Engineer to keep as a reference.&lt;/p&gt;
+
+&lt;p&gt;“&lt;a href=&quot;https://www.youtube.com/channel/UCT-nPlVzJI-ccQXlxjSvJmw&quot;&gt;AWS Online Tech Talks&lt;/a&gt;” are much longer episodes and discuss various topics in more details. These need more time commitment as they can often be over an hour in length.&lt;/p&gt;
+
+&lt;p&gt;The “&lt;a href=&quot;https://www.youtube.com/channel/UC76AVf2JkrwjxNKMuPpscHQ&quot;&gt;Docker&lt;/a&gt;” channel is also worth keeping in your subscription lists.&lt;/p&gt;
+
+&lt;h2 id=&quot;a-note-from-the-author&quot;&gt;A note from the author&lt;/h2&gt;
+
+&lt;p&gt;Thank you for reading this article — I hope you found it useful.&lt;/p&gt;
+
+&lt;p&gt;You can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Sun, 29 Mar 2020 08:28:28 +0000</pubDate>
+        <link>/7-youtube-channels-every-cloud-engineer-should-subscribe-to/</link>
+        <guid isPermaLink="true">/7-youtube-channels-every-cloud-engineer-should-subscribe-to/</guid>
+        
+        <category>YouTube</category>
+        
+        <category>AWS</category>
+        
+        <category>GCP</category>
+        
+        
+        <category>Cloud</category>
+        
+      </item>
+    
+      <item>
+        <title>3 AWS Solutions Architect certification questions</title>
+        <description>&lt;p&gt;In my role as the DevOps Practice Lead at my workplace in the UK, I’ve been trying to think of challenges for the Cloud engineering team that are a little different from those we see in our normal day-to-day work situation. An aim to keep sharp with our skills and technical thinking, and keeping abreast of the ever changing Cloud services platforms.&lt;/p&gt;
+
+&lt;p&gt;The team already did a great job at pulling together a bank of Google Cloud Platform questions to help them with the GCP Associate Cloud Engineer exam. And that got me thinking about the same for Amazon Web Services.&lt;/p&gt;
+
+&lt;p&gt;Couple that with being on lock-down — and so we have this article; I’m going to find sample questions and attempt to answer them.&lt;/p&gt;
+
+&lt;p&gt;Every week, I’ll post an article with another set of questions. And I’ll use these back at work to discuss with the team.&lt;/p&gt;
+
+&lt;p&gt;I’ve chosen a sample of 3 x recent real-world requests for help and sample questions posted on the Facebook groups “AWS Cloud” and “Amazon Web Services (AWS)”.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Disclaimer; I am not advocating that my answers are the correct ones — indeed, I’ve chosen two examples where the online responses were mixed. I will explain my thinking and how I came to the answer I did. I welcome all feedback in the comments.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/3-aws-platform-questions-and-answers/1ddEpXQ-JeAdrtuWAJhlj3g.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;Scenario 1.&lt;/strong&gt; An application uses an Amazon RDS MySQL cluster for the database layer. Database growth requires periodic resizing of the instance. Currently, administrators check the available disk space manually once a week.
+How can this process be improved?
+A. Use the largest instance type for the database.
+B. Use AWS CloudTrail to monitor storage capacity.
+C. Use Amazon CloudWatch to monitor storage capacity.
+D. Use Auto Scaling to increase storage size.
+— posted to “AWS Cloud” on 27th March.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This question looks like the style of those found in Associate certification exams. A technique that’s useful when taking Amazon AWS Certifications is to first &lt;strong&gt;eliminate any obvious wrong answers&lt;/strong&gt;. This question is no exception and we immediately eliminate the reference in (B) to &lt;a href=&quot;https://aws.amazon.com/cloudtrail/&quot;&gt;AWS CloudTrail&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Often confused with CloudWatch, however AWS CloudTrail is a service that enables governance, compliance, operational auditing, and risk auditing of your AWS account. As such, it does not monitor storage capacity and is irrelevant to this question.&lt;/p&gt;
+
+&lt;p&gt;The next option to eliminate is (A) for using the largest instance type for the database.&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;A. Use the largest instance type for the database.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Why? The question has two statements; firstly, around database growth requiring periodic resizing of the instance. And secondly, around checking for available disk space. Three answers focus in on the disk space.&lt;/p&gt;
+
+&lt;p&gt;It’s true that with AWS RDS you manually scale up the underlying instance — and that is already happening periodically per the problem statement.&lt;/p&gt;
+
+&lt;p&gt;How can this be further improved? Well, to some extent picking the largest instance size as (A) suggests would be a hammer to crack that particular nut; a rather expensive hammer though.&lt;/p&gt;
+
+&lt;p&gt;But it would not help at all with the disk space challenge — maximum storage for MySQL is constant at 64 TiB for each of the** **Latest Generation Standard (m5) or Memory Optimized (r5) Instance Classes — scaling to the largest type in its Class will not offer us an increase in disk storage.&lt;/p&gt;
+
+&lt;p&gt;Additionally, if the problem statement was around read performance, the introduction of “read replicas” or &lt;a href=&quot;https://aws.amazon.com/elasticache/&quot;&gt;Amazon ElastiCache&lt;/a&gt; would help in many solutions before opting for vertical scaling. So we eliminate (A).&lt;/p&gt;
+
+&lt;p&gt;As it is, our focus in this question is on the statement around disk usage.&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Currently, administrators check the available disk space manually once a week.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;We have two options remaining, (C) and (D), both of which &lt;em&gt;are&lt;/em&gt; improvements on manual checking. But one is better than the other, as I will explain next.&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;C. Use Amazon CloudWatch to monitor storage capacity.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;D. Use Auto Scaling to increase storage size.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Let’s think through the process those administrators are taking today — first, they manually check disk usage, and secondly (we have to assume that) if disk usage is above threshold they are increasing the disk allocation manually.&lt;/p&gt;
+
+&lt;p&gt;Option (C) states to use &lt;a href=&quot;https://aws.amazon.com/cloudwatch/&quot;&gt;CloudWatch&lt;/a&gt; to monitor storage capacity. There are a couple of techniques for this, including;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Monitor the &lt;em&gt;FreeStorageSpace&lt;/em&gt; metric by creating a CloudWatch Alarm, with an SNS topic, and a Subscription to alert the team automatically.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Checking for predefined RDS Events for low storage, again in combination with an SNS topic and Subscription.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;How is (C) an improvement? Well, it means the administrators are no longer having a weekly task in their diaries to sign on to manually check the storage usage — now, they will get notified &lt;em&gt;automatically&lt;/em&gt; — that’s better &lt;em&gt;detection&lt;/em&gt; — but, with (C) it still requires them to take manual action to &lt;em&gt;fix&lt;/em&gt; the situation.&lt;/p&gt;
+
+&lt;p&gt;That leaves us with option (D) which is to use &lt;a href=&quot;https://aws.amazon.com/about-aws/whats-new/2019/06/rds-storage-auto-scaling/&quot;&gt;RDS Auto Scaling option&lt;/a&gt; to automatically increase the storage allocation.&lt;/p&gt;
+
+&lt;p&gt;Released in June 2019, &lt;a href=&quot;https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PIOPS.StorageTypes.html#USER_PIOPS.Autoscaling&quot;&gt;RDS Storage Auto Scaling&lt;/a&gt; automatically scales storage capacity in response to growing database workloads, with zero downtime.&lt;/p&gt;
+
+&lt;p&gt;With storage autoscaling enabled, Amazon RDS will trigger a scaling event when these factors apply:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Free available space is less than 10% of the allocated storage.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;The low-storage condition lasts at least five minutes.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;At least six hours have passed since the last storage modification.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;When the event triggers, Amazon RDS will add additional storage in increments of whichever of the following is &lt;em&gt;greater&lt;/em&gt;:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;5 GiB&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;10% of currently allocated storage&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Storage growth prediction based on the &lt;em&gt;FreeStorageSpace&lt;/em&gt; metric change in the past hour.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;In this question, our RDS database engine is MySQL — so the auto-scaling will keep going up to a maximum allocation of 64 TiB for all instance types in the latest generation class (m5 or r5).&lt;/p&gt;
+
+&lt;p&gt;So that’s our answer; we can &lt;em&gt;detect&lt;/em&gt; and &lt;em&gt;fix&lt;/em&gt; the problem &lt;em&gt;automatically&lt;/em&gt;.&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;D. Use Auto Scaling to increase storage size.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;So how does my &lt;strong&gt;answer (D)&lt;/strong&gt; compare with those on the “AWS Cloud” group — the group was roughly equal 50–50 split between options (C) and (D).&lt;/p&gt;
+
+&lt;p&gt;Leave a comment if you would have chosen (C) in this example.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/3-aws-platform-questions-and-answers/125shocQfPc2XMeHnrP27Vw.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;Scenario 2.&lt;/strong&gt; A company has a popular multi-player mobile game hosted in its on-premises datacenter. The current infrastructure can no longer keep up with demand and the company is considering a move to the cloud.
+Which solution should a Solutions Architect recommend as the MOST scalable and cost-effective solution to meet these needs?
+A. Amazon EC2 and an Application Load Balancer
+B. Amazon S3 and Amazon CloudFront
+C. Amazon EC2 and Amazon Elastic Transcoder
+D. AWS Lambda and Amazon API Gateway
+— posted to “AWS Cloud” on 26th March.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This is both a great and terrible question to pick next!&lt;/p&gt;
+
+&lt;p&gt;It lacks information about the current solution and what else it relies upon; what databases, user identification and access management, session handling, and so on.&lt;/p&gt;
+
+&lt;p&gt;What we can do is state our assumptions — and progress from there.&lt;/p&gt;
+
+&lt;p&gt;What is good and clear about this question is the emphasis on choosing the option that is “&lt;em&gt;MOST scalable and cost-effective&lt;/em&gt;”.&lt;/p&gt;
+
+&lt;p&gt;Let’s get it out of the way to start with — &lt;a href=&quot;https://aws.amazon.com/gamelift/&quot;&gt;Amazon GameLift&lt;/a&gt;, the dedicated game server hosting platform, is not listed as an option.&lt;/p&gt;
+
+&lt;p&gt;First of all, as before, let’s eliminate the obviously wrong answers. We shall eliminate options (B) and (C).&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;B. Amazon S3 and Amazon CloudFront&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;C. Amazon EC2 and Amazon Elastic Transcoder&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;We eliminate option (C) as &lt;a href=&quot;https://aws.amazon.com/elastictranscoder/&quot;&gt;Amazon Elastic Transcoder&lt;/a&gt; is for media transcoding in the cloud — not particularly relevant to a multi-player mobile game.&lt;/p&gt;
+
+&lt;p&gt;Option (B) is a more interesting idea. The original problem lacks information about where the scaling issues are occurring in the current on-premise solution — it would be true that a hybrid solution could be explored whereby all static content is hosted on S3 and served through a Content Delivery Network using &lt;a href=&quot;https://aws.amazon.com/cloudfront/&quot;&gt;Amazon CloudFron&lt;/a&gt;t, and we leave all the dynamic application and database where it is on the existing servers on-premise.&lt;/p&gt;
+
+&lt;p&gt;For static content, &lt;a href=&quot;https://medium.com/@davelms/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity-c8ca667b3d71&quot;&gt;using S3 and a CDN&lt;/a&gt; is definitely &lt;em&gt;highly&lt;/em&gt; &lt;em&gt;scalable&lt;/em&gt; and &lt;em&gt;cost effective&lt;/em&gt;. It’s also useful in Single Page Applications like ReactJS or Angular.&lt;/p&gt;
+
+&lt;p&gt;And yes, it could also be part of a phased approach to shift static content first, and even in a fully Cloud-native replacement solution hosted entirely in AWS, we are likely to end up with some use of S3 and Amazon CloudFront.&lt;/p&gt;
+
+&lt;p&gt;However, given the crux of this question, and the fact that it’s a “mobile game” (can we infer an iOS or Android native app?) let’s assume that the problem with scaling is with the backend dynamic logic and database and we’ll eliminate option (B).&lt;/p&gt;
+
+&lt;p&gt;We’re now left with two viable options.&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;A. Amazon EC2 and an Application Load Balancer&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;D. AWS Lambda and Amazon API Gateway&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Remember our core requirement; we’re looking for the “&lt;em&gt;MOST scalable and cost-effective&lt;/em&gt;”. Both of these options allow us to create scalable solutions — so we have some more thinking to pick (A) or (D).&lt;/p&gt;
+
+&lt;p&gt;I’ve made an assumption before I start; the current solution uses an RDBMS database and we’ll migrate that over to Amazon RDS — and I’ve assumed that the reason this isn’t mentioned in the problem statement is that we’ll end up picking the same solution for the database regardless of option chosen. So all we have to consider is the application logic and its compute requirements.&lt;/p&gt;
+
+&lt;p&gt;With EC2, we can create &lt;a href=&quot;https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html&quot;&gt;auto-scaling groups&lt;/a&gt; and use Spot instances to achieve the “cost-effective”.&lt;/p&gt;
+
+&lt;p&gt;When considering option (A), we have to pay attention to the original problem statement — the demand has out stripped the infrastructure they can use in their on-premise data center. So that statement tells us that there’s a lot of compute currently in-use and demand is increasing. I’ve inferred, &lt;em&gt;a lot&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Therefore, migrating as-is to EC2 will also require a &lt;em&gt;lot&lt;/em&gt; of compute resources — like for like — and while costs can be managed through a combination of Reserved and Spot instances, that much compute is still going to have a price tag with it. We add the cost of the Application Load Balancer on top.&lt;/p&gt;
+
+&lt;p&gt;In terms of effort required to migrate the application, moving across to EC2 is likely to require fewer application code changes — it could even “lift and shift”.&lt;/p&gt;
+
+&lt;p&gt;Next to consider is option (D), which would likely require us to rewrite our code as &lt;a href=&quot;https://aws.amazon.com/lambda/&quot;&gt;AWS Lambda&lt;/a&gt; functions (although naturally &lt;em&gt;stateless&lt;/em&gt;, we can handle state and combine API Gateway with web sockets).&lt;/p&gt;
+
+&lt;p&gt;AWS Lambda lets us run our code without provisioning or managing servers, and we only pay for the compute time we consume. It naturally scales up to meet the peak demands, and we don’t pay for idle instances.&lt;/p&gt;
+
+&lt;p&gt;In terms of costs, as we scale out to the volumes implied in the problem statement, running AWS Lambda is likely to be cheaper than running the equivalent load through a fleet of EC2 instances.&lt;/p&gt;
+
+&lt;p&gt;The downside is that we would likely need to re-develop our solution (but not doing so wasn’t stated as a constraint — so assume a greenfield).&lt;/p&gt;
+
+&lt;p&gt;In conclusion, for the “&lt;em&gt;MOST scalable and cost-effective&lt;/em&gt;” solution I’d pick (D) — AWS Lambda and API Gateway.&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;D. AWS Lambda and Amazon API Gateway&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;So how does my &lt;strong&gt;answer (D)&lt;/strong&gt; compare with those on the “AWS Cloud” group — the group was pretty much all going for (A), nearly everyone liked the EC2 option. So my answer definitely leaves me in the minority. Leave a comment if you would also have chosen (A) in this example and let me know why.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/3-aws-platform-questions-and-answers/111hPGFREMBeZPWHv7PWXQQ.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;Scenario 3.&lt;/strong&gt; When will you incur costs with an Elastic IP address (EIP)?
+A. When an EIP is allocated.
+B. When it is allocated and associated with a running instance.
+C. When it is allocated and associated with a stopped instance.
+D. Costs are incurred regardless of whether the EIP is associated with a running instance.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;A quick one to close off for this week. This question was in a bank of AWS sample questions, and resonated with me earlier this week because I found I was paying for an Elastic IP Address in my own AWS account. So I’m sharing this answer out of personal experience.&lt;/p&gt;
+
+&lt;p&gt;An Elastic IP is free, but only as long as it is being used by a running instance.&lt;/p&gt;
+
+&lt;p&gt;So of these options the answer is (C); we would pay for an Elastic IP address when it is allocated and associated with a stopped instance.&lt;/p&gt;
+
+&lt;h2 id=&quot;a-note-from-the-author&quot;&gt;A note from the author&lt;/h2&gt;
+
+&lt;p&gt;So there we have it. Three example AWS questions and answers. Thanks for reading and I hope you enjoyed the article and found it useful.&lt;/p&gt;
+
+&lt;p&gt;You can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Sat, 28 Mar 2020 12:15:34 +0000</pubDate>
+        <link>/3-aws-platform-questions-and-answers/</link>
+        <guid isPermaLink="true">/3-aws-platform-questions-and-answers/</guid>
+        
+        <category>AWS</category>
+        
+        <category>Certification</category>
+        
+        
+        <category>Cloud</category>
+        
+      </item>
+    
+      <item>
+        <title>Configure a custom domain in AWS CloudFront</title>
+        <description>&lt;p&gt;&lt;strong&gt;CloudFront&lt;/strong&gt; is Amazon’s low-latency Content Delivery Network (CDN). Using a CDN speeds up the distribution of content to visitors by serving content from edge locations that are closest to the user.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/1_bIfTehbgdp-ebiNfzbY74Q.png&quot; alt=&quot;Delivering content from Amazon S3 using CloudFront edge locations&quot; /&gt;&lt;em&gt;Delivering content from Amazon S3 using CloudFront edge locations&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;At the time of writing, Amazon has 216 Points of Presence (205 Edge Locations and 11 Regional Edge Caches) in 84 cities across 42 countries.&lt;/p&gt;
+
+&lt;p&gt;When you set up your CloudFront distribution, straight out of the box with the default settings you will have your own &lt;strong&gt;cloudfront.net&lt;/strong&gt; domain.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/1_6-ak9xY7ijMjmmnbYV6-aw.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;(that is assuming you have already configured CloudFront in front of an S3 bucket that holds your static web content, but if not check out this guide on &lt;a href=&quot;https://medium.com/@davelms/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity-c8ca667b3d71&quot;&gt;serving static content from S3 using CloudFront&lt;/a&gt; and come back)&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;But what if you want to serve your content from &lt;strong&gt;my-custom-domain.com&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;To use a custom domain requires a combination of &lt;strong&gt;Route 53&lt;/strong&gt; — Amazon’s highly available and scalable cloud DNS web service — and some additional configuration CloudFront. It doesn’t take too long to set up.&lt;/p&gt;
+
+&lt;p&gt;Before we start, I assume that you have your domain managed in Route 53; it doesn’t matter if you don’t, but this guide assumes you do.&lt;/p&gt;
+
+&lt;p&gt;There is an initial step to obtain an SSL Certificate within &lt;strong&gt;Certificate Manager&lt;/strong&gt;. This allows you to serve your content over https and is a service provided by Amazon for free, and they’ll also take care of its renewal.&lt;/p&gt;
+
+&lt;p&gt;Within the Certificate Manager service, &lt;strong&gt;make sure you change your region to North Virginia&lt;/strong&gt;; I cannot emphasize this one enough as it’s caught me out many a time. Then &lt;strong&gt;Request a Certificate&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;The form is pretty self explanatory and you’ll need to provide a means to prove you own the domain — if you’re using Route 53, and we assume you are, then selecting the option that Amazon automatically manages the validation is the simplest approach. The process usually takes a few minutes.&lt;/p&gt;
+
+&lt;p&gt;Now head over to CloudFront and set up your custom domain. This can be done at the time of creating the distribution, but don’t worry if you forgot — you can go back and edit all these settings later. However, you do have to complete the setting in CloudFront before you finish off the setup in Route 53.&lt;/p&gt;
+
+&lt;p&gt;The first setting is to list all your &lt;strong&gt;Alternative Domain Names&lt;/strong&gt; in the CloudFront distribution settings.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/1riQu-kJ0UOKmsA2bLFGbtA.png&quot; alt=&quot;Add all your domain names to CloudFront distribution settings&quot; /&gt;&lt;em&gt;Add all your domain names to CloudFront distribution settings&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;The second setting is to reference the SSL Certificate you created. Check the &lt;strong&gt;Custom SSL Certificate (example.com)&lt;/strong&gt; option and pick your SSL Certificate from the list. Warning; your Alternate Domain Names must match those you specified in the SSL Certificate provisioning request — so if you don’t see your certificate in the list, that is probably the reason.&lt;/p&gt;
+
+&lt;p&gt;With these settings done, the final step is to configure the DNS in Route 53.&lt;/p&gt;
+
+&lt;p&gt;In your domain hosted zone in Route 53, select to &lt;strong&gt;Create Record Set&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;We will be creating as an &lt;strong&gt;A record&lt;/strong&gt; for IPv4 and we’ll select the &lt;strong&gt;Alias&lt;/strong&gt; option.&lt;/p&gt;
+
+&lt;p&gt;In the &lt;strong&gt;Alias Target&lt;/strong&gt;, you will find your CloudFront distribution — select and save. Warning; your Alternate Domain Names you configured in CloudFront must match the record set name — so if you don’t see your CloudFront distribution in the target drop down list, that is probably the reason.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/1h_ZE7PtUtUQJRtr1Afqy6g.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Repeat to create an &lt;strong&gt;AAAA record&lt;/strong&gt; for IPv6.&lt;/p&gt;
+
+&lt;p&gt;And that’s it. Success. You will find that you are now able to view your website using &lt;strong&gt;my-custom-domain.com&lt;/strong&gt;, with all the added benefits of CloudFront providing edge locations around the world to reduce latency for your visitors. You will also have an SSL Certificate that is managed by Amazon and will be automatically renewed for you (at the time of writing, it’s &lt;strong&gt;free&lt;/strong&gt;).&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/1v5ku2LgGOFYgNhVT-XRYDg.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Variations&lt;/strong&gt;. If you don’t use Route 53, the final step will be to add a CNAME entry in your DNS settings and set the value to your CloudFront domain.&lt;/p&gt;
+
+&lt;h2 id=&quot;a-note-from-the-author&quot;&gt;A note from the author&lt;/h2&gt;
+
+&lt;p&gt;Thank you for reading this article — I hope you found this article useful and I look forward to your feedback.&lt;/p&gt;
+
+&lt;p&gt;You can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Sun, 09 Feb 2020 10:37:22 +0000</pubDate>
+        <link>/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/</link>
+        <guid isPermaLink="true">/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/</guid>
+        
+        <category>AWS</category>
+        
+        
+        <category>Cloud</category>
+        
+      </item>
+    
+      <item>
+        <title>Serve private static content from S3 with CloudFront and Origin Access Identity</title>
+        <description>&lt;p&gt;Using Amazon Simple Storage Service (&lt;strong&gt;Amazon S3&lt;/strong&gt;) is a cheap and effective way to host static websites and other web content.&lt;/p&gt;
+
+&lt;p&gt;You can do so directly from the S3 console by enabling the &lt;strong&gt;Static website hosting&lt;/strong&gt; feature and you’ll get a website of the form &lt;strong&gt;http://my-bucket-name.s3-website-eu-west-1.amazonaws.com&lt;/strong&gt;. You can also create an A-record ALIAS in &lt;strong&gt;Route 53&lt;/strong&gt; to use your own custom domain.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity/1Fn-tlnN85G-ASdv6EvQQWQ.png&quot; alt=&quot;Basic set up — hosting a static website in S3&quot; /&gt;&lt;em&gt;Basic set up — hosting a static website in S3&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Some solutions may stop here. For some, this is *good enough. *(but this is not the purpose of our article; it would be incredibly short if it was).&lt;/p&gt;
+
+&lt;p&gt;More likely the solution will evolve toward serving content from edge cache locations using &lt;strong&gt;CloudFront&lt;/strong&gt; — Amazon’s low-latency Content Delivery Network (CDN). Using a CDN both speeds up the distribution of content to visitors and will also reduce the overall cost for a busy site.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity/1bIfTehbgdp-ebiNfzbY74Q.png&quot; alt=&quot;Introducing CloudFront as our Content Delivery Network&quot; /&gt;&lt;em&gt;Introducing CloudFront as our Content Delivery Network&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Even with the CDN our visitors can still access the S3 bucket directly, and the Solution Architect will now be asked &lt;strong&gt;“how do we restrict access to the S3 bucket so that our html, css, and images, are &lt;em&gt;only&lt;/em&gt; accessible through CloudFront?”&lt;/strong&gt; (&lt;em&gt;this question&lt;/em&gt; is the purpose of this article).&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity/1nBRuCBY0cJgC6erEHMZgJQ.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The answer is to use &lt;strong&gt;Origin Access Identity&lt;/strong&gt; (OAI).&lt;/p&gt;
+
+&lt;p&gt;We can restrict public access to objects in the S3 bucket (as of today, this is the default setting) and we grant permission to the OAI to distribute the content through CloudFront to our visitors from around the world.&lt;/p&gt;
+
+&lt;p&gt;The steps we follow to achieve this solution are;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Create the S3 bucket with default settings and upload an index.html file (index.html will not be accessible directly from S3).&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Create a CloudFront distribution with the S3 bucket as its origin (index.html still cannot be accessed).&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Set up the OAI, and configure a policy that permits CloudFront to serve the index.html file (now it all works).&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Steps 2 and 3 would normally be applied at the same time, but I’ll demonstrate separately to show the individual steps and how the OAI is the bit of magic sugar in the solution.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Step 1.&lt;/strong&gt; Create the bucket in S3 that will hold the static content and use all the default settings. The bucket and its objects are &lt;em&gt;not accessible&lt;/em&gt; to the public.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity/1EBDdfSXlGCepwRdGjMsIFg.png&quot; alt=&quot;S3 Bucket holding our static website content&quot; /&gt;&lt;em&gt;S3 Bucket holding our static website content&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;When we attempt to reach the index.html file in a browser, we get an Access Denied error as expected.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity/13dEc2Dqm8W8BrCCPabtFJQ.png&quot; alt=&quot;Hitting index.html on S3 endpoint receives an Access Denied error&quot; /&gt;&lt;em&gt;Hitting index.html on S3 endpoint receives an Access Denied error&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Step 2.&lt;/strong&gt; In CloudFront, create a Web distribution and select the S3 bucket as the origin. At this stage, leave everything else as the default settings, scroll to the bottom and create the distribution. You’ll have to wait until it’s deployed and as this can take 10 minutes, go grab a coffee…&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity/15aT2j7w7eEVda1PLi7He-A.png&quot; alt=&quot;Our CloudFront distribution for our S3 origin&quot; /&gt;&lt;em&gt;Our CloudFront distribution for our S3 origin&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Once its status has changed to “Deployed”, it’s ready. At this stage, the index.html page is not accessible on the CloudFront domain.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity/1_dyj4nlW3OfYz5NDio9X6g.png&quot; alt=&quot;Hitting index.html on CloudFront endpoint receives an Access Denied error&quot; /&gt;&lt;em&gt;Hitting index.html on CloudFront endpoint receives an Access Denied error&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Step 3.&lt;/strong&gt; Create the Origin Access Identity and configure the policy in S3 that grants the OAI permission to access objects.&lt;/p&gt;
+
+&lt;p&gt;Since we’re doing this in two stages, we have to edit our existing Origin to access the OAI option; however, usually you would do this at the same time as creating your Web distribution and it’s on the initial list of options.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity/1D_lcHIok6kMfJB2mVTXtWA.png&quot; alt=&quot;Select our origin and click Edit&quot; /&gt;&lt;em&gt;Select our origin and click Edit&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;On the next page, select &lt;strong&gt;Restrict Bucket Access&lt;/strong&gt;, allow Amazon to &lt;strong&gt;Create a New Identity&lt;/strong&gt;, and choose &lt;strong&gt;Yes, Update Bucket Policy&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity/1BjK5R73oRJHKMfvdbr3bjw.png&quot; alt=&quot;Select the options and save&quot; /&gt;&lt;em&gt;Select the options and save&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Wait for the status to change to “Deployed” again, and then refresh the page and the index.html page will now be displayed.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity/16-ak9xY7ijMjmmnbYV6-aw.png&quot; alt=&quot;Our static content is now served correctly via CloudFront&quot; /&gt;&lt;em&gt;Our static content is now served correctly via CloudFront&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;All set. Success. We are now using CloudFront edge locations to serve our static content uploaded to S3. And no one can hit the content in S3 directly.&lt;/p&gt;
+
+&lt;p&gt;Check the direct S3 endpoint again just to be sure that remains blocked, and view the Bucket Policy in S3 that was added automatically to learn more.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;What we didn’t cover today.&lt;/strong&gt; Most solutions are likely to require a &lt;a href=&quot;https://medium.com/@davelms/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53-253a72f51056&quot;&gt;custom domain that is configured in Route 53 and CloudFront&lt;/a&gt;; &lt;a href=&quot;https://medium.com/@davelms/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53-253a72f51056&quot;&gt;an SSL certificate from Amazon Certificate Manager so that content can be served over https&lt;/a&gt;; and have cache expiry limits set on the objects. In addition, if you have built a Single Page Application (SPA), like Angular or ReactJS, then you may need to configure CORS. Finally, we didn’t cover off creating signed URLs, which is useful if you are distributing paid-for content and want to limit access to your edge location caches.&lt;/p&gt;
+
+&lt;h2 id=&quot;a-note-from-the-author&quot;&gt;A note from the author&lt;/h2&gt;
+
+&lt;p&gt;Thank you for reading this article — I hope you found this article useful and I look forward to your comments and feedback.&lt;/p&gt;
+
+&lt;p&gt;You can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Sat, 08 Feb 2020 08:45:15 +0000</pubDate>
+        <link>/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity/</link>
+        <guid isPermaLink="true">/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity/</guid>
+        
+        <category>AWS</category>
+        
+        
+        <category>Cloud</category>
+        
+      </item>
+    
+  </channel>
+</rss>

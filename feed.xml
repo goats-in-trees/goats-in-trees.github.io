@@ -3,11 +3,395 @@
   <channel>
     <title>Goats in Trees</title>
     <description>Goats Love Technology. Articles about Cloud, DevOps, and all things tech.</description>
-    <link>/</link>
-    <atom:link href="/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Wed, 06 May 2020 21:39:52 +0000</pubDate>
-    <lastBuildDate>Wed, 06 May 2020 21:39:52 +0000</lastBuildDate>
+    <link>https://goatsintrees.net/</link>
+    <atom:link href="https://goatsintrees.net/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Sun, 17 May 2020 10:59:46 +0000</pubDate>
+    <lastBuildDate>Sun, 17 May 2020 10:59:46 +0000</lastBuildDate>
     <generator>Jekyll v4.0.0</generator>
+    
+      <item>
+        <title>Build your Docker images automatically when pushing new code to GitHub</title>
+        <description>&lt;h2 id=&quot;overview&quot;&gt;Overview&lt;/h2&gt;
+
+&lt;p&gt;This article will outline two techniques for automating the build of Docker images after every push or merge to the master branch in &lt;strong&gt;GitHub&lt;/strong&gt;. The built images will be pushed to a &lt;strong&gt;Docker Hub&lt;/strong&gt; container repository.&lt;/p&gt;
+
+&lt;p&gt;The two approaches being demonstrated are;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;using Docker Hub – use GitHub webhooks to notify Docker Hub about code changes and trigger the build of a new Docker image within Docker Hub itself.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;using GitHub Actions – using GitHub’s service for running Continuous Integration pipelines, we will build the new Docker image within GitHub machines and push the image to Docker Hub.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h2&gt;
+
+&lt;p&gt;To begin this tutorial, you will need to set yourself up with accounts on GitHub and Docker Hub.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;GitHub&lt;/strong&gt; account (&lt;a href=&quot;https://github.com/&quot;&gt;register here&lt;/a&gt;)&lt;/p&gt;
+
+    &lt;p&gt;Within your GitHub account, create a repository with a &lt;em&gt;Dockerfile&lt;/em&gt; and any additional source code. I’m using a simple Hello World example for the purposes of this article.&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/19OxFVOa7zDEJ7WMKfydW4Q.png&quot; alt=&quot;“Hello World” Dockerfile&quot; /&gt;&lt;em&gt;“Hello World” Dockerfile&lt;/em&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Docker Hub&lt;/strong&gt; account (&lt;a href=&quot;https://hub.docker.com/&quot;&gt;register here&lt;/a&gt;)&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;approach-1--using-docker-hub-to-build-image&quot;&gt;Approach #1 — using Docker Hub to build image&lt;/h2&gt;
+
+&lt;p&gt;In the first approach, we will configure Docker Hub to receive notifications from GitHub whenever there are any changes to our source repository. This is achieved using GitHub webhooks. On receipt of the notification, Docker Hub will build the new Docker image and publish it for consumption.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1dEGEmjaZhzxpDvfoUNEUig.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;step-1-associate-your-github-and-docker-hub-accounts&quot;&gt;Step 1. Associate your GitHub and Docker Hub accounts.&lt;/h3&gt;
+
+&lt;p&gt;Within Docker Hub visit &lt;a href=&quot;https://hub.docker.com/settings/linked-accounts&quot;&gt;Account Settings &amp;gt; Linked Accounts&lt;/a&gt; and click “Connect” to allow access to your source repositories.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1ftKLE06pz8D0hhjTqjLYYg.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;step-2-create-container-repository-in-docker-hub&quot;&gt;Step 2. Create container repository in Docker Hub&lt;/h3&gt;
+
+&lt;p&gt;Within Docker Hub &lt;a href=&quot;https://hub.docker.com/repository/create&quot;&gt;create a new repository&lt;/a&gt; and under “Build Settings” click on the GitHub icon to associate your source code repository.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/18uaFAkWDCxcETg-qNBr14g.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;From the drop-down select your GitHub &lt;em&gt;organisation&lt;/em&gt; (this will default to your username) and the &lt;em&gt;source code repository&lt;/em&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;step-3-configure-build-rules&quot;&gt;Step 3. Configure Build Rules&lt;/h3&gt;
+
+&lt;p&gt;There are many options available, and several examples are displayed in the help. For the purpose of this demo, we’ll keep the default settings and set up the trigger to be on pushes to the &lt;em&gt;master&lt;/em&gt; branch and use the &lt;em&gt;latest&lt;/em&gt; docker tag.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1Ti4keGwnPv8wKijcGvOSHg.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Other options exist to create Docker images from tags or release branches, and the pattern matching allows you to create dynamic image tags.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1GqvzBnZ7QG4i5ZwQqUH1nA.png&quot; alt=&quot;Example Build Rule options&quot; /&gt;&lt;em&gt;Example Build Rule options&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Click “Create &amp;amp; Build” to set up your new container repository and build your first Docker image — the first build will trigger automatically.&lt;/p&gt;
+
+&lt;h3 id=&quot;step-5-viewing-builds&quot;&gt;Step 5. Viewing builds.&lt;/h3&gt;
+
+&lt;p&gt;Within Docker Hub you will find the build status in the “General” tab of your repository. Viewing the “Builds” tab will show more information about each build. From here you will see the status of jobs and view build logs.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1b-6wPWld7fh1R4DfyaOC8A.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Once built we can pull and run the newly built image.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-shell&quot;&gt;$ docker run davelms/hello-world:latest
+Hello world!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;step-6-push-new-source-code-changes&quot;&gt;Step 6. Push new source code changes&lt;/h3&gt;
+
+&lt;p&gt;Final step is to simulate a code change — I’ll do this by editing the “Hello world!” message — and push the new commit up to GitHub.&lt;/p&gt;
+
+&lt;p&gt;GitHub will send a notification to Docker Hub about the code change; Docker Hub will initiate a new build; and we can run that new image once completed.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/10W5ftoBz20IlgVYE2anAHw.png&quot; alt=&quot;GitHub commit log&quot; /&gt;&lt;em&gt;GitHub commit log&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Immediately after pushing the code, we see a new build initiated in Docker Hub. You can see that the commit sha is referenced — tip: you can use this in tags should you wish instead of “latest”.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1eU9ncv-vCLZWNp0r6W-How.png&quot; alt=&quot;Docker Hub build history&quot; /&gt;&lt;em&gt;Docker Hub build history&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;When the build has finished, update locally with &lt;code&gt;docker pull&lt;/code&gt; and re-run your container. This time we see the output from our new source code.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-shell&quot;&gt;$ docker run davelms/hello-world:latest
+Hello Dave!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;approach-2--using-github-actions-to-build-docker-images&quot;&gt;Approach #2 — using GitHub Actions to build Docker images&lt;/h2&gt;
+
+&lt;p&gt;This time we will use GitHub’s custom CI/CD platform — GitHub Actions — to build the Docker image after every push to the source code repository. The workflow will define a single job that builds the image and pushes the new image to Docker Hub.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1-rtCRt_wgq4Uy00ar92e2g.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;step-1-create-a-docker-hub-security-access-token&quot;&gt;Step 1. Create a Docker Hub security access token&lt;/h3&gt;
+
+&lt;p&gt;First of all, within Docker Hub create yourself an access token by visiting &lt;a href=&quot;https://hub.docker.com/settings/security&quot;&gt;Settings &amp;gt; Security&lt;/a&gt;. Give it a name you recognise it later.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1owl44toezrvA6__rqOZHEw.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Once created, head over to GitHub and create secrets within your source code repository for &lt;strong&gt;DOCKER_HUB_USERNAME&lt;/strong&gt; and &lt;strong&gt;DOCKER_HUB_TOKEN&lt;/strong&gt;, along with &lt;strong&gt;DOCKER_HUB_REPOSITORY&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1DjcwigVU61qOdRBgWKCCOQ.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;step-2-create-a-github-action-to-build-and-push-images&quot;&gt;Step 2. Create a GitHub Action to build and push images&lt;/h3&gt;
+
+&lt;p&gt;Keeping within GitHub, head into the “Actions” tab of your source code repository. It’s likely that it will have detected the Dockerfile and will recommend you Docker-related workflow examples to get you started.&lt;/p&gt;
+
+&lt;p&gt;Since I will share an example, skip these helpers for now and select “set up a workflow yourself”. Use the workflow definition below and commit the file.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-yaml&quot;&gt;name: Docker Image CI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: |
+        echo &quot;${{ secrets.DOCKER_HUB_TOKEN }}&quot; | docker login -u &quot;${{ secrets.DOCKER_HUB_USERNAME }}&quot; --password-stdin docker.io
+        docker build . --file Dockerfile --tag docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:$GITHUB_SHA
+        docker push docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:$GITHUB_SHA      
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;What does this CI pipeline do?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Defines that we will trigger a job after all pushes to master branch.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Configures a single job called “build” to run on an Ubuntu machine.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;The source code repository will be checked out and will run three inline commands: 1. &lt;code&gt;docker login&lt;/code&gt; 2. &lt;code&gt;docker build&lt;/code&gt; 3. &lt;code&gt;docker push&lt;/code&gt;. These will use our secrets we saved off earlier.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Note that the example uses the commit sha as the image tag — GitHub Actions makes the sha available in an environment variable called &lt;code&gt;GITHUB_SHA&lt;/code&gt;. Of course, you could stick with “latest” like we did in the first example should you wish to do so.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;step-3-view-the-build&quot;&gt;Step 3. View the build&lt;/h3&gt;
+
+&lt;p&gt;When the build has finished, the image will appear over on Docker Hub.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1Ds1R5C2NSlseKbcql801Vg.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now verify you can pull the new image down successfully.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-shell&quot;&gt;$ docker run davelms/hello-world:8517bf9c40f4cf198ea3313bd5ec3cc43176bd85  
+Unable to find image 'davelms/hello-world:8517bf9c40f4cf198ea3313bd5ec3cc43176bd85' locally
+8517bf9c40f4cf198ea3313bd5ec3cc43176bd85: Pulling from davelms/hello-world
+d9cbbca60e5f: Already exists
+Digest: sha256:f8808c8b2ae19f6f3700e51a127e04d8366a1285bdfc6e4006092807f0eced1b
+Status: Downloaded newer image for davelms/hello-world:8517bf9c40f4cf198ea3313bd5ec3cc43176bd85
+Hello Dave!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;step-4-push-new-source-code-changes&quot;&gt;Step 4. Push new source code changes&lt;/h3&gt;
+
+&lt;p&gt;Final step is to simulate a code change — I’ll do this by editing the message back to “Hello world!” — and push the new commit up to GitHub.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/15AB7GPML-9mZjzQHUYkjfw.png&quot; alt=&quot;Commit log&quot; /&gt;&lt;em&gt;Commit log&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;After the push, a new CI/CD workflow containing our “build” job is run.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1rTM2p-8on6CqYISK5G9Sww.png&quot; alt=&quot;CI Pipeline history&quot; /&gt;&lt;em&gt;CI Pipeline history&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;The new image will have been pushed to Docker Hub successfully.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1EKQUg0WkIWF-sIUcTC6Qhw.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This time we see the output from our new source code — the message is back to “Hello World!”. All is working as expected.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-shell&quot;&gt;$ docker run davelms/hello-world:a26c53183fac84a9c7ce128ce6ae6250fae26c7d
+Unable to find image 'davelms/hello-world:a26c53183fac84a9c7ce128ce6ae6250fae26c7d' locally
+a26c53183fac84a9c7ce128ce6ae6250fae26c7d: Pulling from davelms/hello-world
+d9cbbca60e5f: Already exists
+Digest: sha256:3cfa80d4fa8c51271928f0294d89293a7a7fc7022a416a1758fc37394bc12808
+Status: Downloaded newer image for davelms/hello-world:a26c53183fac84a9c7ce128ce6ae6250fae26c7d
+Hello World!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;In this article we walked through two techniques for automating the build of Docker images after every source code change in GitHub. In both examples, we pushed the images into Docker Hub.&lt;/p&gt;
+
+&lt;p&gt;Firstly, we used webhooks and built the image directly within &lt;strong&gt;Docker Hub&lt;/strong&gt; where the “free plan” offers the ability to create images (the limitation with this plan is that it limits to building one image at a time).&lt;/p&gt;
+
+&lt;p&gt;Next, we used &lt;strong&gt;GitHub Actions&lt;/strong&gt; to build a Continuous Integration pipeline and push the built image to Docker Hub — we could extend this pipeline later to include some unit and integration tests. GitHub Actions provides 2,000 minutes of machine time per month under its “free plan”.&lt;/p&gt;
+
+&lt;p&gt;Thank you for reading this article — I hope you found it useful — you can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Sun, 10 May 2020 19:25:47 +0000</pubDate>
+        <link>https://goatsintrees.net/build-your-docker-images-automatically-when-pushing-new-code-to-github/</link>
+        <guid isPermaLink="true">https://goatsintrees.net/build-your-docker-images-automatically-when-pushing-new-code-to-github/</guid>
+        
+        <category>Docker</category>
+        
+        <category>Continuous Integration</category>
+        
+        <category>GitHub</category>
+        
+        <category>Docker Hub</category>
+        
+        
+        <category>DevOps</category>
+        
+      </item>
+    
+      <item>
+        <title>Create a free website in 5 minutes using Google Sites</title>
+        <description>&lt;p&gt;Setting up a basic yet professional looking static website could not be easier with Google Sites. Let’s explore how in this quick introduction, where we will create a free website and host it off our own custom domain.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Your site could be up and running inside 5 minutes.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Although &lt;strong&gt;Google Sites&lt;/strong&gt; is mainly used for intranet sites within an organisation, where it can embed the contents of Google Docs or Google Sheets, it’s also a perfectly acceptable proposition for building up an individual portfolio, sporting team website, or a shop like a restaurant.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/five-minutes-create-a-free-static-website-using-google-sites/1pNfdrHhGgFuhjNbvhLlMhw.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;You can embed third party content (&lt;em&gt;technically, this gets implemented inside an iframe&lt;/em&gt;) and style this content to fit your chosen theme. You can use this for &lt;strong&gt;contact forms&lt;/strong&gt;, for example.&lt;/p&gt;
+
+&lt;p&gt;A site generated with Google Sites is &lt;strong&gt;mobile-first&lt;/strong&gt;, and will render correctly on mobile, tablet, and laptop without any configuration from the user.&lt;/p&gt;
+
+&lt;p&gt;You can also hook in &lt;strong&gt;Google Analytics&lt;/strong&gt; for visitor tracking and analysis of your user behaviour and how they found your site.&lt;/p&gt;
+
+&lt;p&gt;Finally, you can configure to run off your own &lt;strong&gt;custom domain&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;The one pre-requisite is that you have a Google Account. Let’s get started.&lt;/p&gt;
+
+&lt;h2 id=&quot;create-your-first-google-site&quot;&gt;Create your first Google Site&lt;/h2&gt;
+
+&lt;p&gt;Visit &lt;a href=&quot;https://sites.google.com/new/&quot;&gt;Google Sites&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;I’d recommend that you stick with “New”, but you can drop back into “Classic” if you wish. Classic has more templates/themes but is more clunky to work with, whereas New is cleaner and fresher but the options are limited.&lt;/p&gt;
+
+&lt;h2 id=&quot;templates&quot;&gt;Templates&lt;/h2&gt;
+
+&lt;p&gt;Start off with a &lt;strong&gt;blank page&lt;/strong&gt; or click on a &lt;strong&gt;template&lt;/strong&gt; to create your first site.&lt;/p&gt;
+
+&lt;p&gt;At the time of writing, the following templates are available to choose from in the categories of Personal, Work, and Education.&lt;/p&gt;
+
+&lt;h3 id=&quot;personal&quot;&gt;Personal&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Portfolio&lt;/li&gt;
+  &lt;li&gt;Restaurant&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/five-minutes-create-a-free-static-website-using-google-sites/1otRUJC0pdC7XaqMtVmSv3g.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;work&quot;&gt;Work&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Event&lt;/li&gt;
+  &lt;li&gt;Team&lt;/li&gt;
+  &lt;li&gt;Help Centre&lt;/li&gt;
+  &lt;li&gt;Project&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/five-minutes-create-a-free-static-website-using-google-sites/1trC8uatEOzm3xO4jQe4B9w.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;education&quot;&gt;Education&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Class&lt;/li&gt;
+  &lt;li&gt;Club&lt;/li&gt;
+  &lt;li&gt;Student portfolio&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/five-minutes-create-a-free-static-website-using-google-sites/141RaBkwucvWsXO-V9Cf1Mg.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;themes&quot;&gt;Themes&lt;/h2&gt;
+
+&lt;p&gt;There are 6 themes available to select and these apply across all the Templates. A theme will provide a basic style (font, headers, and colours) and you can pick pre-selected options or choose your own colour from a picker.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;Simple&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Aristotle&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Diplomat&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Vision&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Level&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Impression&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;There’s a lot of trial-and-error involved to select the theme that matches your personal preferences — I recommend working through them all.&lt;/p&gt;
+
+&lt;h2 id=&quot;creating-a-new-page&quot;&gt;Creating a new page&lt;/h2&gt;
+
+&lt;p&gt;New pages can be created using the menu, and these can be inserted underneath a parent page to create a drop-down hierarchy.&lt;/p&gt;
+
+&lt;p&gt;All pages will appear in the navigation unless you select to hide.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/five-minutes-create-a-free-static-website-using-google-sites/1kahyvErnSEowVR1FS--FGw.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Talking of the &lt;strong&gt;Navigation&lt;/strong&gt;, you can choose to position your page navigation at the &lt;em&gt;top&lt;/em&gt; or &lt;em&gt;side&lt;/em&gt; of your page.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/five-minutes-create-a-free-static-website-using-google-sites/1NM0ceXerzUjtPvv9xNKvAg.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;embedding-content&quot;&gt;Embedding content&lt;/h2&gt;
+
+&lt;p&gt;You can embed &lt;strong&gt;images&lt;/strong&gt;, &lt;strong&gt;documents&lt;/strong&gt;, &lt;strong&gt;spreadsheets&lt;/strong&gt;, and **slides **into your pages. These can be hosted on your Google Drive, or you can upload content directly from your local machine, or from a URL.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Images&lt;/strong&gt; can also be inserted from a Google search — good feature is that Google will automatically filter only those that are licensed for free use.&lt;/p&gt;
+
+&lt;p&gt;You can include &lt;strong&gt;HTML&lt;/strong&gt; in your page, including &lt;strong&gt;JavaScript&lt;/strong&gt; and &lt;strong&gt;CSS&lt;/strong&gt; stylesheets. This is useful when embedding third party content — such as a &lt;strong&gt;email contact form&lt;/strong&gt; or a &lt;strong&gt;mailing list sign up&lt;/strong&gt; sheet.&lt;/p&gt;
+
+&lt;h2 id=&quot;company-logo-and-favicon&quot;&gt;Company Logo and favicon&lt;/h2&gt;
+
+&lt;p&gt;Google Sites gives you full control to brand your site. Under the Settings, you can configure your &lt;strong&gt;company logo&lt;/strong&gt; to appear in the Navigation bar and you can also configure the favicon that appears in the browser tab.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/five-minutes-create-a-free-static-website-using-google-sites/12wdbuGX_Zt_6vFHfctLrTA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Once set your company logo will appear in the Navigator bar at the top of the page.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/five-minutes-create-a-free-static-website-using-google-sites/15jmjHVvRAk_VjvZ0E-Kbxw.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;publish&quot;&gt;Publish&lt;/h2&gt;
+
+&lt;p&gt;When you are ready to publish your site, hit the &lt;strong&gt;Publish&lt;/strong&gt; button to the upper right. Select a name for your site and that’s it; your site will now be live to the world on the https://sites.google.com/view/&lt;strong&gt;your-site-name&lt;/strong&gt; address.&lt;/p&gt;
+
+&lt;p&gt;Should you edit your site, you’ll need to re-publish your changes. This allows you to work on your site and publish a new version once you are ready.&lt;/p&gt;
+
+&lt;h2 id=&quot;using-your-own-domain&quot;&gt;Using your own domain&lt;/h2&gt;
+
+&lt;p&gt;Running your site off a custom domain requires a little bit of technical know-how, but I shall walk through the steps.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;For those super technical, you can’t host off a domain apex — example.com — instead it has to have a subdomain, so &lt;strong&gt;www.&lt;/strong&gt;example.com is acceptable.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;First of all, you need to prove to Google that you own the domain. If you already have your sites listed in Google Webmaster Central you will be familiar with the technique, and it’s the same here.&lt;/p&gt;
+
+&lt;p&gt;Within the Settings panel, you can add up to 10 URLs that can be used for your Google Site. Enter the first in the box.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/five-minutes-create-a-free-static-website-using-google-sites/1Y7HFP4M6TgJkYtzr27o_eQ.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If Google knows that you own the domain it will automatically configure it. Otherwise, you will see a warning to ask you to verify your ownership.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/five-minutes-create-a-free-static-website-using-google-sites/1PqZxJqa7KhGiPLzpPsSPuA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Follow the instructions, and you’ll be asked to add a &lt;code&gt;TXT&lt;/code&gt; record to your DNS.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;google-site-verification=Zakx97MOoIOGmDq_kXNOo133YvVqUNq0DJl9HsyWCP4
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Don’t worry if you never did this before, Google provides instructions for most major hosting providers. Once you’ve added this &lt;code&gt;TXT&lt;/code&gt; record, it will take Google approximately 5 minutes to detect and confirm your ownership.&lt;/p&gt;
+
+&lt;p&gt;While you’re on your hosting provider site, stay within the DNS settings for the next step too — you need to create a &lt;code&gt;CNAME&lt;/code&gt; record too. This has to be subdomain (e.g. &lt;strong&gt;www.&lt;/strong&gt;yourdomain.com) and the value will be &lt;code&gt;ghs.googlehosted.com&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Create and save this &lt;code&gt;CNAME&lt;/code&gt; record and this will point your custom domain to your Google hosted website.&lt;/p&gt;
+
+&lt;h2 id=&quot;a-note-from-the-author&quot;&gt;A note from the author&lt;/h2&gt;
+
+&lt;p&gt;Thank you for reading this article — I hope you found it useful. Sometimes the easiest options are the best and for a free solution, you can’t go far wrong with Google Sites. Yes, it’s basic, and yes, there are other platforms out there like Wix. But it gets the job done and it’s &lt;strong&gt;really easy to use&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;You can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Fri, 08 May 2020 10:29:58 +0000</pubDate>
+        <link>https://goatsintrees.net/five-minutes-create-a-free-static-website-using-google-sites/</link>
+        <guid isPermaLink="true">https://goatsintrees.net/five-minutes-create-a-free-static-website-using-google-sites/</guid>
+        
+        <category>Google Sites</category>
+        
+        <category>Static Websites</category>
+        
+        
+        <category>Website Hosting</category>
+        
+      </item>
     
       <item>
         <title>Solve a Sudoku with JavaScript</title>
@@ -258,10 +642,10 @@
 &lt;p&gt;You can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
 </description>
         <pubDate>Sat, 02 May 2020 14:28:24 +0000</pubDate>
-        <link>/solve-a-sudoku-using-javascript/</link>
-        <guid isPermaLink="true">/solve-a-sudoku-using-javascript/</guid>
+        <link>https://goatsintrees.net/solve-a-sudoku-using-javascript/</link>
+        <guid isPermaLink="true">https://goatsintrees.net/solve-a-sudoku-using-javascript/</guid>
         
-        <category>javascript</category>
+        <category>JavaScript</category>
         
         
         <category>Coding</category>
@@ -578,10 +962,10 @@ instance_name: 'jumpbox'
 &lt;p&gt;You can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
 </description>
         <pubDate>Sat, 25 Apr 2020 15:29:56 +0000</pubDate>
-        <link>/use-ansible-to-create-and-configure-ec2-instances-on-aws/</link>
-        <guid isPermaLink="true">/use-ansible-to-create-and-configure-ec2-instances-on-aws/</guid>
+        <link>https://goatsintrees.net/use-ansible-to-create-and-configure-ec2-instances-on-aws/</link>
+        <guid isPermaLink="true">https://goatsintrees.net/use-ansible-to-create-and-configure-ec2-instances-on-aws/</guid>
         
-        <category>ansible</category>
+        <category>Ansible</category>
         
         <category>AWS</category>
         
@@ -1138,10 +1522,10 @@ HEALTHCHECK --timeout=10s CMD curl --silent --fail http://127.0.0.1:8080/fpm-pin
 &lt;p&gt;You can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
 </description>
         <pubDate>Sun, 19 Apr 2020 09:03:07 +0000</pubDate>
-        <link>/convert-an-old-php-application-to-docker-containers/</link>
-        <guid isPermaLink="true">/convert-an-old-php-application-to-docker-containers/</guid>
+        <link>https://goatsintrees.net/convert-an-old-php-application-to-docker-containers/</link>
+        <guid isPermaLink="true">https://goatsintrees.net/convert-an-old-php-application-to-docker-containers/</guid>
         
-        <category>docker</category>
+        <category>Docker</category>
         
         <category>PHP</category>
         
@@ -1583,8 +1967,8 @@ $ sam deploy --guided
 &lt;p&gt;You can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
 </description>
         <pubDate>Mon, 06 Apr 2020 16:30:57 +0000</pubDate>
-        <link>/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/</link>
-        <guid isPermaLink="true">/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/</guid>
+        <link>https://goatsintrees.net/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/</link>
+        <guid isPermaLink="true">https://goatsintrees.net/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/</guid>
         
         <category>AWS</category>
         
@@ -1709,8 +2093,8 @@ $ sam deploy --guided
 &lt;p&gt;You can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
 </description>
         <pubDate>Sun, 29 Mar 2020 08:28:28 +0000</pubDate>
-        <link>/7-youtube-channels-every-cloud-engineer-should-subscribe-to/</link>
-        <guid isPermaLink="true">/7-youtube-channels-every-cloud-engineer-should-subscribe-to/</guid>
+        <link>https://goatsintrees.net/7-youtube-channels-every-cloud-engineer-should-subscribe-to/</link>
+        <guid isPermaLink="true">https://goatsintrees.net/7-youtube-channels-every-cloud-engineer-should-subscribe-to/</guid>
         
         <category>YouTube</category>
         
@@ -1937,8 +2321,8 @@ D. Costs are incurred regardless of whether the EIP is associated with a running
 &lt;p&gt;You can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
 </description>
         <pubDate>Sat, 28 Mar 2020 12:15:34 +0000</pubDate>
-        <link>/3-aws-platform-questions-and-answers/</link>
-        <guid isPermaLink="true">/3-aws-platform-questions-and-answers/</guid>
+        <link>https://goatsintrees.net/3-aws-platform-questions-and-answers/</link>
+        <guid isPermaLink="true">https://goatsintrees.net/3-aws-platform-questions-and-answers/</guid>
         
         <category>AWS</category>
         
@@ -2008,8 +2392,8 @@ D. Costs are incurred regardless of whether the EIP is associated with a running
 &lt;p&gt;You can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
 </description>
         <pubDate>Sun, 09 Feb 2020 10:37:22 +0000</pubDate>
-        <link>/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/</link>
-        <guid isPermaLink="true">/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/</guid>
+        <link>https://goatsintrees.net/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/</link>
+        <guid isPermaLink="true">https://goatsintrees.net/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/</guid>
         
         <category>AWS</category>
         
@@ -2099,8 +2483,8 @@ D. Costs are incurred regardless of whether the EIP is associated with a running
 &lt;p&gt;You can follow me on &lt;a href=&quot;https://twitter.com/davelms&quot;&gt;Twitter&lt;/a&gt; and connect on &lt;a href=&quot;https://www.linkedin.com/in/davelms/&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;
 </description>
         <pubDate>Sat, 08 Feb 2020 08:45:15 +0000</pubDate>
-        <link>/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity/</link>
-        <guid isPermaLink="true">/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity/</guid>
+        <link>https://goatsintrees.net/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity/</link>
+        <guid isPermaLink="true">https://goatsintrees.net/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity/</guid>
         
         <category>AWS</category>
         

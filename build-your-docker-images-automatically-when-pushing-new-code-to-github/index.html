@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" href="/assets/images/goat-logo.png">
+
+    <title>Build your Docker images automatically when pushing new code to GitHub | Goats in Trees</title>
+
+    <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Build your Docker images automatically when pushing new code to GitHub | Goats in Trees</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Build your Docker images automatically when pushing new code to GitHub" />
+<meta name="author" content="davelms" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Overview" />
+<meta property="og:description" content="Overview" />
+<link rel="canonical" href="https://goatsintrees.net/build-your-docker-images-automatically-when-pushing-new-code-to-github/" />
+<meta property="og:url" content="https://goatsintrees.net/build-your-docker-images-automatically-when-pushing-new-code-to-github/" />
+<meta property="og:site_name" content="Goats in Trees" />
+<meta property="og:image" content="https://goatsintrees.net/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1_uB6UypHfUDHAZySPtOYSEw.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-05-10T19:25:47+00:00" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","url":"https://goatsintrees.net/build-your-docker-images-automatically-when-pushing-new-code-to-github/","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://goatsintrees.net/assets/images/goat-logo.png"},"name":"davelms"},"headline":"Build your Docker images automatically when pushing new code to GitHub","dateModified":"2020-05-10T19:25:47+00:00","datePublished":"2020-05-10T19:25:47+00:00","image":"https://goatsintrees.net/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1_uB6UypHfUDHAZySPtOYSEw.png","author":{"@type":"Person","name":"davelms"},"description":"Overview","mainEntityOfPage":{"@type":"WebPage","@id":"https://goatsintrees.net/build-your-docker-images-automatically-when-pushing-new-code-to-github/"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link href="/assets/css/prism.css" rel="stylesheet">
+
+    <link href="/assets/css/theme.css" rel="stylesheet">
+
+    <script src="/assets/js/jquery.min.js"></script>
+
+</head>
+
+
+<!-- change your GA id in _config.yml -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-209086-18"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-209086-18');
+</script>
+
+
+
+
+<body>
+    <!-- defer loading of font and font awesome -->
+    <noscript id="deferred-styles">
+        <link href="https://fonts.googleapis.com/css?family=Sen:400,700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
+            integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    </noscript>
+
+    <!-- Begin Sidebar Navigation
+================================================== -->
+
+    <div class="sidebar">
+    </div>
+    <div class="nav-icon">
+        <div class="hamburger-bar"></div>
+    </div>
+    <div id="blackover-nav" class="blackover"></div>
+    <nav id="menu">
+        <ul>
+            <h3>Navigation</h3>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <script src="/assets/js/lunr.js"></script>
+
+<style>
+    
+</style>
+
+<div class="wrap-search">
+    <div class="d-flex align-items-center ml-auto">
+        <i class="fas fa-search show-search"></i>
+        <form class="bd-search ml-3" onSubmit="return lunr_search(document.getElementById('lunrsearch').value);">
+            <input type="text" class="form-control bigradius text-small launch-modal-search" id="lunrsearch" name="q" maxlength="255" value="" placeholder="Type and enter..."/>
+        </form>
+    </div>
+</div>
+
+<div id="lunrsearchresults">
+    <ul></ul>
+</div>
+
+<script src="/assets/js/lunrsearchengine.js"></script>
+
+
+    <!-- End Sidebar Navigation
+================================================== -->
+
+    <div class="site-content ">
+
+        <div class="container">
+
+            <!-- Site Logo/Name
+    ================================================== -->
+
+            <a class="navbar-brand" href="/">
+                <img src="/assets/images/goat-logo.png" alt="Goats in Trees">
+            </a>
+
+
+            <!-- Site Tag
+    ================================================== -->
+            
+
+            <!-- Content
+    ================================================== -->
+            <div class="main-content">
+                <div class="entry-header">
+    <!-- Post Title -->
+    <h1 class="posttitle">Build your Docker images automatically when pushing new code to GitHub</h1>
+    <!-- Author & Date  Box -->
+    
+    
+    <div class="d-flex align-items-center mt-4">
+        <div>
+            
+            <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                alt="Dave">
+            
+        </div>
+        <div>
+            Written by <a target="_blank" class="text-dark" href="https://www.davelms.co.uk">Dave</a> on
+            <span class="post-date"><time class="post-date"
+                    datetime="2020-05-10">10 May 2020</time></span>
+            
+        </div>
+    </div>
+    
+</div>
+
+<!-- Adsense under title if enabled from _config.yml (change your pub id and slot) -->
+
+
+<!-- Featured Image -->
+
+<div class="entry-featured-image">
+    
+    <img class="featured-image "
+        src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1_uB6UypHfUDHAZySPtOYSEw.png"
+        alt="Build your Docker images automatically when pushing new code to GitHub">
+    
+    
+</div>
+
+
+<!-- Subtitle -->
+
+<div class="article-post">
+    <h2 class="subtitle"> In this tutorial, we will explore two techniques to automatically build and publish Docker images to Docker Hub every time you push new code into your GitHub source repository. </h2>
+</div>
+
+
+<!-- Content -->
+<!-- Post, Page Content
+================================================== -->
+<div class="article-post">
+    <!-- Toc if any -->
+    
+    <!-- End Toc -->
+    <h2 id="overview">Overview</h2>
+
+<p>This article will outline two techniques for automating the build of Docker images after every push or merge to the master branch in <strong>GitHub</strong>. The built images will be pushed to a <strong>Docker Hub</strong> container repository.</p>
+
+<p>The two approaches being demonstrated are;</p>
+
+<ol>
+  <li>
+    <p>using Docker Hub – use GitHub webhooks to notify Docker Hub about code changes and trigger the build of a new Docker image within Docker Hub itself.</p>
+  </li>
+  <li>
+    <p>using GitHub Actions – using GitHub’s service for running Continuous Integration pipelines, we will build the new Docker image within GitHub machines and push the image to Docker Hub.</p>
+  </li>
+</ol>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<p>To begin this tutorial, you will need to set yourself up with accounts on GitHub and Docker Hub.</p>
+
+<ol>
+  <li>
+    <p><strong>GitHub</strong> account (<a href="https://github.com/">register here</a>)</p>
+
+    <p>Within your GitHub account, create a repository with a <em>Dockerfile</em> and any additional source code. I’m using a simple Hello World example for the purposes of this article.</p>
+
+    <p><img src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/19OxFVOa7zDEJ7WMKfydW4Q.png" alt="“Hello World” Dockerfile" /><em>“Hello World” Dockerfile</em></p>
+  </li>
+  <li>
+    <p><strong>Docker Hub</strong> account (<a href="https://hub.docker.com/">register here</a>)</p>
+  </li>
+</ol>
+
+<h2 id="approach-1--using-docker-hub-to-build-image">Approach #1 — using Docker Hub to build image</h2>
+
+<p>In the first approach, we will configure Docker Hub to receive notifications from GitHub whenever there are any changes to our source repository. This is achieved using GitHub webhooks. On receipt of the notification, Docker Hub will build the new Docker image and publish it for consumption.</p>
+
+<p><img src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1dEGEmjaZhzxpDvfoUNEUig.png" alt="" /></p>
+
+<h3 id="step-1-associate-your-github-and-docker-hub-accounts">Step 1. Associate your GitHub and Docker Hub accounts.</h3>
+
+<p>Within Docker Hub visit <a href="https://hub.docker.com/settings/linked-accounts">Account Settings &gt; Linked Accounts</a> and click “Connect” to allow access to your source repositories.</p>
+
+<p><img src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1ftKLE06pz8D0hhjTqjLYYg.png" alt="" /></p>
+
+<h3 id="step-2-create-container-repository-in-docker-hub">Step 2. Create container repository in Docker Hub</h3>
+
+<p>Within Docker Hub <a href="https://hub.docker.com/repository/create">create a new repository</a> and under “Build Settings” click on the GitHub icon to associate your source code repository.</p>
+
+<p><img src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/18uaFAkWDCxcETg-qNBr14g.png" alt="" /></p>
+
+<p>From the drop-down select your GitHub <em>organisation</em> (this will default to your username) and the <em>source code repository</em>.</p>
+
+<h3 id="step-3-configure-build-rules">Step 3. Configure Build Rules</h3>
+
+<p>There are many options available, and several examples are displayed in the help. For the purpose of this demo, we’ll keep the default settings and set up the trigger to be on pushes to the <em>master</em> branch and use the <em>latest</em> docker tag.</p>
+
+<p><img src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1Ti4keGwnPv8wKijcGvOSHg.png" alt="" /></p>
+
+<p>Other options exist to create Docker images from tags or release branches, and the pattern matching allows you to create dynamic image tags.</p>
+
+<p><img src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1GqvzBnZ7QG4i5ZwQqUH1nA.png" alt="Example Build Rule options" /><em>Example Build Rule options</em></p>
+
+<p>Click “Create &amp; Build” to set up your new container repository and build your first Docker image — the first build will trigger automatically.</p>
+
+<h3 id="step-5-viewing-builds">Step 5. Viewing builds.</h3>
+
+<p>Within Docker Hub you will find the build status in the “General” tab of your repository. Viewing the “Builds” tab will show more information about each build. From here you will see the status of jobs and view build logs.</p>
+
+<p><img src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1b-6wPWld7fh1R4DfyaOC8A.png" alt="" /></p>
+
+<p>Once built we can pull and run the newly built image.</p>
+
+<pre><code class="language-shell">$ docker run davelms/hello-world:latest
+Hello world!
+</code></pre>
+
+<h3 id="step-6-push-new-source-code-changes">Step 6. Push new source code changes</h3>
+
+<p>Final step is to simulate a code change — I’ll do this by editing the “Hello world!” message — and push the new commit up to GitHub.</p>
+
+<p>GitHub will send a notification to Docker Hub about the code change; Docker Hub will initiate a new build; and we can run that new image once completed.</p>
+
+<p><img src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/10W5ftoBz20IlgVYE2anAHw.png" alt="GitHub commit log" /><em>GitHub commit log</em></p>
+
+<p>Immediately after pushing the code, we see a new build initiated in Docker Hub. You can see that the commit sha is referenced — tip: you can use this in tags should you wish instead of “latest”.</p>
+
+<p><img src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1eU9ncv-vCLZWNp0r6W-How.png" alt="Docker Hub build history" /><em>Docker Hub build history</em></p>
+
+<p>When the build has finished, update locally with <code>docker pull</code> and re-run your container. This time we see the output from our new source code.</p>
+
+<pre><code class="language-shell">$ docker run davelms/hello-world:latest
+Hello Dave!
+</code></pre>
+
+<h2 id="approach-2--using-github-actions-to-build-docker-images">Approach #2 — using GitHub Actions to build Docker images</h2>
+
+<p>This time we will use GitHub’s custom CI/CD platform — GitHub Actions — to build the Docker image after every push to the source code repository. The workflow will define a single job that builds the image and pushes the new image to Docker Hub.</p>
+
+<p><img src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1-rtCRt_wgq4Uy00ar92e2g.png" alt="" /></p>
+
+<h3 id="step-1-create-a-docker-hub-security-access-token">Step 1. Create a Docker Hub security access token</h3>
+
+<p>First of all, within Docker Hub create yourself an access token by visiting <a href="https://hub.docker.com/settings/security">Settings &gt; Security</a>. Give it a name you recognise it later.</p>
+
+<p><img src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1owl44toezrvA6__rqOZHEw.png" alt="" /></p>
+
+<p>Once created, head over to GitHub and create secrets within your source code repository for <strong>DOCKER_HUB_USERNAME</strong> and <strong>DOCKER_HUB_TOKEN</strong>, along with <strong>DOCKER_HUB_REPOSITORY</strong>.</p>
+
+<p><img src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1DjcwigVU61qOdRBgWKCCOQ.png" alt="" /></p>
+
+<h3 id="step-2-create-a-github-action-to-build-and-push-images">Step 2. Create a GitHub Action to build and push images</h3>
+
+<p>Keeping within GitHub, head into the “Actions” tab of your source code repository. It’s likely that it will have detected the Dockerfile and will recommend you Docker-related workflow examples to get you started.</p>
+
+<p>Since I will share an example, skip these helpers for now and select “set up a workflow yourself”. Use the workflow definition below and commit the file.</p>
+
+<pre><code class="language-yaml">name: Docker Image CI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: |
+        echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin docker.io
+        docker build . --file Dockerfile --tag docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:$GITHUB_SHA
+        docker push docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:$GITHUB_SHA      
+</code></pre>
+
+<p><strong>What does this CI pipeline do?</strong></p>
+
+<ol>
+  <li>
+    <p>Defines that we will trigger a job after all pushes to master branch.</p>
+  </li>
+  <li>
+    <p>Configures a single job called “build” to run on an Ubuntu machine.</p>
+  </li>
+  <li>
+    <p>The source code repository will be checked out and will run three inline commands: 1. <code>docker login</code> 2. <code>docker build</code> 3. <code>docker push</code>. These will use our secrets we saved off earlier.</p>
+  </li>
+  <li>
+    <p>Note that the example uses the commit sha as the image tag — GitHub Actions makes the sha available in an environment variable called <code>GITHUB_SHA</code>. Of course, you could stick with “latest” like we did in the first example should you wish to do so.</p>
+  </li>
+</ol>
+
+<h3 id="step-3-view-the-build">Step 3. View the build</h3>
+
+<p>When the build has finished, the image will appear over on Docker Hub.</p>
+
+<p><img src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1Ds1R5C2NSlseKbcql801Vg.png" alt="" /></p>
+
+<p>Now verify you can pull the new image down successfully.</p>
+
+<pre><code class="language-shell">$ docker run davelms/hello-world:8517bf9c40f4cf198ea3313bd5ec3cc43176bd85  
+Unable to find image 'davelms/hello-world:8517bf9c40f4cf198ea3313bd5ec3cc43176bd85' locally
+8517bf9c40f4cf198ea3313bd5ec3cc43176bd85: Pulling from davelms/hello-world
+d9cbbca60e5f: Already exists
+Digest: sha256:f8808c8b2ae19f6f3700e51a127e04d8366a1285bdfc6e4006092807f0eced1b
+Status: Downloaded newer image for davelms/hello-world:8517bf9c40f4cf198ea3313bd5ec3cc43176bd85
+Hello Dave!
+</code></pre>
+
+<h3 id="step-4-push-new-source-code-changes">Step 4. Push new source code changes</h3>
+
+<p>Final step is to simulate a code change — I’ll do this by editing the message back to “Hello world!” — and push the new commit up to GitHub.</p>
+
+<p><img src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/15AB7GPML-9mZjzQHUYkjfw.png" alt="Commit log" /><em>Commit log</em></p>
+
+<p>After the push, a new CI/CD workflow containing our “build” job is run.</p>
+
+<p><img src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1rTM2p-8on6CqYISK5G9Sww.png" alt="CI Pipeline history" /><em>CI Pipeline history</em></p>
+
+<p>The new image will have been pushed to Docker Hub successfully.</p>
+
+<p><img src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1EKQUg0WkIWF-sIUcTC6Qhw.png" alt="" /></p>
+
+<p>This time we see the output from our new source code — the message is back to “Hello World!”. All is working as expected.</p>
+
+<pre><code class="language-shell">$ docker run davelms/hello-world:a26c53183fac84a9c7ce128ce6ae6250fae26c7d
+Unable to find image 'davelms/hello-world:a26c53183fac84a9c7ce128ce6ae6250fae26c7d' locally
+a26c53183fac84a9c7ce128ce6ae6250fae26c7d: Pulling from davelms/hello-world
+d9cbbca60e5f: Already exists
+Digest: sha256:3cfa80d4fa8c51271928f0294d89293a7a7fc7022a416a1758fc37394bc12808
+Status: Downloaded newer image for davelms/hello-world:a26c53183fac84a9c7ce128ce6ae6250fae26c7d
+Hello World!
+</code></pre>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>In this article we walked through two techniques for automating the build of Docker images after every source code change in GitHub. In both examples, we pushed the images into Docker Hub.</p>
+
+<p>Firstly, we used webhooks and built the image directly within <strong>Docker Hub</strong> where the “free plan” offers the ability to create images (the limitation with this plan is that it limits to building one image at a time).</p>
+
+<p>Next, we used <strong>GitHub Actions</strong> to build a Continuous Integration pipeline and push the built image to Docker Hub — we could extend this pipeline later to include some unit and integration tests. GitHub Actions provides 2,000 minutes of machine time per month under its “free plan”.</p>
+
+<p>Thank you for reading this article — I hope you found it useful — you can follow me on <a href="https://twitter.com/davelms">Twitter</a> and connect on <a href="https://www.linkedin.com/in/davelms/">LinkedIn</a>.</p>
+
+</div>
+
+<!-- Rating -->
+
+
+<!-- Author Box if enabled from _config.yml -->
+<!-- Author Box -->
+
+
+<div class="d-flex authorbox align-items-center">
+    <div class="col-md-2 mr-4 text-center">
+        
+        <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x" alt="Dave">
+        
+    </div>
+    <div class="col-md-10"> 
+        <a target="_blank" class="text-dark h4" href="https://www.davelms.co.uk">About Dave</a>   <a target="_blank" href="https://twitter.com/davelms" class="btn-sm"><i class="fab fa-twitter"></i></a>        
+        <span class="author-description d-block mt-2">DevOps | AWS | GCP.  Editor of Goats in Trees.</span>            
+    </div>
+</div>
+
+
+
+<!-- Comments if not disabled with comments: false -->
+<!-- Comments
+================================================== -->
+
+
+<!-- Share -->
+<div class="share">
+    <p>
+        Share
+    </p>
+    <ul>
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://twitter.com/intent/tweet?text=Build your Docker images automatically when pushing new code to GitHub&url=https://goatsintrees.net/build-your-docker-images-automatically-when-pushing-new-code-to-github/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fab fa-twitter"></i>
+            </a>
+        </li>
+
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://facebook.com/sharer.php?u=https://goatsintrees.net/build-your-docker-images-automatically-when-pushing-new-code-to-github/" onclick="window.open(this.href, 'facebook-share', 'width=550,height=435');return false;">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+        </li>
+
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=https://goatsintrees.net/build-your-docker-images-automatically-when-pushing-new-code-to-github/" onclick="window.open(this.href, 'width=550,height=435');return false;">
+                <i class="fab fa-linkedin-in"></i>
+            </a>
+        </li>
+
+    </ul>
+</div>
+
+
+<!-- Related Post -->
+<!-- Related Posts
+================================================== -->
+<div class=" related-posts ">  
+
+    
+    <h2 class="text-center mb-4">Explore more like this</h2>
+    
+    
+    <div class="d-flex justify-content-center align-items-center">
+    
+    <!-- Categories -->
+    
+    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/categories#DevOps">DevOps</a>                
+    
+
+    <!-- Tags -->  
+    
+                    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/tags#Continuous-Integration">Continuous Integration</a>               
+                    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/tags#Docker">Docker</a>               
+                    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/tags#Docker-Hub">Docker Hub</a>               
+                    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/tags#GitHub">GitHub</a>               
+    
+
+    </div>
+
+    
+    
+    
+    <div class="blog-grid-container">
+        
+        
+            
+            
+        
+            
+        
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/use-ansible-to-create-and-configure-ec2-instances-on-aws/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/use-ansible-to-create-and-configure-ec2-instances-on-aws/bill-oxford--fGqsewtsJY-unsplash.jpg"
+                    alt="Use Ansible to create and configure EC2 instances on AWS">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/use-ansible-to-create-and-configure-ec2-instances-on-aws/">Use Ansible to create and configure EC2 instances on AWS</a>
+                
+            </h2>
+            <h4 class="card-text">Quick how to tutorial to using Ansible to stand up EC2 instances on AWS. Over the next 5 minutes, we’ll create an initial jumpbox in our default VPC and install...</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">25 Apr 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/convert-an-old-php-application-to-docker-containers/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/convert-an-old-php-application-to-docker-containers/1_aE5KJkbslMZO6Zid9JSLiw.png"
+                    alt="Convert an old PHP application to Docker containers">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/convert-an-old-php-application-to-docker-containers/">Convert an old PHP application to Docker containers</a>
+                
+            </h2>
+            <h4 class="card-text">Take an old PHP 5 web application and convert it to Docker containers, using the latest PHP 7, Composer, Node.js, Grunt, and Bower.</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">19 Apr 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1_RhGZIe05Pj_kjGPDbBOmqQ.jpeg"
+                    alt="Schedule cron in Lambda to download a file and save it to S3">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/">Schedule cron in Lambda to download a file and save it to S3</a>
+                
+            </h2>
+            <h4 class="card-text">How to write an AWS Lambda (Node.js) function and schedule it daily to download a file from the internet and save it into an S3 bucket.</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">06 Apr 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+                
+        </div>        
+</div>
+
+<!-- Review with LD-JSON, adapt it for your needs if you like, but make sure you test the generated HTML source code first: 
+https://search.google.com/structured-data/testing-tool/u/0/
+================================================== -->
+
+            </div>
+
+            
+            <!-- Newsletter
+    ================================================== -->
+            <div class="newsletter text-center">
+                <span class="h4"><img src="/assets/images/goat-logo.png" class="newsletter-logo"
+                        alt="Goats in Trees"> &nbsp; Never miss a <b>story</b> from us, subscribe to our
+                    newsletter</span>
+                <form action="https://goatsintrees.us8.list-manage.com/subscribe/post?u=f1ba23fce94cc889510e995fd&amp;id=b045064b1d" method="post" name="mc-embedded-subscribe-form"
+                    class="wj-contact-form validate" target="_blank" novalidate>
+                    <div class="mc-field-group d-inline-flex">
+                        <input type="email" placeholder="Your e-mail" name="EMAIL" class="required email" id="mce-EMAIL"
+                            autocomplete="on" required>
+                        <input type="submit" value="Subscribe" name="subscribe" class="heart">
+                    </div>
+                </form>
+            </div>
+            
+
+        </div>
+
+        <!-- Begin Footer
+================================================== -->
+        <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 text-center text-lg-left">
+                        Copyright © 2020 Goats in Trees
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- End Footer
+================================================== -->
+
+    </div> <!-- /.site-content -->
+
+    <!-- Scripts (if you need bootstrap.js, please add it yourself. I didn't use it for performance reasons, it was not needed in this theme)
+================================================== -->
+
+    <script src="/assets/js/prism.js"></script>
+
+    <script src="/assets/js/theme.js"></script>
+
+    
+
+    
+    <script id="dsq-count-scr" src="//demowebsite.disqus.com/count.js"></script>
+    
+
+</body>
+
+</html>

@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" href="/assets/images/goat-logo.png">
+
+    <title>Build an RPM using Maven and Spring Boot | Goats in Trees</title>
+
+    <!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Build an RPM using Maven and Spring Boot | Goats in Trees</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Build an RPM using Maven and Spring Boot" />
+<meta name="author" content="davelms" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The goal of this article is to package a Spring Boot application as an RPM using the rpm-maven-plugin. We’ll not only cover the basics of creating the RPM, but include pre- and post-installation scripts to ensure you’re up and running and ready to get stuck in to build your own application." />
+<meta property="og:description" content="The goal of this article is to package a Spring Boot application as an RPM using the rpm-maven-plugin. We’ll not only cover the basics of creating the RPM, but include pre- and post-installation scripts to ensure you’re up and running and ready to get stuck in to build your own application." />
+<link rel="canonical" href="https://goatsintrees.net/build-an-rpm-using-maven-and-spring-boot/" />
+<meta property="og:url" content="https://goatsintrees.net/build-an-rpm-using-maven-and-spring-boot/" />
+<meta property="og:site_name" content="Goats in Trees" />
+<meta property="og:image" content="https://goatsintrees.net/assets/images/build-an-rpm-using-maven-and-spring-boot/1_pIDTvsW1UqiYaIT0qDYQVQ.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-06-15T17:45:45+00:00" />
+<script type="application/ld+json">
+{"image":"https://goatsintrees.net/assets/images/build-an-rpm-using-maven-and-spring-boot/1_pIDTvsW1UqiYaIT0qDYQVQ.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://goatsintrees.net/build-an-rpm-using-maven-and-spring-boot/"},"@type":"BlogPosting","url":"https://goatsintrees.net/build-an-rpm-using-maven-and-spring-boot/","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://goatsintrees.net/assets/images/goat-logo.png"},"name":"davelms"},"author":{"@type":"Person","name":"davelms"},"headline":"Build an RPM using Maven and Spring Boot","dateModified":"2020-06-15T17:45:45+00:00","datePublished":"2020-06-15T17:45:45+00:00","description":"The goal of this article is to package a Spring Boot application as an RPM using the rpm-maven-plugin. We’ll not only cover the basics of creating the RPM, but include pre- and post-installation scripts to ensure you’re up and running and ready to get stuck in to build your own application.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link href="/assets/css/prism.css" rel="stylesheet">
+
+    <link href="/assets/css/theme.css" rel="stylesheet">
+
+    <script src="/assets/js/jquery.min.js"></script>
+
+</head>
+
+
+
+
+
+<body>
+    <!-- defer loading of font and font awesome -->
+    <noscript id="deferred-styles">
+        <link href="https://fonts.googleapis.com/css?family=Sen:400,700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
+            integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    </noscript>
+
+    <!-- Begin Sidebar Navigation
+================================================== -->
+
+    <div class="sidebar">
+    </div>
+    <div class="nav-icon">
+        <div class="hamburger-bar"></div>
+    </div>
+    <div id="blackover-nav" class="blackover"></div>
+    <nav id="menu">
+        <ul>
+            <h3>Navigation</h3>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <script src="/assets/js/lunr.js"></script>
+
+<style>
+    
+</style>
+
+<div class="wrap-search">
+    <div class="d-flex align-items-center ml-auto">
+        <i class="fas fa-search show-search"></i>
+        <form class="bd-search ml-3" onSubmit="return lunr_search(document.getElementById('lunrsearch').value);">
+            <input type="text" class="form-control bigradius text-small launch-modal-search" id="lunrsearch" name="q" maxlength="255" value="" placeholder="Type and enter..."/>
+        </form>
+    </div>
+</div>
+
+<div id="lunrsearchresults">
+    <ul></ul>
+</div>
+
+<script src="/assets/js/lunrsearchengine.js"></script>
+
+
+    <!-- End Sidebar Navigation
+================================================== -->
+
+    <div class="site-content ">
+
+        <div class="container">
+
+            <!-- Site Logo/Name
+    ================================================== -->
+
+            <a class="navbar-brand" href="/">
+                <img src="/assets/images/goat-logo.png" alt="Goats in Trees">
+            </a>
+
+
+            <!-- Site Tag
+    ================================================== -->
+            
+
+            <!-- Content
+    ================================================== -->
+            <div class="main-content">
+                <div class="entry-header">
+    <!-- Post Title -->
+    <h1 class="posttitle">Build an RPM using Maven and Spring Boot</h1>
+    <!-- Author & Date  Box -->
+    
+    
+    <div class="d-flex align-items-center mt-4">
+        <div>
+            
+            <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                alt="Dave">
+            
+        </div>
+        <div>
+            Written by <a target="_blank" class="text-dark" href="https://www.davelms.co.uk">Dave</a> on
+            <span class="post-date"><time class="post-date"
+                    datetime="2020-06-15">15 Jun 2020</time></span>
+            
+        </div>
+    </div>
+    
+</div>
+
+<!-- Adsense under title if enabled from _config.yml (change your pub id and slot) -->
+
+
+<!-- Featured Image -->
+
+<div class="entry-featured-image">
+    
+    <img class="featured-image "
+        src="/assets/images/build-an-rpm-using-maven-and-spring-boot/1_pIDTvsW1UqiYaIT0qDYQVQ.png"
+        alt="Build an RPM using Maven and Spring Boot">
+    
+    
+</div>
+
+
+<!-- Subtitle -->
+
+<div class="article-post">
+    <h2 class="subtitle"> This tutorial will introduce a technique for building a Spring Boot java application into an RPM package using Maven </h2>
+</div>
+
+
+<!-- Content -->
+<!-- Post, Page Content
+================================================== -->
+<div class="article-post">
+    <!-- Toc if any -->
+    
+    <!-- End Toc -->
+    <p>The goal of this article is to package a Spring Boot application as an RPM using the <strong>rpm-maven-plugin</strong>. We’ll not only cover the basics of creating the RPM, but include pre- and post-installation scripts to ensure you’re up and running and ready to get stuck in to build your own application.</p>
+
+<p>Let’s get started.</p>
+
+<h2 id="spring-boot-application">Spring Boot application</h2>
+
+<p>For the purpose of this demonstration we are going to use the Hello World example detailed on the <a href="https://spring.io/quickstart">Spring Boot Quickstart</a>. You can bring your own application or get started by using the source code that has been prepared for this article and can be cloned from <a href="https://github.com/davelms/medium-articles/tree/master/spring-maven-rpm">GitHub</a>.</p>
+
+<p>I’m running on CentOS 7 using Java 11 and Maven 3.6.3. I’ve also got the <em>rpm-build</em> package installed to my server.</p>
+
+<p>Build using <code>mvn package</code> and verify the application runs as expected by using <code>java -jar target/demo-application-0.0.1-SNAPSHOT.jar</code> (or just use <code>mvn spring-boot:run</code> if you prefer).</p>
+
+<p>Assuming all went well, you should be able to hit <a href="http://localhost:8080/hello">http://localhost:8080/hello</a> in a browser to see your running Spring Boot application.</p>
+
+<p><img src="/assets/images/build-an-rpm-using-maven-and-spring-boot/0t0khLjJ0IvZnNtle.png" alt="" /></p>
+
+<p>Now let’s work through packaging this application as an RPM.</p>
+
+<h2 id="multi-module-project-structure">Multi-module project structure</h2>
+
+<p>Personal preference here; I like to keep separate pom.xml as I’m not a fan of side effects or a pom that creates multiple artifacts (if a pom.xml says it creates a jar, that’s personally what I expect it to do). My source structure will be set up with two modules — <code>app</code> (for the Java code, building the Spring Boot executable jar) and <code>rpm</code> (for packaging as RPM).</p>
+
+<pre><code class="language-shell">my-project/app
+my-project/app/src/main/java/com/example/demo/DemoApplication.java
+my-project/app/pom.xml
+my-project/rpm
+my-project/rpm/pom.xml
+my-project/pom.xml
+</code></pre>
+
+<p>The parent pom.xml merely specifics app and rpm as modules. The app pom.xml is the vanilla Spring Boot example with the following configuration added to <strong>spring-boot-maven-plugin</strong>.</p>
+
+<pre><code class="language-xml">&lt;configuration&gt;
+  &lt;executable&gt;true&lt;/executable&gt;
+&lt;/configuration&gt;
+</code></pre>
+
+<p>Using this option allows you to run the jar directly, i.e. without <code>java -jar</code>, and just saves a little bit of configuration later when deploying the application using yum/rpm.</p>
+
+<p>From here on, I’ll focus on setting up the RPM package.</p>
+
+<h2 id="setting-up-the-rpm-package">Setting up the RPM package</h2>
+
+<p>As we begin to configure <code>rpm/pom.xml</code> first step is to specify the packaging.</p>
+
+<pre><code class="language-xml">&lt;packaging&gt;rpm&lt;/packaging&gt;
+</code></pre>
+
+<p>Next, we need to ensure that we define that we are dependent upon the build of the application jar that we separated into the <code>app</code> module. Here I have referenced demo-application-app and I’ve used properties for the other values.</p>
+
+<pre><code class="language-xml">&lt;dependencies&gt;
+...
+
+  &lt;dependency&gt;
+    &lt;groupId&gt;${project.groupId}&lt;/groupId&gt;
+    &lt;artifactId&gt;demo-application-app&lt;/artifactId&gt;
+    &lt;version&gt;${project.version}&lt;/version&gt;
+  &lt;/dependency&gt;
+
+...
+&lt;/dependencies&gt;
+</code></pre>
+
+<p>Now we can set up and configure the <strong>rpm-maven-plugin</strong> itself. We’ll cover the configuration entries next. Ensure you explicitly set <strong>extensions=true</strong> as highlighted because this is what allows us to have set packaging to “rpm” earlier.</p>
+
+<pre><code class="language-xml">&lt;build&gt;
+  &lt;plugins&gt;
+  ...
+ 
+    &lt;plugin&gt;
+      &lt;groupId&gt;org.codehaus.mojo&lt;/groupId&gt;
+      &lt;artifactId&gt;rpm-maven-plugin&lt;/artifactId&gt;
+      &lt;version&gt;2.2.0&lt;/version&gt;
+      &lt;extensions&gt;true&lt;/extensions&gt;
+      &lt;configuration&gt;
+      ...
+      &lt;/configuration&gt;
+    &lt;/plugin&gt;
+
+  ...
+  &lt;/plugins&gt;
+&lt;/build&gt;
+</code></pre>
+
+<h3 id="configuring-the-rpm-maven-plugin">Configuring the rpm-maven-plugin</h3>
+
+<p>All the following changes will go into the <code>&lt;configuration&gt;</code> section.</p>
+
+<p>We can use default values for most properties; however, you will need to set a value for <code>&lt;group&gt;</code> as it is mandatory and doesn’t come with a default value.</p>
+
+<pre><code class="language-xml">&lt;group&gt;${project.groupId}&lt;/group&gt;
+</code></pre>
+
+<p>With that out of the way, we’re onto file mappings and setting up pre- and post- install scriptlets. The fun stuff.</p>
+
+<p>For the purpose of this demonstration, I’m going to configure the application install directory to be <code>/var/demo-application</code> and the user/group will be <code>demo-application</code>. Since this user doesn’t exist by default, we have to create it in a pre-install scriptlet — we’ll come to that later.</p>
+
+<p>All file mappings are defined inside <code>&lt;mappings&gt;</code> as a series of <code>&lt;mapping&gt;</code> entries. These can take the form of a single source-to-target file copy, or a whole directory. Our first file will be the application jar itself which comes from our build dependencies. The format should be self-explanatory, and including <strong>stripVersion=true</strong> will ensure that the jar name is consistent.</p>
+
+<pre><code class="language-xml">&lt;mapping&gt;
+  &lt;directory&gt;/var/demo-application/&lt;/directory&gt;
+  &lt;filemode&gt;755&lt;/filemode&gt;
+  &lt;username&gt;demo-application&lt;/username&gt;
+  &lt;groupname&gt;demo-application&lt;/groupname&gt;
+  &lt;dependency&gt;
+    &lt;stripVersion&gt;true&lt;/stripVersion&gt;
+    &lt;includes&gt;
+      &lt;include&gt;${project.groupId}:demo-application-app&lt;/include&gt;
+    &lt;/includes&gt;
+  &lt;/dependency&gt;
+&lt;/mapping&gt;
+</code></pre>
+
+<p>At this stage, you have the basic structure. We can even test it now; run <code>mvn package</code> and you should see the initial RPM generated.</p>
+
+<p><img src="/assets/images/build-an-rpm-using-maven-and-spring-boot/1vuvfMFEOsB-wzWy_T3V2Zg.png" alt="" /></p>
+
+<p>Verify its current contents using <code>rpm -qpl</code> and you will see the basic filesystem structure is coming together.</p>
+
+<pre><code class="language-shell">/var/demo-application
+/var/demo-application/demo-application-app.jar
+</code></pre>
+
+<p>Installing this RPM would definitely work, but we have a couple of things missing still;</p>
+
+<ol>
+  <li>
+    <p>Our user / group doesn’t exist — so installing at this stage would default the directory and jar to <em>root</em> user.</p>
+  </li>
+  <li>
+    <p>Our application won’t currently run as a service, it won’t start automatically when the server reboots, and so on.</p>
+  </li>
+</ol>
+
+<p>Next we will demonstrate how to achieve both of those steps using pre- and post- install scriptlets respectively.</p>
+
+<h3 id="scriptlets">Scriptlets</h3>
+
+<p>There are a number of scripts that can be included in the RPM package which are executed as part of the installation, removal, or verification of the package.</p>
+
+<p>We’re going to focus on <strong>preinstallScriptlet</strong>, which runs before the package is installed and corresponds to the <code>%pre</code> tag in a spec file, and <strong>postinstallScriptlet</strong>, which runs after the package is installed and corresponds to the <code>%post</code> tag.</p>
+
+<p>Let’s add these references to the configuration and write the two shell scripts.</p>
+
+<pre><code class="language-xml">&lt;preinstallScriptlet&gt;
+  &lt;scriptFile&gt;src/main/resources/preinstall.sh&lt;/scriptFile&gt;
+  &lt;fileEncoding&gt;utf-8&lt;/fileEncoding&gt;
+  &lt;filter&gt;true&lt;/filter&gt;
+&lt;/preinstallScriptlet&gt;
+
+&lt;postinstallScriptlet&gt;
+  &lt;scriptFile&gt;src/main/resources/postinstall.sh&lt;/scriptFile&gt;
+  &lt;fileEncoding&gt;utf-8&lt;/fileEncoding&gt;
+  &lt;filter&gt;true&lt;/filter&gt;
+&lt;/postinstallScriptlet&gt;
+</code></pre>
+
+<p>Beginning with our <strong>preinstall</strong> script, we want to ensure that the user and group are created so we’ll use the <code>useradd</code> command.</p>
+
+<pre><code class="language-shell">/usr/sbin/useradd -c "Demo Application" -U \
+  -s /sbin/nologin -r \
+  -d /var/demo-application demo-application 2&gt; /dev/null || :
+</code></pre>
+
+<p>With our <strong>postinstall</strong> script, we want to ensure that we enable the service the first time that the RPM is installed.</p>
+
+<pre><code class="language-shell">if [ $1 -eq 1 ] ; then 
+  # Initial installation 
+  systemctl enable demo-application.service &gt;/dev/null 2&gt;&amp;1 || : 
+fi
+</code></pre>
+
+<p>Talking of which, let’s look at the service itself. Since I’m targeting CentOS 7, then this demo includes the steps for using <code>systemd</code>. We’re going to include the <strong>demo-application.service</strong> file in our source repository and mappings.</p>
+
+<p>Create the <code>demo-application.service</code> file in your source code repository in directory <code>src/main/resources/systemd</code>.</p>
+
+<pre><code class="language-ini">[Unit]
+Description=demo-application
+After=syslog.target
+
+[Service]
+User=demo-application
+ExecStart=/var/demo-application/demo-application-app.jar
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<p>Add a new mapping that defines we want to copy this file over to the <code>/etc/systemd/system</code> directory on installation of the RPM.</p>
+
+<pre><code class="language-xml">&lt;mapping&gt;
+  &lt;directory&gt;/etc/systemd/system&lt;/directory&gt;
+  &lt;filemode&gt;755&lt;/filemode&gt;
+  &lt;username&gt;root&lt;/username&gt;
+  &lt;groupname&gt;root&lt;/groupname&gt;
+  &lt;sources&gt;
+    &lt;source&gt;
+      &lt;location&gt;src/main/resources/systemd&lt;/location&gt;
+    &lt;/source&gt;
+  &lt;/sources&gt;
+&lt;/mapping&gt;
+</code></pre>
+
+<h2 id="build-package-and-install">Build, package, and install</h2>
+
+<p>Now we are ready to do our test build of the Spring Boot application (jar) and package the application as an RPM ready for installation.</p>
+
+<p>Build and package the application by running <code>mvn package</code>. You could run a mvn deploy to distribute the RPM — e.g. to Nexus or Artifactory.</p>
+
+<p>On successful completion, you will have an RPM in the target directory. Test it locally by running <code>yum localinstall</code> as shown below.</p>
+
+<pre><code class="language-shell">yum localinstall rpm/target/rpm/demo-application-package/RPMS/noarch/demo-application-package-0.0.1-SNAPSHOT20200614204300.noarch.rpm
+</code></pre>
+
+<p>Once the RPM has been installed to your server, let’s start the application using <code>systemctl start demo-application</code> (applicable to CentOS, RHEL, Amazon Linux 2) and check that it is running using <code>systemctl status demo-application</code>. Once running, we can test the application works.</p>
+
+<p>Local command using curl.</p>
+
+<pre><code class="language-shell"># curl http://localhost:8080/hello
+Hello World!
+</code></pre>
+
+<p>And finally in a browser using the public IP address.</p>
+
+<p><img src="/assets/images/build-an-rpm-using-maven-and-spring-boot/1U98xmQ3aMoO3WVkJPIN9XQ.png" alt="" /></p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>In this post we touched upon the technique for using the <strong>rpm-maven-plugin</strong> for building an RPM for a Spring Boot application and installing to a server.</p>
+
+<p>We barely scratched the surface, and using the same patterns you can continue to explore the techniques of configuration, logging, and including more resources, scripts, and installation commands.</p>
+
+<p>Good luck with your application.</p>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li>
+    <p><a href="https://docs.spring.io/spring-boot/docs/current/reference/html/deployment.html#deployment-service">Spring Boot installation docs</a></p>
+  </li>
+  <li>
+    <p><a href="https://www.mojohaus.org/rpm-maven-plugin/">rpm-maven-plugin docs</a></p>
+  </li>
+</ul>
+
+<h2 id="a-note-from-the-author">A note from the author</h2>
+
+<p>Thank you for reading this article — I hope you found this article useful and I look forward to your comments and feedback.</p>
+
+<p>Source code is available from <a href="https://github.com/davelms/medium-articles/tree/master/spring-maven-rpm">GitHub</a>.</p>
+
+<p>You can follow me on <a href="https://twitter.com/davelms">Twitter</a> and connect on <a href="https://www.linkedin.com/in/davelms/">LinkedIn</a>.</p>
+
+</div>
+
+<!-- Rating -->
+
+
+<!-- Author Box if enabled from _config.yml -->
+<!-- Author Box -->
+
+
+<div class="d-flex authorbox align-items-center">
+    <div class="col-md-2 mr-4 text-center">
+        
+        <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x" alt="Dave">
+        
+    </div>
+    <div class="col-md-10"> 
+        <a target="_blank" class="text-dark h4" href="https://www.davelms.co.uk">About Dave</a>   <a target="_blank" href="https://twitter.com/davelms" class="btn-sm"><i class="fab fa-twitter"></i></a>        
+        <span class="author-description d-block mt-2">DevOps | AWS | GCP.  Editor of Goats in Trees.</span>            
+    </div>
+</div>
+
+
+
+<!-- Comments if not disabled with comments: false -->
+<!-- Comments
+================================================== -->
+
+
+<!-- Share -->
+<div class="share">
+    <p>
+        Share
+    </p>
+    <ul>
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://twitter.com/intent/tweet?text=Build an RPM using Maven and Spring Boot&url=https://goatsintrees.net/build-an-rpm-using-maven-and-spring-boot/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fab fa-twitter"></i>
+            </a>
+        </li>
+
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://facebook.com/sharer.php?u=https://goatsintrees.net/build-an-rpm-using-maven-and-spring-boot/" onclick="window.open(this.href, 'facebook-share', 'width=550,height=435');return false;">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+        </li>
+
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=https://goatsintrees.net/build-an-rpm-using-maven-and-spring-boot/" onclick="window.open(this.href, 'width=550,height=435');return false;">
+                <i class="fab fa-linkedin-in"></i>
+            </a>
+        </li>
+
+    </ul>
+</div>
+
+
+<!-- Related Post -->
+<!-- Related Posts
+================================================== -->
+<div class=" related-posts ">  
+
+    
+    <h2 class="text-center mb-4">Explore more like this</h2>
+    
+    
+    <div class="d-flex justify-content-center align-items-center">
+    
+    <!-- Categories -->
+    
+    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/categories#DevOps">DevOps</a>                
+    
+
+    <!-- Tags -->  
+    
+                    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/tags#Maven">Maven</a>               
+                    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/tags#Spring-Boot">Spring Boot</a>               
+    
+
+    </div>
+
+    
+    
+    
+    <div class="blog-grid-container">
+        
+        
+            
+            
+        
+            
+        
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/build-a-docker-image-using-maven-and-spring-boot/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/build-a-docker-image-using-maven-and-spring-boot/1_RWc78aUjHJZp41lMxnFdyw.png"
+                    alt="Build a Docker image using Maven and Spring Boot">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/build-a-docker-image-using-maven-and-spring-boot/">Build a Docker image using Maven and Spring Boot</a>
+                
+            </h2>
+            <h4 class="card-text">This tutorial will introduce three techniques for building a Spring Boot java application into a Docker image using Maven.</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">07 Jun 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/expand-ec2-boot-disk-space-without-server-downtime/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/expand-ec2-boot-disk-space-without-server-downtime/1_hpUDa1brRH2PBzeCn2hNIw.jpeg"
+                    alt="Expand EC2 boot disk space without server downtime">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/expand-ec2-boot-disk-space-without-server-downtime/">Expand EC2 boot disk space without server downtime</a>
+                
+            </h2>
+            <h4 class="card-text">Run out of disk on your EC2 instance? Quick guide to expanding the disk without taking your Amazon Linux server offline.</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">22 May 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/build-your-docker-images-automatically-when-pushing-new-code-to-github/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1_uB6UypHfUDHAZySPtOYSEw.png"
+                    alt="Build your Docker images automatically when pushing new code to GitHub">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/build-your-docker-images-automatically-when-pushing-new-code-to-github/">Build your Docker images automatically when pushing new code to GitHub</a>
+                
+            </h2>
+            <h4 class="card-text">In this tutorial, we will explore two techniques to automatically build and publish Docker images to Docker Hub every time you push new code into your GitHub source repository.</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">10 May 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+                
+        </div>        
+</div>
+
+<!-- Review with LD-JSON, adapt it for your needs if you like, but make sure you test the generated HTML source code first: 
+https://search.google.com/structured-data/testing-tool/u/0/
+================================================== -->
+
+            </div>
+
+            
+            <!-- Newsletter
+    ================================================== -->
+            <div class="newsletter text-center">
+                <span class="h4"><img src="/assets/images/goat-logo.png" class="newsletter-logo"
+                        alt="Goats in Trees"> &nbsp; Never miss a <b>story</b> from us, subscribe to our
+                    newsletter</span>
+                <form action="https://goatsintrees.us8.list-manage.com/subscribe/post?u=f1ba23fce94cc889510e995fd&amp;id=b045064b1d" method="post" name="mc-embedded-subscribe-form"
+                    class="wj-contact-form validate" target="_blank" novalidate>
+                    <div class="mc-field-group d-inline-flex">
+                        <input type="email" placeholder="Your e-mail" name="EMAIL" class="required email" id="mce-EMAIL"
+                            autocomplete="on" required>
+                        <input type="submit" value="Subscribe" name="subscribe" class="heart">
+                    </div>
+                </form>
+            </div>
+            
+
+        </div>
+
+        <!-- Begin Footer
+================================================== -->
+        <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 text-center text-lg-left">
+                        Copyright © 2020 Goats in Trees
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- End Footer
+================================================== -->
+
+    </div> <!-- /.site-content -->
+
+    <!-- Scripts (if you need bootstrap.js, please add it yourself. I didn't use it for performance reasons, it was not needed in this theme)
+================================================== -->
+
+    <script src="/assets/js/prism.js"></script>
+
+    <script src="/assets/js/theme.js"></script>
+
+    
+
+    
+    <script id="dsq-count-scr" src="//demowebsite.disqus.com/count.js"></script>
+    
+
+</body>
+
+</html>

@@ -41,6 +41,18 @@
 <lastmod>2020-05-10T19:25:47+00:00</lastmod>
 </url>
 <url>
+<loc>https://goatsintrees.net/expand-ec2-boot-disk-space-without-server-downtime/</loc>
+<lastmod>2020-05-22T15:23:50+00:00</lastmod>
+</url>
+<url>
+<loc>https://goatsintrees.net/build-a-docker-image-using-maven-and-spring-boot/</loc>
+<lastmod>2020-06-07T17:46:33+00:00</lastmod>
+</url>
+<url>
+<loc>https://goatsintrees.net/build-an-rpm-using-maven-and-spring-boot/</loc>
+<lastmod>2020-06-15T17:45:45+00:00</lastmod>
+</url>
+<url>
 <loc>https://goatsintrees.net/about</loc>
 </url>
 <url>
@@ -69,5 +81,8 @@
 </url>
 <url>
 <loc>https://goatsintrees.net/page2/</loc>
+</url>
+<url>
+<loc>https://goatsintrees.net/page3/</loc>
 </url>
 </urlset>

@@ -7,24 +7,24 @@
 
     <link rel="icon" href="/assets/images/goat-logo.png">
 
-    <title>Configure a custom domain in AWS CloudFront | Goats in Trees</title>
+    <title>Expand EC2 boot disk space without server downtime | Goats in Trees</title>
 
     <!-- Begin Jekyll SEO tag v2.6.1 -->
-<title>Configure a custom domain in AWS CloudFront | Goats in Trees</title>
+<title>Expand EC2 boot disk space without server downtime | Goats in Trees</title>
 <meta name="generator" content="Jekyll v4.0.0" />
-<meta property="og:title" content="Configure a custom domain in AWS CloudFront" />
+<meta property="og:title" content="Expand EC2 boot disk space without server downtime" />
 <meta name="author" content="davelms" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="CloudFront is Amazon’s low-latency Content Delivery Network (CDN). Using a CDN speeds up the distribution of content to visitors by serving content from edge locations that are closest to the user." />
-<meta property="og:description" content="CloudFront is Amazon’s low-latency Content Delivery Network (CDN). Using a CDN speeds up the distribution of content to visitors by serving content from edge locations that are closest to the user." />
-<link rel="canonical" href="https://goatsintrees.net/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/" />
-<meta property="og:url" content="https://goatsintrees.net/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/" />
+<meta name="description" content="Like I did this week, at some stage you will will find you have run out of disk on your EC2 instance. I was installing a suite of new packages via yum and got the dreaded errors that my disk was full. Nothing to fear… (this article is how to expand the disk, rather than finding out where it all went)." />
+<meta property="og:description" content="Like I did this week, at some stage you will will find you have run out of disk on your EC2 instance. I was installing a suite of new packages via yum and got the dreaded errors that my disk was full. Nothing to fear… (this article is how to expand the disk, rather than finding out where it all went)." />
+<link rel="canonical" href="https://goatsintrees.net/expand-ec2-boot-disk-space-without-server-downtime/" />
+<meta property="og:url" content="https://goatsintrees.net/expand-ec2-boot-disk-space-without-server-downtime/" />
 <meta property="og:site_name" content="Goats in Trees" />
-<meta property="og:image" content="https://goatsintrees.net/assets/images/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/1v5ku2LgGOFYgNhVT-XRYDg.png" />
+<meta property="og:image" content="https://goatsintrees.net/assets/images/expand-ec2-boot-disk-space-without-server-downtime/1_hpUDa1brRH2PBzeCn2hNIw.jpeg" />
 <meta property="og:type" content="article" />
-<meta property="article:published_time" content="2020-02-09T10:37:22+00:00" />
+<meta property="article:published_time" content="2020-05-22T15:23:50+00:00" />
 <script type="application/ld+json">
-{"image":"https://goatsintrees.net/assets/images/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/1v5ku2LgGOFYgNhVT-XRYDg.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://goatsintrees.net/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/"},"@type":"BlogPosting","url":"https://goatsintrees.net/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://goatsintrees.net/assets/images/goat-logo.png"},"name":"davelms"},"author":{"@type":"Person","name":"davelms"},"headline":"Configure a custom domain in AWS CloudFront","dateModified":"2020-02-09T10:37:22+00:00","datePublished":"2020-02-09T10:37:22+00:00","description":"CloudFront is Amazon’s low-latency Content Delivery Network (CDN). Using a CDN speeds up the distribution of content to visitors by serving content from edge locations that are closest to the user.","@context":"https://schema.org"}</script>
+{"image":"https://goatsintrees.net/assets/images/expand-ec2-boot-disk-space-without-server-downtime/1_hpUDa1brRH2PBzeCn2hNIw.jpeg","mainEntityOfPage":{"@type":"WebPage","@id":"https://goatsintrees.net/expand-ec2-boot-disk-space-without-server-downtime/"},"@type":"BlogPosting","url":"https://goatsintrees.net/expand-ec2-boot-disk-space-without-server-downtime/","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://goatsintrees.net/assets/images/goat-logo.png"},"name":"davelms"},"author":{"@type":"Person","name":"davelms"},"headline":"Expand EC2 boot disk space without server downtime","dateModified":"2020-05-22T15:23:50+00:00","datePublished":"2020-05-22T15:23:50+00:00","description":"Like I did this week, at some stage you will will find you have run out of disk on your EC2 instance. I was installing a suite of new packages via yum and got the dreaded errors that my disk was full. Nothing to fear… (this article is how to expand the disk, rather than finding out where it all went).","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
 
@@ -112,7 +112,7 @@
             <div class="main-content">
                 <div class="entry-header">
     <!-- Post Title -->
-    <h1 class="posttitle">Configure a custom domain in AWS CloudFront</h1>
+    <h1 class="posttitle">Expand EC2 boot disk space without server downtime</h1>
     <!-- Author & Date  Box -->
     
     
@@ -126,7 +126,7 @@
         <div>
             Written by <a target="_blank" class="text-dark" href="https://www.davelms.co.uk">Dave</a> on
             <span class="post-date"><time class="post-date"
-                    datetime="2020-02-09">09 Feb 2020</time></span>
+                    datetime="2020-05-22">22 May 2020</time></span>
             
         </div>
     </div>
@@ -141,9 +141,11 @@
 <div class="entry-featured-image">
     
     <img class="featured-image "
-        src="/assets/images/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/1v5ku2LgGOFYgNhVT-XRYDg.png"
-        alt="Configure a custom domain in AWS CloudFront">
+        src="/assets/images/expand-ec2-boot-disk-space-without-server-downtime/1_hpUDa1brRH2PBzeCn2hNIw.jpeg"
+        alt="Expand EC2 boot disk space without server downtime">
     
+    
+    <em>Photo by Christian Wiediger on Unsplash</em>
     
 </div>
 
@@ -151,7 +153,7 @@
 <!-- Subtitle -->
 
 <div class="article-post">
-    <h2 class="subtitle"> A five-minute walk through to demonstrate how to configure a custom domain in CloudFront, set up a certificate and configure Route 53. </h2>
+    <h2 class="subtitle"> Run out of disk on your EC2 instance? Quick guide to expanding the disk without taking your Amazon Linux server offline. </h2>
 </div>
 
 
@@ -162,61 +164,100 @@
     <!-- Toc if any -->
     
     <!-- End Toc -->
-    <p><strong>CloudFront</strong> is Amazon’s low-latency Content Delivery Network (CDN). Using a CDN speeds up the distribution of content to visitors by serving content from edge locations that are closest to the user.</p>
+    <p>Like I did this week, at some stage you will will find you have run out of disk on your EC2 instance. I was installing a suite of new packages via yum and got the dreaded errors that my disk was full. Nothing to fear… (this article is how to expand the disk, rather than finding out where it all went).</p>
 
-<p><img src="/assets/images/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/1_bIfTehbgdp-ebiNfzbY74Q.png" alt="Delivering content from Amazon S3 using CloudFront edge locations" /><em>Delivering content from Amazon S3 using CloudFront edge locations</em></p>
+<h2 id="tldr">tl;dr</h2>
 
-<p>At the time of writing, Amazon has 216 Points of Presence (205 Edge Locations and 11 Regional Edge Caches) in 84 cities across 42 countries.</p>
+<ol>
+  <li>
+    <p>Increase the size of the disk in AWS Management Console.</p>
+  </li>
+  <li>
+    <p>Confirm filesystem is “xfs” by using <code>df -Th</code></p>
+  </li>
+  <li>
+    <p>Verify partition size and mount using <code>lsblk</code></p>
+  </li>
+  <li>
+    <p>Extend the partition using <code>sudo growpart /dev/xvda 1</code></p>
+  </li>
+  <li>
+    <p>Grow the filesystem using <code>sudo xfs_growfs -d /</code></p>
+  </li>
+</ol>
 
-<p>When you set up your CloudFront distribution, straight out of the box with the default settings you will have your own <strong>cloudfront.net</strong> domain.</p>
+<h2 id="full-instructions">Full instructions</h2>
 
-<p><img src="/assets/images/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/1_6-ak9xY7ijMjmmnbYV6-aw.png" alt="" /></p>
+<p>Using the command <code>df -Th</code> we can see the filesystems and their types. Ours is <code>/dev/xvda1</code> of type <code>xfs</code> (slightly different instructions if ext2, ext3, ext4).</p>
 
-<p><em>(that is assuming you have already configured CloudFront in front of an S3 bucket that holds your static web content, but if not check out this guide on <a href="https://medium.com/@davelms/serving-static-content-from-s3-using-cloudfront-and-origin-access-identity-c8ca667b3d71">serving static content from S3 using CloudFront</a> and come back)</em></p>
+<pre><code class="language-shell">[ec2-user@ip-172-31-63-153 ~]**$ df -Th**
+Filesystem     Type      Size  Used Avail Use% Mounted on
+devtmpfs       devtmpfs  475M     0  475M   0% /dev
+tmpfs          tmpfs     492M     0  492M   0% /dev/shm
+tmpfs          tmpfs     492M  404K  492M   1% /run
+tmpfs          tmpfs     492M     0  492M   0% /sys/fs/cgroup
+**/dev/xvda1     xfs       8.0G  1.4G  6.7G  18% /**
+tmpfs          tmpfs      99M     0   99M   0% /run/user/1000
+</code></pre>
 
-<p>But what if you want to serve your content from <strong>my-custom-domain.com</strong>.</p>
+<p>We’re going to resize the boot disk from 8GB to 16GB.</p>
 
-<p>To use a custom domain requires a combination of <strong>Route 53</strong> — Amazon’s highly available and scalable cloud DNS web service — and some additional configuration CloudFront. It doesn’t take too long to set up.</p>
+<p>Head over to the AWS Management Console and we can see our boot disk in the EC2 instance configuration details —from there we can follow the link to EBS to the particular volume — right click, and hit “Modify Volume”.</p>
 
-<p>Before we start, I assume that you have your domain managed in Route 53; it doesn’t matter if you don’t, but this guide assumes you do.</p>
+<p><img src="/assets/images/expand-ec2-boot-disk-space-without-server-downtime/1G6mfm5YIrxOZpeZfQvNcUw.png" alt="Before 8GB" /><em>Before 8GB</em></p>
 
-<p>There is an initial step to obtain an SSL Certificate within <strong>Certificate Manager</strong>. This allows you to serve your content over https and is a service provided by Amazon for free, and they’ll also take care of its renewal.</p>
+<p>Expand to the new size and save. It may take a few seconds while AWS is optimizing the new disk.</p>
 
-<p>Within the Certificate Manager service, <strong>make sure you change your region to North Virginia</strong>; I cannot emphasize this one enough as it’s caught me out many a time. Then <strong>Request a Certificate</strong>.</p>
+<p><img src="/assets/images/expand-ec2-boot-disk-space-without-server-downtime/13q_8TSd1UXn-OZG0-wgRNw.png" alt="After 16GB" /><em>After 16GB</em></p>
 
-<p>The form is pretty self explanatory and you’ll need to provide a means to prove you own the domain — if you’re using Route 53, and we assume you are, then selecting the option that Amazon automatically manages the validation is the simplest approach. The process usually takes a few minutes.</p>
+<p>Head back to your EC2 instance and you will see from <code>df -Th</code> that the disk remains at its old size. That’s because we have a few commands to run yet.</p>
 
-<p>Now head over to CloudFront and set up your custom domain. This can be done at the time of creating the distribution, but don’t worry if you forgot — you can go back and edit all these settings later. However, you do have to complete the setting in CloudFront before you finish off the setup in Route 53.</p>
+<p>Firstly, run <code>lsblk</code> to confirm we can see the new disk size.</p>
 
-<p>The first setting is to list all your <strong>Alternative Domain Names</strong> in the CloudFront distribution settings.</p>
+<pre><code class="language-shell">[ec2-user@ip-172-31-63-153 ~]**$ lsblk**
+NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+xvda    202:0    0  16G  0 disk 
+└─xvda1 202:1    0   8G  0 part /
+</code></pre>
 
-<p><img src="/assets/images/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/1riQu-kJ0UOKmsA2bLFGbtA.png" alt="Add all your domain names to CloudFront distribution settings" /><em>Add all your domain names to CloudFront distribution settings</em></p>
+<p>Now we can grow the partition using <code>sudo growpart /dev/xvda 1</code></p>
 
-<p>The second setting is to reference the SSL Certificate you created. Check the <strong>Custom SSL Certificate (example.com)</strong> option and pick your SSL Certificate from the list. Warning; your Alternate Domain Names must match those you specified in the SSL Certificate provisioning request — so if you don’t see your certificate in the list, that is probably the reason.</p>
+<pre><code class="language-shell">[ec2-user@ip-172-31-63-153 ~]**$ sudo growpart /dev/xvda 1**
+CHANGED: partition=1 start=4096 old: size=16773087 end=16777183 new: size=33550303 end=33554399
+</code></pre>
 
-<p>With these settings done, the final step is to configure the DNS in Route 53.</p>
+<p>Still not quite there. If we run <code>df -Th</code> again we will still see that our <code>/</code> mount is showing as 8GB. The final command is to grow the xfs filesystem — we do this by running the command <code>sudo xfs_growfs -d /</code>.</p>
 
-<p>In your domain hosted zone in Route 53, select to <strong>Create Record Set</strong>.</p>
+<pre><code class="language-shell">[ec2-user@ip-172-31-63-153 ~]**$ sudo xfs_growfs -d /**
+meta-data=/dev/xvda1             isize=512    agcount=4, agsize=524159 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=1        finobt=1 spinodes=0
+data     =                       bsize=4096   blocks=2096635, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
+log      =internal               bsize=4096   blocks=2560, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+data blocks changed from 2096635 to 4193787
+</code></pre>
 
-<p>We will be creating as an <strong>A record</strong> for IPv4 and we’ll select the <strong>Alias</strong> option.</p>
+<p><strong>And that’s done.</strong> Check again with <code>df -Th</code> and we will see the resized disk available to our filesystem. Quick, easy, and with no server downtime.</p>
 
-<p>In the <strong>Alias Target</strong>, you will find your CloudFront distribution — select and save. Warning; your Alternate Domain Names you configured in CloudFront must match the record set name — so if you don’t see your CloudFront distribution in the target drop down list, that is probably the reason.</p>
+<pre><code class="language-shell">[ec2-user@ip-172-31-63-153 ~]**$ df -Th**
+Filesystem     Type      Size  Used Avail Use% Mounted on
+devtmpfs       devtmpfs  475M     0  475M   0% /dev
+tmpfs          tmpfs     492M     0  492M   0% /dev/shm
+tmpfs          tmpfs     492M  408K  492M   1% /run
+tmpfs          tmpfs     492M     0  492M   0% /sys/fs/cgroup
+**/dev/xvda1     xfs        16G  1.4G   15G   9% /**
+tmpfs          tmpfs      99M     0   99M   0% /run/user/1000
+</code></pre>
 
-<p><img src="/assets/images/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/1h_ZE7PtUtUQJRtr1Afqy6g.png" alt="" /></p>
+<h2 id="conclusion">Conclusion</h2>
 
-<p>Repeat to create an <strong>AAAA record</strong> for IPv6.</p>
+<p>In this article we quickly walked through expanding the boot disk of an EC2 instance without taking the server offline. It’s quick and trivial to do — so no need to panic, stay calm and work through the simple steps.</p>
 
-<p>And that’s it. Success. You will find that you are now able to view your website using <strong>my-custom-domain.com</strong>, with all the added benefits of CloudFront providing edge locations around the world to reduce latency for your visitors. You will also have an SSL Certificate that is managed by Amazon and will be automatically renewed for you (at the time of writing, it’s <strong>free</strong>).</p>
-
-<p><img src="/assets/images/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/1v5ku2LgGOFYgNhVT-XRYDg.png" alt="" /></p>
-
-<p><strong>Variations</strong>. If you don’t use Route 53, the final step will be to add a CNAME entry in your DNS settings and set the value to your CloudFront domain.</p>
-
-<h2 id="a-note-from-the-author">A note from the author</h2>
-
-<p>Thank you for reading this article — I hope you found this article useful and I look forward to your feedback.</p>
-
-<p>You can follow me on <a href="https://twitter.com/davelms">Twitter</a> and connect on <a href="https://www.linkedin.com/in/davelms/">LinkedIn</a>.</p>
+<p>Thank you for reading this article — I hope you found it useful — you can follow me on <a href="https://twitter.com/davelms">Twitter</a> and connect on <a href="https://www.linkedin.com/in/davelms/">LinkedIn</a>.</p>
 
 </div>
 
@@ -253,19 +294,19 @@
     </p>
     <ul>
         <li class="ml-1 mr-1">
-            <a target="_blank" href="https://twitter.com/intent/tweet?text=Configure a custom domain in AWS CloudFront&url=https://goatsintrees.net/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+            <a target="_blank" href="https://twitter.com/intent/tweet?text=Expand EC2 boot disk space without server downtime&url=https://goatsintrees.net/expand-ec2-boot-disk-space-without-server-downtime/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
                 <i class="fab fa-twitter"></i>
             </a>
         </li>
 
         <li class="ml-1 mr-1">
-            <a target="_blank" href="https://facebook.com/sharer.php?u=https://goatsintrees.net/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/" onclick="window.open(this.href, 'facebook-share', 'width=550,height=435');return false;">
+            <a target="_blank" href="https://facebook.com/sharer.php?u=https://goatsintrees.net/expand-ec2-boot-disk-space-without-server-downtime/" onclick="window.open(this.href, 'facebook-share', 'width=550,height=435');return false;">
                 <i class="fab fa-facebook-f"></i>
             </a>
         </li>
 
         <li class="ml-1 mr-1">
-            <a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=https://goatsintrees.net/using-a-custom-domain-in-cloudfront-with-an-ssl-certificate-and-route-53/" onclick="window.open(this.href, 'width=550,height=435');return false;">
+            <a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=https://goatsintrees.net/expand-ec2-boot-disk-space-without-server-downtime/" onclick="window.open(this.href, 'width=550,height=435');return false;">
                 <i class="fab fa-linkedin-in"></i>
             </a>
         </li>
@@ -290,6 +331,8 @@
     
     <a class="smoothscroll badge badge-primary text-capitalize" href="/categories#Cloud">Cloud</a>                
     
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/categories#DevOps">DevOps</a>                
+    
 
     <!-- Tags -->  
     
@@ -311,37 +354,19 @@
             
         
             
-        
-        
-        
-            
-            
-        
-            
-        
-            
-        
-        
-        
-            
-            
-        
-            
-        
-            
             <!-- begin post -->
 
 
 <div class="blog-grid-item">
     <div class="card h-100">
         <div class="maxthumb">
-            <a href="/expand-ec2-boot-disk-space-without-server-downtime/">
+            <a href="/build-an-rpm-using-maven-and-spring-boot/">
                 
 
                 
                 <img class="img-thumb"
-                    src="/assets/images/expand-ec2-boot-disk-space-without-server-downtime/1_hpUDa1brRH2PBzeCn2hNIw.jpeg"
-                    alt="Expand EC2 boot disk space without server downtime">
+                    src="/assets/images/build-an-rpm-using-maven-and-spring-boot/1_pIDTvsW1UqiYaIT0qDYQVQ.png"
+                    alt="Build an RPM using Maven and Spring Boot">
                 
 
                 
@@ -349,10 +374,10 @@
         </div>
         <div class="card-body">
             <h2 class="card-title">
-                <a class="text-dark" href="/expand-ec2-boot-disk-space-without-server-downtime/">Expand EC2 boot disk space without server downtime</a>
+                <a class="text-dark" href="/build-an-rpm-using-maven-and-spring-boot/">Build an RPM using Maven and Spring Boot</a>
                 
             </h2>
-            <h4 class="card-text">Run out of disk on your EC2 instance? Quick guide to expanding the disk without taking your Amazon Linux server offline.</h4>
+            <h4 class="card-text">This tutorial will introduce a technique for building a Spring Boot java application into an RPM package using Maven</h4>
         </div>
         <div class="card-footer bg-white">
             <div class="wrapfooter">
@@ -367,7 +392,7 @@
                     <span class="post-name"><a target="_blank"
                             href="https://www.davelms.co.uk">Dave</a></span>
                     
-                    <span class="post-date">22 May 2020</span>
+                    <span class="post-date">15 Jun 2020</span>
                 </span>
                 <div class="clearfix"></div>
             </div>
@@ -387,46 +412,19 @@
             
         
             
-        
-        
-        
-            
-            
-        
-            
-        
-            
-        
-        
-        
-            
-            
-        
-            
-        
-            
-        
-        
-        
-            
-            
-        
-            
-        
-            
             <!-- begin post -->
 
 
 <div class="blog-grid-item">
     <div class="card h-100">
         <div class="maxthumb">
-            <a href="/use-ansible-to-create-and-configure-ec2-instances-on-aws/">
+            <a href="/build-a-docker-image-using-maven-and-spring-boot/">
                 
 
                 
                 <img class="img-thumb"
-                    src="/assets/images/use-ansible-to-create-and-configure-ec2-instances-on-aws/bill-oxford--fGqsewtsJY-unsplash.jpg"
-                    alt="Use Ansible to create and configure EC2 instances on AWS">
+                    src="/assets/images/build-a-docker-image-using-maven-and-spring-boot/1_RWc78aUjHJZp41lMxnFdyw.png"
+                    alt="Build a Docker image using Maven and Spring Boot">
                 
 
                 
@@ -434,10 +432,10 @@
         </div>
         <div class="card-body">
             <h2 class="card-title">
-                <a class="text-dark" href="/use-ansible-to-create-and-configure-ec2-instances-on-aws/">Use Ansible to create and configure EC2 instances on AWS</a>
+                <a class="text-dark" href="/build-a-docker-image-using-maven-and-spring-boot/">Build a Docker image using Maven and Spring Boot</a>
                 
             </h2>
-            <h4 class="card-text">Quick how to tutorial to using Ansible to stand up EC2 instances on AWS. Over the next 5 minutes, we’ll create an initial jumpbox in our default VPC and install...</h4>
+            <h4 class="card-text">This tutorial will introduce three techniques for building a Spring Boot java application into a Docker image using Maven.</h4>
         </div>
         <div class="card-footer bg-white">
             <div class="wrapfooter">
@@ -452,7 +450,7 @@
                     <span class="post-name"><a target="_blank"
                             href="https://www.davelms.co.uk">Dave</a></span>
                     
-                    <span class="post-date">25 Apr 2020</span>
+                    <span class="post-date">07 Jun 2020</span>
                 </span>
                 <div class="clearfix"></div>
             </div>
@@ -487,13 +485,13 @@
 <div class="blog-grid-item">
     <div class="card h-100">
         <div class="maxthumb">
-            <a href="/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/">
+            <a href="/build-your-docker-images-automatically-when-pushing-new-code-to-github/">
                 
 
                 
                 <img class="img-thumb"
-                    src="/assets/images/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/1_RhGZIe05Pj_kjGPDbBOmqQ.jpeg"
-                    alt="Schedule cron in Lambda to download a file and save it to S3">
+                    src="/assets/images/build-your-docker-images-automatically-when-pushing-new-code-to-github/1_uB6UypHfUDHAZySPtOYSEw.png"
+                    alt="Build your Docker images automatically when pushing new code to GitHub">
                 
 
                 
@@ -501,10 +499,10 @@
         </div>
         <div class="card-body">
             <h2 class="card-title">
-                <a class="text-dark" href="/schedule-aws-lambda-to-download-a-file-from-the-internet-and-save-it-to-s3/">Schedule cron in Lambda to download a file and save it to S3</a>
+                <a class="text-dark" href="/build-your-docker-images-automatically-when-pushing-new-code-to-github/">Build your Docker images automatically when pushing new code to GitHub</a>
                 
             </h2>
-            <h4 class="card-text">How to write an AWS Lambda (Node.js) function and schedule it daily to download a file from the internet and save it into an S3 bucket.</h4>
+            <h4 class="card-text">In this tutorial, we will explore two techniques to automatically build and publish Docker images to Docker Hub every time you push new code into your GitHub source repository.</h4>
         </div>
         <div class="card-footer bg-white">
             <div class="wrapfooter">
@@ -519,7 +517,7 @@
                     <span class="post-name"><a target="_blank"
                             href="https://www.davelms.co.uk">Dave</a></span>
                     
-                    <span class="post-date">06 Apr 2020</span>
+                    <span class="post-date">10 May 2020</span>
                 </span>
                 <div class="clearfix"></div>
             </div>

@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" href="/assets/images/goat-logo.png">
+
+    <title>Get Started With CI/CD Using GitHub Actions | Goats in Trees</title>
+
+    <!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Get Started With CI/CD Using GitHub Actions | Goats in Trees</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Get Started With CI/CD Using GitHub Actions" />
+<meta name="author" content="davelms" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Welcome to the first part of a series of articles comparing CI/CD platforms. To help evaluate, compare and contrast the tools currently dominating the market, the goal will be to automate the deployment of a Flask application onto AWS Elastic Beanstalk. A new deployment will need to occur after every push to main branch, and during the series this same requirement will be implemented across a multitude of CI/CD tools." />
+<meta property="og:description" content="Welcome to the first part of a series of articles comparing CI/CD platforms. To help evaluate, compare and contrast the tools currently dominating the market, the goal will be to automate the deployment of a Flask application onto AWS Elastic Beanstalk. A new deployment will need to occur after every push to main branch, and during the series this same requirement will be implemented across a multitude of CI/CD tools." />
+<link rel="canonical" href="https://goatsintrees.net/get-started-with-ci-cd-using-github-actions/" />
+<meta property="og:url" content="https://goatsintrees.net/get-started-with-ci-cd-using-github-actions/" />
+<meta property="og:site_name" content="Goats in Trees" />
+<meta property="og:image" content="https://goatsintrees.net/assets/images/get-started-with-ci-cd-using-github-actions/1_BZ_jv-xjX_FfJR5fQH_6UQ.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-10-25T21:50:55+00:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://goatsintrees.net/assets/images/get-started-with-ci-cd-using-github-actions/1_BZ_jv-xjX_FfJR5fQH_6UQ.png" />
+<meta property="twitter:title" content="Get Started With CI/CD Using GitHub Actions" />
+<script type="application/ld+json">
+{"url":"https://goatsintrees.net/get-started-with-ci-cd-using-github-actions/","@type":"BlogPosting","image":"https://goatsintrees.net/assets/images/get-started-with-ci-cd-using-github-actions/1_BZ_jv-xjX_FfJR5fQH_6UQ.png","headline":"Get Started With CI/CD Using GitHub Actions","dateModified":"2020-10-25T21:50:55+00:00","datePublished":"2020-10-25T21:50:55+00:00","author":{"@type":"Person","name":"davelms"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://goatsintrees.net/get-started-with-ci-cd-using-github-actions/"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://goatsintrees.net/assets/images/goat-logo.png"},"name":"davelms"},"description":"Welcome to the first part of a series of articles comparing CI/CD platforms. To help evaluate, compare and contrast the tools currently dominating the market, the goal will be to automate the deployment of a Flask application onto AWS Elastic Beanstalk. A new deployment will need to occur after every push to main branch, and during the series this same requirement will be implemented across a multitude of CI/CD tools.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link href="/assets/css/prism.css" rel="stylesheet">
+
+    <link href="/assets/css/theme.css" rel="stylesheet">
+
+    <script src="/assets/js/jquery.min.js"></script>
+
+</head>
+
+
+<!-- change your GA id in _config.yml -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-209086-18"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'UA-209086-18');
+</script>
+
+
+
+
+<body>
+    <!-- defer loading of font and font awesome -->
+    <noscript id="deferred-styles">
+        <link href="https://fonts.googleapis.com/css?family=Sen:400,700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
+            integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    </noscript>
+
+    <!-- Begin Sidebar Navigation
+================================================== -->
+
+    <div class="sidebar">
+    </div>
+    <div class="nav-icon">
+        <div class="hamburger-bar"></div>
+    </div>
+    <div id="blackover-nav" class="blackover"></div>
+    <nav id="menu">
+        <ul>
+            <h3>Navigation</h3>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <script src="/assets/js/lunr.js"></script>
+
+<style>
+    
+</style>
+
+<div class="wrap-search">
+    <div class="d-flex align-items-center ml-auto">
+        <i class="fas fa-search show-search"></i>
+        <form class="bd-search ml-3" onSubmit="return lunr_search(document.getElementById('lunrsearch').value);">
+            <input type="text" class="form-control bigradius text-small launch-modal-search" id="lunrsearch" name="q" maxlength="255" value="" placeholder="Type and enter..."/>
+        </form>
+    </div>
+</div>
+
+<div id="lunrsearchresults">
+    <ul></ul>
+</div>
+
+<script src="/assets/js/lunrsearchengine.js"></script>
+
+
+    <!-- End Sidebar Navigation
+================================================== -->
+
+    <div class="site-content ">
+
+        <div class="container">
+
+            <!-- Site Logo/Name
+    ================================================== -->
+
+            <a class="navbar-brand" href="/">
+                <img src="/assets/images/goat-logo.png" alt="Goats in Trees">
+            </a>
+
+
+            <!-- Site Tag
+    ================================================== -->
+            
+
+            <!-- Content
+    ================================================== -->
+            <div class="main-content">
+                <div class="entry-header">
+    <!-- Post Title -->
+    <h1 class="posttitle">Get Started With CI/CD Using GitHub Actions</h1>
+    <!-- Author & Date  Box -->
+    
+    
+    <div class="d-flex align-items-center mt-4">
+        <div>
+            
+            <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                alt="Dave">
+            
+        </div>
+        <div>
+            Written by <a target="_blank" class="text-dark" href="https://www.davelms.co.uk">Dave</a> on
+            <span class="post-date"><time class="post-date"
+                    datetime="2020-10-25">25 Oct 2020</time></span>
+            
+        </div>
+    </div>
+    
+</div>
+
+<!-- Adsense under title if enabled from _config.yml (change your pub id and slot) -->
+
+
+<!-- Featured Image -->
+
+<div class="entry-featured-image">
+    
+    <img class="featured-image "
+        src="/assets/images/get-started-with-ci-cd-using-github-actions/1_BZ_jv-xjX_FfJR5fQH_6UQ.png"
+        alt="Get Started With CI/CD Using GitHub Actions">
+    
+    
+</div>
+
+
+<!-- Subtitle -->
+
+<div class="article-post">
+    <h2 class="subtitle"> Part 1 of "Comparing CI/CD Tools". In this introduction to GitHub Actions, we'll explore how easy it is to build and deploy a simple Python Flask application to AWS Elastic Beanstalk. </h2>
+</div>
+
+
+<!-- Content -->
+<!-- Post, Page Content
+================================================== -->
+<div class="article-post">
+    <!-- Toc if any -->
+    
+    <!-- End Toc -->
+    <p>Welcome to the first part of a series of articles <strong>comparing CI/CD platforms</strong>. To help evaluate, compare and contrast the tools currently dominating the market, the goal will be to automate the deployment of a Flask application onto AWS Elastic Beanstalk. A new deployment will need to occur after every push to main branch, and during the series this same requirement will be implemented across a multitude of CI/CD tools.</p>
+
+<p>First up, part 1 will focus on <strong>GitHub Actions</strong>, where the <a href="https://github.blog/2019-08-08-github-actions-now-supports-ci-cd/">support for CI/CD was first announced in August 2019</a>. I’ll document the steps taken along the way to achieve the goal with GitHub Actions, and there’s a write up of the positives and negatives in a conclusion at the end of this article.</p>
+
+<h2 id="our-application">Our application</h2>
+
+<p><strong>The Flask application</strong></p>
+
+<p>Our <a href="https://github.com/davelms/python-github-actions-demo">Flask application</a> is a simple “Hello World” example, and for the purposes of demonstrating running unit tests within the pipeline, we have included a test case as well.</p>
+
+<p><strong>AWS Elastic Beanstalk</strong></p>
+
+<p>Our Flask application is going to be deployed to AWS Elastic Beanstalk which is a service that automates the deployment and scaling of a web application. It takes in our source code and takes care of all the infrastructure configuration.</p>
+
+<p>There’s a handy CLI for Elastic Beanstalk, and ultimately we’re going to automate the following commands into our pipeline. However, these are just for reference and you do not need to run these now.</p>
+
+<pre><code class="language-shell">$ eb init -p python-3.6 hello-world --region us-east-1
+$ eb create hello-world-env
+</code></pre>
+
+<h2 id="introduction-to-github-actions">Introduction to GitHub Actions</h2>
+
+<ul>
+  <li>An <strong>event</strong> will trigger a <strong>workflow</strong>.</li>
+  <li>A <strong>workflow</strong> contains one or more <strong>jobs</strong>.</li>
+  <li>A <strong>job</strong> is executed on a <strong>runner</strong> and will contain one or more <strong>steps</strong>.</li>
+  <li>A <strong>step</strong> will contain a single <strong>action</strong> or a series of inline commands.</li>
+  <li>The run can generate <strong>artifacts</strong> and use a <strong>cache</strong>.</li>
+</ul>
+
+<h3 id="runner">Runner</h3>
+
+<p>A job <em>runner</em> is any machine with the GitHub Actions Runner Application installed — these machines can be GitHub-hosted or you can run your own.</p>
+
+<p>GitHub-hosted runners are virtual machines — Linux (Ubuntu), Windows, and macOS — and are fully managed by GitHub and come with a lot of installed software. For example, the <a href="https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu1804-README.md">image for Ubuntu</a> comes armed with multiple libraries, including the AWS CLI and Google SDK. As part of the free-tier, GitHub provides 2,000 minutes per month of its hosted runners.</p>
+
+<p>The runner is defined in the workflow yaml with the <code>runs-on</code> property.</p>
+
+<h3 id="action">Action</h3>
+
+<p>An <em>action</em> is the smallest unit of work in the GitHub Actions ecosystem. These are the individual tasks that can be combined as <em>steps</em> to create a <em>job</em>. You can create your own actions, use community-shared actions from the <a href="https://github.com/marketplace?type=actions">Marketplace</a>, and customize public actions. Actions can also be packaged up as docker containers that are executed on the <em>runner</em> machine — these shared actions in the Marketplace may provide additional software or scripts in a container that encapsulate more complex or repeat scenarios.</p>
+
+<h3 id="step">Step</h3>
+
+<p>A <em>step</em> is an individual task that can run a series of commands or a single <em>action</em>. By default all steps will run directly on the job runner virtual machine unless the step refers to an action that is configured to run in a <em>container</em>.</p>
+
+<h3 id="job">Job</h3>
+
+<p>A <em>job</em> is a group of one of more steps, and all steps within the same job will share the filesystem.</p>
+
+<p>Jobs can run at the same time in parallel (default) or run sequentially — to define that run jobs are to sequentially, specify the dependencies in the job specification. For example, a workflow can have two sequential jobs that <em>build</em> and <em>deploy</em> code, where the deploy job is dependent on the status of the build job. If the build job fails, the deploy job will not run.</p>
+
+<h3 id="workflow">Workflow</h3>
+
+<p>A <em>workflow</em> is the overall automated process that is made up of one or more jobs. You define a workflow using YAML format files and these are saved alongside your application code in the <code>.github/workflows</code> directory.</p>
+
+<h3 id="dependency-caching">Dependency Caching</h3>
+
+<p>Caching third party dependencies is a common technique when building out a CI/CD pipeline as it can save minutes from repeatedly downloading the same dependencies. It’s useful to save off the contents of <code>node_modules</code> for npm; the <code>.m2/repository</code> for Apache Maven; and in our case the pip cache from <code>~/.cache/pip</code>.</p>
+
+<p>GitHub Actions provides a simple solution that allows us to save off the path and all its contents to the cache at the end of a <em>successful completion</em> of the job. The cache will be restored to the path at the start of the next job execution. Pay attention however, because if the job fails the cache will not be saved.</p>
+
+<h2 id="steps">Steps</h2>
+
+<p>These are the steps we will follow to create our CI/CD pipeline.</p>
+
+<ol>
+  <li>
+    <p>Create an empty repository in GitHub and set up an initial workflow and run our first “build” job. This workflow will run after every <code>push</code> event on the <code>main</code> branch.</p>
+  </li>
+  <li>
+    <p>Add our Python code for a “Hello World” application, and update the steps in our “build” job definition to test the Python code after every change.</p>
+  </li>
+  <li>
+    <p>Create a “deploy-to-test” job definition which is configured to run after the “build” job has successfully completed. We will install the Elastic Beanstalk CLI, configure our AWS credentials using GitHub Secrets, and create the application and environment.</p>
+  </li>
+  <li>
+    <p>With an existing environment, the “deploy-to-test” job will fail on the second run — so we need to fix that issue so that the workflow will run after every push event. We’ll make a change to the application to test its repeatability.</p>
+  </li>
+</ol>
+
+<h3 id="step-1-create-github-repository-and-initial-workflow">Step 1. Create GitHub repository and initial workflow</h3>
+
+<p>Create your GitHub repository and upload your initial application code. My demonstration code is a simple “Hello World” Flask application, a test case, and a requirements.txt for defining the dependencies.</p>
+
+<p>If you are following along your initial structure should contain three files:</p>
+
+<ol>
+  <li>
+    <p><a href="https://github.com/davelms/python-github-actions-demo/blob/main/application.py">application.py</a></p>
+  </li>
+  <li>
+    <p><a href="https://github.com/davelms/python-github-actions-demo/blob/main/test_application.py">test_application.py</a></p>
+  </li>
+  <li>
+    <p><a href="https://github.com/davelms/python-github-actions-demo/blob/main/requirements.txt">requirements.txt</a></p>
+  </li>
+</ol>
+
+<p>With your code now in place, head over to the GitHub console, go into “Actions”, and create a “New Workflow”.</p>
+
+<p>GitHub will detect you have a Python application and will give you some starter pipelines. There’s many to choose from — some from GitHub, some from third parties — for the purpose of this demo, select “set up a workflow yourself” so that we can start with a blank canvas and learn as we go.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-github-actions/1_49AXUG9qNj_-ZA4vSZCmsw.png" alt="" /></p>
+
+<p>The default name is <code>main.yaml</code> — paste the following to get started.</p>
+
+<pre><code class="language-yaml">
+name: CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE
+      - uses: actions/checkout@v2
+
+      # Set up Python 3.6 environment
+      - name: Set up Python 3.6
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.6"
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Run our unit tests
+      - name: Run unit tests
+        run: |
+          python test_application.py
+
+</code></pre>
+
+<p>Our initial workflow defines <em>1 job</em> (called “build”) consisting of <em>4 steps</em>:</p>
+
+<ol>
+  <li>Checkout the code</li>
+  <li>Set up Python 3.6 environment</li>
+  <li>Install dependencies</li>
+  <li>Run &amp; test the application code</li>
+</ol>
+
+<p>When you save it will create a file at the path <code>.github/workflows/main.yaml</code> and from here on you make, add, commit, and push updates just as you would with any other file in a git repository.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-github-actions/1_-S1mQj7CxLHwkoEDwv2lKQ.png" alt="" /></p>
+
+<p>Your workflow should run immediately. Check back into “Actions” to see the output. At this stage, you should have run your first GitHub Actions workflow.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-github-actions/1_KvH3Cmejhk8QUKYN_wulNA.png" alt="" /></p>
+
+<p>Well done!</p>
+
+<h3 id="step-2-add-a-cache-to-speed-up-runtime">Step 2. Add a cache to speed up runtime.</h3>
+
+<p>To enable a cache for the pip dependencies, we can use the built-in <code>cache</code> Action to save off the pip cache located at <code>~/.cache/pip</code>. We set the cache <code>path</code> based on the location of the pip cache, and we use our requirements.txt file as a hash to detect when we need to rebuild the cache.</p>
+
+<p>Insert the following into your <code>main.yaml</code> immediately after the <code>setup-python</code> step. Save and commit.</p>
+
+<pre><code class="language-yaml">
+- name: Get pip cache dir
+  id: pip-cache
+  run: |
+    echo "::set-output name=dir::$(pip cache dir)"
+- name: Cache pip
+  uses: actions/cache@v1
+  with:
+    path: ${{ steps.pip-cache.outputs.dir }}
+    key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+    restore-keys: |
+      ${{ runner.os }}-pip-
+
+</code></pre>
+
+<p>Run it once and you will see that there is no cache hit.</p>
+
+<p>Re-run your workflow and you will see a hit. This will save time for larger applications with lots of dependencies.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-github-actions/1_vmPCoCAt_jJZPswILFvLSg.png" alt="" /></p>
+
+<p>Step completed. Well done!</p>
+
+<h3 id="step-3a-create-our-initial-deploy-to-test-job">Step 3a. Create our initial “deploy-to-test” job</h3>
+
+<p>Now that we have a successful “build”, we want to deploy the application for testing purposes. We could continue in a sequential manner within the “build” job, but let’s demonstrate how we would create a multi-job workflow instead.</p>
+
+<p>By default, jobs run in <strong>parallel</strong>. To run jobs <strong>sequentially</strong>, as we require, we have to specify we have a dependency between “deploy-to-test” upon “build”.</p>
+
+<p>To achieve this we state our “deploy-to-test” job <code>needs</code> “build” to be successful before the job will run — so if “build” fails, GitHub Actions will not invoke the “deploy-to-test” job.</p>
+
+<pre><code class="language-yaml">deploy-to-test:
+  # Only run this job if "build" has ended successfully
+  needs:
+    - build
+</code></pre>
+<p>We’ll run on Ubuntu as we did before, and we’ll need to ensure that we checkout the git repository and set up Python 3.6 again — it’s not shared.</p>
+
+<p>Although, AWS CLI is installed we default, the Elastic Beanstalk CLI is not so we need to install it using the <code>pip install awsebcli</code> command.</p>
+
+<pre><code class="language-yaml"># Elastic Beanstalk CLI version
+- name: Get EB CLI version
+  run: |
+    python -m pip install --upgrade pip setuptools wheel
+    pip install awsebcli --upgrade
+    eb --version
+</code></pre>
+
+<p>Here’s the full definition to append to your <code>main.yaml</code> file.</p>
+
+<pre><code class="language-yaml">
+deploy-to-test:
+    # Only run this job if "build" has ended successfully
+    needs:
+      - build
+      
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE
+      - uses: actions/checkout@v2
+
+      # Set up Python 3.6 environment
+      - name: Set up Python 3.6
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.6"
+
+      # Set up cache for pip
+      - name: Get pip cache dir
+        id: pip-cache
+        run: |
+          echo "::set-output name=dir::$(pip cache dir)"
+
+      - name: Cache pip
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # Elastic Beanstalk CLI version
+      - name: Get EB CLI version
+        run: |
+          python -m pip install --upgrade pip
+          pip install awsebcli --upgrade
+          eb --version
+
+</code></pre>
+
+<p>At this stage, you should now have the Elastic Beanstalk CLI deployed and available to your “deploy-to-test” job. In the UI you will see the additional job listed in the left hand column.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-github-actions/1_nagz7CaDXd0iLYCHSjNVeQ.png" alt="" /></p>
+
+<p>Check the output to confirm the Elastic Beanstalk CLI version was displayed.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-github-actions/1_i1a6qKKz9bLWqsVTC3qGaA.png" alt="" /></p>
+
+<p>Well done, another milestone achieved.</p>
+
+<h3 id="step-3b-configure-our-aws-credentials-using-github-secrets">Step 3b. Configure our AWS credentials using GitHub Secrets</h3>
+
+<p>Configure two secrets in GitHub to contain your User access key and client secret. Secrets are made available to your job as <code>${{ secrets.XXXX }}</code>.</p>
+
+<ul>
+  <li>AWS_ACCESS_KEY_ID</li>
+  <li>AWS_SECRET_ACCESS_KEY</li>
+</ul>
+
+<p>To set these up, head into the GitHub console and <strong>Secrets</strong> is under <strong>Settings</strong>.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-github-actions/1__K31uumwW4luQGcA6FQxNw.png" alt="" /></p>
+
+<p><em>(remember, AWS security best practice would be to create a dedicate User with programmatic access and having permissions just to deploy to AWS Elastic Beanstalk).</em></p>
+
+<p>In a new step, we can add the Action <code>configure-aws-credentials</code> which is a docker container provided via the AWS-team managed project <code>aws-actions</code>.</p>
+
+<pre><code class="language-yaml">
+- name: Configure AWS Credentials
+  uses: aws-actions/configure-aws-credentials@v1
+  with:
+    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    aws-region: us-east-1
+
+</code></pre>
+
+<p>There’s no visual clue that this worked, so commit and jump on to Step 3c.</p>
+
+<h3 id="step-3c-deploy-application-to-elastic-beanstalk">Step 3c. Deploy Application to Elastic Beanstalk</h3>
+
+<p>Elastic Beanstalk is so easy to use from the command prompt using the CLI. Remember those two CLI commands I shared at the very start and said not to run? We are going to include these commands in our pipeline and build our first Elastic Beanstalk application and environment.</p>
+
+<pre><code class="language-yaml"># Create the Elastic Beanstalk application
+- name: Create EBS application
+  run: |
+    eb init -p python-3.6 hello-world --region us-east-1
+# Create the Elastic Beanstalk environment
+- name: Create test environment
+  run: |
+    eb create test-environment
+</code></pre>
+
+<p>Commit your changes, and you should see your application successfully running on Elastic Beanstalk. Check the command line for confirmation of the endpoint:</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-github-actions/1_mIdmMI5a8IbnMUQdyOThLw.png" alt="" /></p>
+
+<p>And verify the same in the AWS Console.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-github-actions/1_gFlNZfd9F7qXQE2UPQbJ_w.png" alt="" /></p>
+
+<p>And here’s the application successfully running on AWS…</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-github-actions/1_VtCWPM4kBr9klRutUtSvbw.png" alt="" /></p>
+
+<p>Well done, you’ve successfully run a build, test, deploy to Elastic Beanstalk.</p>
+
+<h3 id="step-4-avoiding-failure-on-subsequent-job-executions">Step 4. Avoiding failure on subsequent job executions</h3>
+
+<p>Our workflow is working and has successfully created the initial Elastic Beanstalk application and environment. The <strong>first version</strong> has been installed.</p>
+
+<p>But what happens when we make a change and push that to master branch. Unfortunately, the <code>eb create test-environment</code> will fail when it is run for a second time — we need to detect that scenario, and run an <code>eb deploy</code> instead.</p>
+
+<p>We can solve that problem with a bit of logic syntax and the <code>eb status test-environment</code> command. If our “test-environment” already exists, the command passes and we can deploy to it with <code>eb deploy</code>. Otherwise, if it fails, then we create “test-environment”.</p>
+
+<p>Our updated command now looks like this.</p>
+
+<pre><code class="language-yaml">(eb use test-environment &amp;&amp; eb status test-environment &amp;&amp; eb deploy) || eb create test-environment
+</code></pre>
+
+<p>If we make a change (I edited “Hello World!” to “Hello Dave!”), we can see from the screenshot below that the GitHub Actions has deployed the new Application version to the “test-environment”.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-github-actions/1_H4Wz4L6Ki38-rcgLeY-u1Q.png" alt="" /></p>
+
+<p>Hitting the endpoint in the browser confirms the deployment was successful.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-github-actions/1_fCNdSeGdwLOSbosD-6zgOw.png" alt="" /></p>
+
+<p>Well done, that’s the end of the demonstration. You have successfully built and deployed your application to Elastic Beanstalk and been through the cycle of a code change and seen that change reflected in AWS almost immediately (my testing showed it took around 1 minute 30 seconds from commit to seeing the updated code running on AWS).</p>
+
+<p>You can download the final <a href="https://github.com/davelms/python-github-actions-demo/blob/main/.github/workflows/main.yml">main.yml</a> from GitHub.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Article first written May 2020 and things change over time. <em>At the time of writing, here were my findings…</em></p>
+
+<h3 id="-positives">+ Positives</h3>
+
+<ul>
+  <li>
+    <p><strong>Easy to get started</strong> with a generous <strong>2,000 minutes free tier</strong>.</p>
+  </li>
+  <li>
+    <p>The fact we’re building upon GitHub where we are likely to already have our <strong>git hosting, project pages, issues, team management</strong>, etc. is an obvious bonus straight off the bat.</p>
+  </li>
+  <li>
+    <p>GitHub Actions provides multiple <strong>out-of-the-box workflow examples</strong> for a wide range of coding languages, and these are augmented with ready-made third party Actions available via the <strong>Marketplace</strong>.</p>
+  </li>
+  <li>
+    <p><strong>Extensible framework</strong> — you can create your own Actions inline, or publish an Action and reference in your projects.</p>
+  </li>
+  <li>
+    <p><strong>Jobs are started up quickly</strong> and there is no observable lag.</p>
+  </li>
+  <li>
+    <p>GitHub-hosted Runners come <strong>pre-built with a lot of software</strong>, including the CLI for AWS, Google Cloud Platform, and Azure cloud platforms.</p>
+  </li>
+  <li>
+    <p>Fully feature <strong>GitHub Actions API</strong>, and support for <strong>Web Hooks</strong>.</p>
+  </li>
+  <li>
+    <p>The <strong>extensive documentation</strong> is developer focussed and well presented.</p>
+  </li>
+</ul>
+
+<h3 id="--negatives">- Negatives</h3>
+
+<ul>
+  <li>
+    <p>At the time of writing there isn’t a built-in ability to chain workflows to create more complex pipelines, or to embed/re-use whole workflows.</p>
+  </li>
+  <li>
+    <p>No support for manual triggers. While a user can re-run a failed job, that’s the limit to the user-initiated actions. For example, a feature integrated directly into most other CI/CD platforms is the ability to implement a manual push-button stage for deployments.</p>
+  </li>
+  <li>
+    <p>To address both of the above, we can use the <strong>GitHub Actions API</strong> and <strong>Web Hooks</strong>, triggering events from another tool or system (e.g, Slack, postman) or use custom branches and use the merge from one to another as a means to trigger the “next stage”.</p>
+  </li>
+</ul>
+
+<h2 id="part-2">Part 2</h2>
+
+<p>Enjoyed this article?  Check out <a href="/get-started-with-ci-cd-using-buddy/">Part 2</a>, a look at the Buddy workflow platform.</p>
+
+<h2 id="a-note-from-the-author">A note from the author</h2>
+
+<p>Thank you for reading this article — I hope you found it useful and please read the remainder of the series as I compare other CI/CD tools.</p>
+
+<p><a href="https://github.com/davelms/python-github-actions-demo">All source code</a> for this demonstration can be downloaded at GitHub, along with the final <a href="https://github.com/davelms/python-github-actions-demo/blob/main/.github/workflows/main.yml">main.yml</a>.</p>
+
+<p>You can follow me on <a href="https://twitter.com/davelms">Twitter</a> and connect on <a href="https://www.linkedin.com/in/davelms/">LinkedIn</a>.</p>
+
+</div>
+
+<!-- Rating -->
+
+
+<!-- Author Box if enabled from _config.yml -->
+<!-- Author Box -->
+
+
+<div class="d-flex authorbox align-items-center">
+    <div class="col-md-2 mr-4 text-center">
+        
+        <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x" alt="Dave">
+        
+    </div>
+    <div class="col-md-10"> 
+        <a target="_blank" class="text-dark h4" href="https://www.davelms.co.uk">About Dave</a>   <a target="_blank" href="https://twitter.com/davelms" class="btn-sm"><i class="fab fa-twitter"></i></a>        
+        <span class="author-description d-block mt-2">DevOps | AWS | GCP.  Editor of Goats in Trees.</span>            
+    </div>
+</div>
+
+
+
+<!-- Comments if not disabled with comments: false -->
+<!-- Comments
+================================================== -->
+
+
+<!-- Share -->
+<div class="share">
+    <p>
+        Share
+    </p>
+    <ul>
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://twitter.com/intent/tweet?text=Get Started With CI/CD Using GitHub Actions&url=https://goatsintrees.net/get-started-with-ci-cd-using-github-actions/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fab fa-twitter"></i>
+            </a>
+        </li>
+
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://facebook.com/sharer.php?u=https://goatsintrees.net/get-started-with-ci-cd-using-github-actions/" onclick="window.open(this.href, 'facebook-share', 'width=550,height=435');return false;">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+        </li>
+
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=https://goatsintrees.net/get-started-with-ci-cd-using-github-actions/" onclick="window.open(this.href, 'width=550,height=435');return false;">
+                <i class="fab fa-linkedin-in"></i>
+            </a>
+        </li>
+
+    </ul>
+</div>
+
+
+<!-- Related Post -->
+<!-- Related Posts
+================================================== -->
+<div class=" related-posts ">  
+
+    
+    <h2 class="text-center mb-4">Explore more like this</h2>
+    
+    
+    <div class="d-flex justify-content-center align-items-center">
+    
+    <!-- Categories -->
+    
+    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/categories#DevOps">DevOps</a>                
+    
+
+    <!-- Tags -->  
+    
+                    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/tags#Continuous-Integration">Continuous Integration</a>               
+                    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/tags#GitHub">GitHub</a>               
+    
+
+    </div>
+
+    
+    
+    
+    <div class="blog-grid-container">
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/get-started-with-ci-cd-using-buddy/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/get-started-with-ci-cd-using-buddy/1_YrnfLDXcCVVbt1IZmbARKg.png"
+                    alt="Get started with CI/CD using Buddy">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/get-started-with-ci-cd-using-buddy/">Get started with CI/CD using Buddy</a>
+                
+            </h2>
+            <h4 class="card-text">Part 2 of "Comparing CI/CD Tools". In this introduction to Buddy, we'll explore how easy it is to build and deploy a simple Python Flask application to AWS Elastic Beanstalk....</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">02 Nov 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/run-jenkins-in-a-docker-container-part-3-run-as-root-user/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/run-jenkins-in-a-docker-container-part-1-docker-in-docker/1_hXoxUTXNSD9nVoYnZQ59TA.png"
+                    alt="Run Jenkins in a Docker container — part 3 — run as root user">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/run-jenkins-in-a-docker-container-part-3-run-as-root-user/">Run Jenkins in a Docker container — part 3 — run as root user</a>
+                
+            </h2>
+            <h4 class="card-text">Guide for developers to get up and running with Jenkins running in Docker (on Windows).</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">13 Oct 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/run-jenkins-in-a-docker-container-part-2-socat/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/run-jenkins-in-a-docker-container-part-1-docker-in-docker/1_hXoxUTXNSD9nVoYnZQ59TA.png"
+                    alt="Run Jenkins in a Docker container — part 2 — socat">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/run-jenkins-in-a-docker-container-part-2-socat/">Run Jenkins in a Docker container — part 2 — socat</a>
+                
+            </h2>
+            <h4 class="card-text">Guide for developers to get up and running with Jenkins running in Docker (on Windows).</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">13 Oct 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+                
+        </div>        
+</div>
+
+<!-- Review with LD-JSON, adapt it for your needs if you like, but make sure you test the generated HTML source code first: 
+https://search.google.com/structured-data/testing-tool/u/0/
+================================================== -->
+
+            </div>
+
+            
+            <!-- Newsletter
+    ================================================== -->
+            <div class="newsletter text-center">
+                <span class="h4"><img src="/assets/images/goat-logo.png" class="newsletter-logo"
+                        alt="Goats in Trees"> &nbsp; Never miss a <b>story</b> from us, subscribe to our
+                    newsletter</span>
+                <form action="https://goatsintrees.us8.list-manage.com/subscribe/post?u=f1ba23fce94cc889510e995fd&amp;id=b045064b1d" method="post" name="mc-embedded-subscribe-form"
+                    class="wj-contact-form validate" target="_blank" novalidate>
+                    <div class="mc-field-group d-inline-flex">
+                        <input type="email" placeholder="Your e-mail" name="EMAIL" class="required email" id="mce-EMAIL"
+                            autocomplete="on" required>
+                        <input type="submit" value="Subscribe" name="subscribe" class="heart">
+                    </div>
+                </form>
+            </div>
+            
+
+        </div>
+
+        <!-- Begin Footer
+================================================== -->
+        <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 text-center text-lg-left">
+                        Copyright © 2020 Goats in Trees
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- End Footer
+================================================== -->
+
+    </div> <!-- /.site-content -->
+
+    <!-- Scripts (if you need bootstrap.js, please add it yourself. I didn't use it for performance reasons, it was not needed in this theme)
+================================================== -->
+
+    <script src="/assets/js/prism.js"></script>
+
+    <script src="/assets/js/theme.js"></script>
+
+    
+
+</body>
+
+</html>

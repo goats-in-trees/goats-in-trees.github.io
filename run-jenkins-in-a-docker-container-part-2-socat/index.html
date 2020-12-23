@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" href="/assets/images/goat-logo.png">
+
+    <title>Run Jenkins in a Docker container — part 2 — socat | Goats in Trees</title>
+
+    <!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Run Jenkins in a Docker container — part 2 — socat | Goats in Trees</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Run Jenkins in a Docker container — part 2 — socat" />
+<meta name="author" content="davelms" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This small series of guides will walk through three solutions for installing Jenkins in a Docker container on Windows, along with the configuration necessary to spin up dynamic build slaves also using Docker containers." />
+<meta property="og:description" content="This small series of guides will walk through three solutions for installing Jenkins in a Docker container on Windows, along with the configuration necessary to spin up dynamic build slaves also using Docker containers." />
+<link rel="canonical" href="https://goatsintrees.net/run-jenkins-in-a-docker-container-part-2-socat/" />
+<meta property="og:url" content="https://goatsintrees.net/run-jenkins-in-a-docker-container-part-2-socat/" />
+<meta property="og:site_name" content="Goats in Trees" />
+<meta property="og:image" content="https://goatsintrees.net/assets/images/run-jenkins-in-a-docker-container-part-1-docker-in-docker/1_hXoxUTXNSD9nVoYnZQ59TA.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-10-13T19:40:54+01:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://goatsintrees.net/assets/images/run-jenkins-in-a-docker-container-part-1-docker-in-docker/1_hXoxUTXNSD9nVoYnZQ59TA.png" />
+<meta property="twitter:title" content="Run Jenkins in a Docker container — part 2 — socat" />
+<script type="application/ld+json">
+{"url":"https://goatsintrees.net/run-jenkins-in-a-docker-container-part-2-socat/","@type":"BlogPosting","image":"https://goatsintrees.net/assets/images/run-jenkins-in-a-docker-container-part-1-docker-in-docker/1_hXoxUTXNSD9nVoYnZQ59TA.png","headline":"Run Jenkins in a Docker container — part 2 — socat","dateModified":"2020-10-13T19:40:54+01:00","datePublished":"2020-10-13T19:40:54+01:00","author":{"@type":"Person","name":"davelms"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://goatsintrees.net/run-jenkins-in-a-docker-container-part-2-socat/"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://goatsintrees.net/assets/images/goat-logo.png"},"name":"davelms"},"description":"This small series of guides will walk through three solutions for installing Jenkins in a Docker container on Windows, along with the configuration necessary to spin up dynamic build slaves also using Docker containers.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link href="/assets/css/prism.css" rel="stylesheet">
+
+    <link href="/assets/css/theme.css" rel="stylesheet">
+
+    <script src="/assets/js/jquery.min.js"></script>
+
+</head>
+
+
+<!-- change your GA id in _config.yml -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-209086-18"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'UA-209086-18');
+</script>
+
+
+
+
+<body>
+    <!-- defer loading of font and font awesome -->
+    <noscript id="deferred-styles">
+        <link href="https://fonts.googleapis.com/css?family=Sen:400,700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
+            integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    </noscript>
+
+    <!-- Begin Sidebar Navigation
+================================================== -->
+
+    <div class="sidebar">
+    </div>
+    <div class="nav-icon">
+        <div class="hamburger-bar"></div>
+    </div>
+    <div id="blackover-nav" class="blackover"></div>
+    <nav id="menu">
+        <ul>
+            <h3>Navigation</h3>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <script src="/assets/js/lunr.js"></script>
+
+<style>
+    
+</style>
+
+<div class="wrap-search">
+    <div class="d-flex align-items-center ml-auto">
+        <i class="fas fa-search show-search"></i>
+        <form class="bd-search ml-3" onSubmit="return lunr_search(document.getElementById('lunrsearch').value);">
+            <input type="text" class="form-control bigradius text-small launch-modal-search" id="lunrsearch" name="q" maxlength="255" value="" placeholder="Type and enter..."/>
+        </form>
+    </div>
+</div>
+
+<div id="lunrsearchresults">
+    <ul></ul>
+</div>
+
+<script src="/assets/js/lunrsearchengine.js"></script>
+
+
+    <!-- End Sidebar Navigation
+================================================== -->
+
+    <div class="site-content ">
+
+        <div class="container">
+
+            <!-- Site Logo/Name
+    ================================================== -->
+
+            <a class="navbar-brand" href="/">
+                <img src="/assets/images/goat-logo.png" alt="Goats in Trees">
+            </a>
+
+
+            <!-- Site Tag
+    ================================================== -->
+            
+
+            <!-- Content
+    ================================================== -->
+            <div class="main-content">
+                <div class="entry-header">
+    <!-- Post Title -->
+    <h1 class="posttitle">Run Jenkins in a Docker container — part 2 — socat</h1>
+    <!-- Author & Date  Box -->
+    
+    
+    <div class="d-flex align-items-center mt-4">
+        <div>
+            
+            <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                alt="Dave">
+            
+        </div>
+        <div>
+            Written by <a target="_blank" class="text-dark" href="https://www.davelms.co.uk">Dave</a> on
+            <span class="post-date"><time class="post-date"
+                    datetime="2020-10-13">13 Oct 2020</time></span>
+            
+        </div>
+    </div>
+    
+</div>
+
+<!-- Adsense under title if enabled from _config.yml (change your pub id and slot) -->
+
+
+<!-- Featured Image -->
+
+<div class="entry-featured-image">
+    
+    <img class="featured-image "
+        src="/assets/images/run-jenkins-in-a-docker-container-part-1-docker-in-docker/1_hXoxUTXNSD9nVoYnZQ59TA.png"
+        alt="Run Jenkins in a Docker container — part 2 — socat">
+    
+    
+</div>
+
+
+<!-- Subtitle -->
+
+<div class="article-post">
+    <h2 class="subtitle"> Guide for developers to get up and running with Jenkins running in Docker (on Windows). </h2>
+</div>
+
+
+<!-- Content -->
+<!-- Post, Page Content
+================================================== -->
+<div class="article-post">
+    <!-- Toc if any -->
+    
+    <!-- End Toc -->
+    <p>This small series of guides will walk through <strong>three solutions</strong> for installing Jenkins in a Docker container on Windows, along with the configuration necessary to spin up dynamic build slaves also using Docker containers.</p>
+
+<p>Running locally on a personal device is perfect for individual users, freelancers, or developers looking to do local Jenkinsfile or Shared Library development and testing before pushing to a central CI/CD platform.</p>
+
+<p><em>“You said three solutions?”</em> Yes — this article demonstrates using <strong>socat</strong> (further reading at <a href="https://hub.docker.com/r/alpine/socat/">socat</a>). Part 1 was using <strong>Docker-in-Docker</strong> and Part 3 is to <strong>run the Jenkins container as root user</strong>. Jump to those articles below.</p>
+
+<p><a href="/run-jenkins-in-a-docker-container-part-1-docker-in-docker/">Run Jenkins in a Docker container - part 1 - Docker-in-Docker</a></p>
+
+<p><a href="/run-jenkins-in-a-docker-container-part-3-run-as-root-user/">Run Jenkins in a Docker container - part 3 - run as root user</a></p>
+
+<h2 id="what-was-wrong-with-using-docker-in-docker">What was wrong with using Docker-in-Docker</h2>
+
+<p><a href="https://jpetazzo.github.io/2015/09/03/do-not-use-docker-in-docker-for-ci/">This article</a> discusses the pros and cons of Docker-in-Docker and argues against using it for CI systems like Jenkins.</p>
+
+<p>It suggests a better pattern would be to provide the container access to the host daemon directly via sharing a volume for its unix socket <code>/var/run/docker.sock</code> — and this is possible on Windows too since we are using WSL — the primary obstacle we face is that the <code>jenkins</code> user doesn’t have the required permissions.</p>
+
+<p>Part 3 of this series set up Jenkins to run as <code>root</code> user; this article will demonstrate an alternative using socat.</p>
+
+<h2 id="solution-using-socat">Solution using socat</h2>
+
+<p>The steps we will go through;</p>
+
+<ol>
+  <li>
+    <p>Command line, step-by-step to set up Jenkins.</p>
+  </li>
+  <li>
+    <p>Configure Jenkins via the Console UI and set up the “docker” plugin.</p>
+  </li>
+  <li>
+    <p>Verify the set up via a couple of test jobs.</p>
+  </li>
+  <li>
+    <p>Translate the command lines into a Docker Compose template.</p>
+  </li>
+</ol>
+
+<h3 id="prerequisites">Prerequisites</h3>
+
+<p>We assume you have Docker installed — for this demo I am running on a Windows 10 laptop with WSL enabled (Hyper-V is also okay).</p>
+
+<h3 id="volumes">Volumes</h3>
+
+<p>Before we start up, create a volume that you will use for your Jenkins home directory — that way it will persist between restarts.</p>
+
+<pre><code class="language-shell">docker volume create jenkins-data
+</code></pre>
+
+<h3 id="networking">Networking</h3>
+
+<p>We’re going to use a bridge network called <code>jenkins</code> which we create by running the command <code>docker network create jenkins</code>. In the rest of our configuration, we will attach all our containers to this network.</p>
+
+<p>In order to give Jenkins access to the Docker daemon running on the host machine (Windows), we will use a <a href="https://hub.docker.com/r/alpine/socat/">socat</a> container to publish the unix socket <code>/var/run/docker.sock</code> (to the Docker daemon) as port 2375.</p>
+
+<pre><code class="language-shell">docker container run --name jenkins-docker \
+  --detach --restart unless-stopped \
+  --network jenkins --network-alias docker \
+  --volume /var/run/docker.sock:/var/run/docker.sock \
+  --publish 2375:2375 \
+  alpine/socat \
+  tcp-listen:2375,fork,reuseaddr unix-connect:/var/run/docker.sock
+</code></pre>
+
+<p>After running this command, the socat container will be listening on port 2375 and since we gave it the network alias of <code>docker</code> then we will be able to reach it from Jenkins on <code>tcp://docker:2375</code>.</p>
+
+<h3 id="running-jenkins">Running Jenkins</h3>
+
+<p>We’re going to use the <code>jenkinsci/blueocean</code> image that comes pre-built with Blue Ocean and you will see that we specify <code>tcp://docker:2375</code> to communicate with the Docker host.</p>
+
+<pre><code class="language-shell">docker container run --name jenkins-blueocean \
+  --detach --restart unless-stopped \
+  --network jenkins \
+  --env DOCKER_HOST="tcp://docker:2375" \
+  --env DOCKER_TLS_VERIFY="" \
+  --volume jenkins-data:/var/jenkins_home \
+  --publish 8080:8080 --publish 50000:50000 \
+  jenkinsci/blueocean
+</code></pre>
+
+<p>Now that Jenkins is started, head over to <a href="http://localhost:8080">http://localhost:8080</a> to go through the initial set up wizard.</p>
+
+<h3 id="jenkins-set-up-wizard">Jenkins Set Up Wizard</h3>
+
+<p>We won’t go through the Jenkins set up wizard in any detail — the important thing to note however is how to access your admin user unlock code, which you can find this from your running container via the following command:</p>
+
+<pre><code class="language-shell">docker exec jenkins-blueocean cat /var/jenkins_home/secrets/initialAdminPassword
+</code></pre>
+
+<h3 id="configuring-docker-cloud">Configuring Docker Cloud</h3>
+
+<p>Once you have your Jenkins set up complete, we need to set up running our Jenkins slaves as Docker containers. Head over to “Manage Plugins” and install the <a href="https://plugins.jenkins.io/docker-plugin/">docker plugin</a>.</p>
+
+<p><img src="/assets/images/run-jenkins-in-a-docker-container-part-2-socat/1w12_nHNtormeYc_lCcRtkg.png" alt="" /></p>
+
+<p>Once installed, go to <strong>Manage Nodes and Clouds</strong> and then <strong>Configure Clouds</strong> and <strong>Add a new cloud.</strong> The type of “docker” should automatically appear in the dropdown.</p>
+
+<p>You want to set the Docker Host URI to <code>tcp://docker:2375</code> and then run a Test Connection.</p>
+
+<p><img src="/assets/images/run-jenkins-in-a-docker-container-part-2-socat/1ZR0_WW8xRBzL_6Wi5FZx3Q.png" alt="" /></p>
+
+<p>This is great — now we can reach the Docker daemon.</p>
+
+<h3 id="configuring-docker-slavesagents">Configuring Docker Slaves/Agents</h3>
+
+<p>Next step is to set up an agent to run our pipelines against. Once you start developing, you can start building your own build containers and attaching these instead. For now, we shall use the <code>jenkins/agent</code> image.</p>
+
+<p>Relevant fields below include giving it a label and name. The label allows you to associate a job to a particular agent — so you can always run a Maven build on an Agent that has maven installed, for example.</p>
+
+<p><img src="/assets/images/run-jenkins-in-a-docker-container-part-2-socat/11GcYOmnaLg-CFKH0pLJ_mw.png" alt="" /></p>
+
+<p>Our Connect Method will be <strong>Attach Docker Container.</strong> This runs the Docker container on the host machine.</p>
+
+<p>Save everything and we are now ready to create a test job.</p>
+
+<h3 id="verifying-it-all-works">Verifying it all works</h3>
+
+<p>You are now ready to create a job to check that all is set up and working correctly. Create a new freestyle job. I’ve called mine “test-agent”.</p>
+
+<p>You want to select the agent that this job will run on.</p>
+
+<p><img src="/assets/images/run-jenkins-in-a-docker-container-part-2-socat/1RfhWDRkXDJFRLAhOgjuicw.png" alt="" /></p>
+
+<p>Down under build, write a simple “hello world” message as a test.</p>
+
+<p><img src="/assets/images/run-jenkins-in-a-docker-container-part-2-socat/1NrwoUpDmh8wkc-CntGmjFg.png" alt="" /></p>
+
+<p>Save and build your new job. Jenkins will download the image for your container and run the job upon it. On completion you should get output such as that shown below.</p>
+
+<p><img src="/assets/images/run-jenkins-in-a-docker-container-part-2-socat/1XFxkL3XVXkFI87Zh3G3RzA.png" alt="" /></p>
+
+<p>All done. Success!</p>
+
+<h3 id="docker-compose">Docker Compose</h3>
+
+<p>Command line is all well and good, but it’s much easier to define as a docker compose yaml file. Start up with <code>docker-compose up -d</code>.</p>
+
+<pre><code class="language-yaml">version: '3.8'
+
+networks:
+  jenkins-network:
+    name: jenkins
+
+volumes:
+  data:
+    name: jenkins-data
+
+services:
+
+  socat:
+    container_name: jenkins-docker
+    image: alpine/socat
+    restart: unless-stopped
+    networks:
+      jenkins-network:
+        aliases:
+          - docker
+    expose:
+      - "2375"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: tcp-listen:2375,fork,reuseaddr unix-connect:/var/run/docker.sock
+
+  jenkins:
+    container_name: jenkins-blueocean
+    image: jenkinsci/blueocean
+    restart: unless-stopped
+    networks:
+      - jenkins-network
+    ports:
+      - 8080:8080
+      - 50000:50000
+    volumes:
+      - data:/var/jenkins_home
+    environment:
+      - DOCKER_HOST=tcp://docker:2375
+      - DOCKER_TLS_VERIFY=""
+</code></pre>
+
+<h2 id="a-note-from-the-author">A note from the author</h2>
+
+<p>Thank you for reading this article and I hope you found time to read the original part 1 and could contrast against the solution in part 3 as well — I hope you found them useful and via one of the articles you settled on a technique that suited your personal set up.</p>
+
+<p>All source code for these articles can be found on <a href="https://github.com/davelms/medium-articles/tree/master/jenkins-docker">GitHub</a>.</p>
+
+<p>You can follow me on <a href="https://twitter.com/davelms">Twitter</a> and connect on <a href="https://www.linkedin.com/in/davelms/">LinkedIn</a>.</p>
+
+</div>
+
+<!-- Rating -->
+
+
+<!-- Author Box if enabled from _config.yml -->
+<!-- Author Box -->
+
+
+<div class="d-flex authorbox align-items-center">
+    <div class="col-md-2 mr-4 text-center">
+        
+        <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x" alt="Dave">
+        
+    </div>
+    <div class="col-md-10"> 
+        <a target="_blank" class="text-dark h4" href="https://www.davelms.co.uk">About Dave</a>   <a target="_blank" href="https://twitter.com/davelms" class="btn-sm"><i class="fab fa-twitter"></i></a>        
+        <span class="author-description d-block mt-2">DevOps | AWS | GCP.  Editor of Goats in Trees.</span>            
+    </div>
+</div>
+
+
+
+<!-- Comments if not disabled with comments: false -->
+<!-- Comments
+================================================== -->
+
+
+<!-- Share -->
+<div class="share">
+    <p>
+        Share
+    </p>
+    <ul>
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://twitter.com/intent/tweet?text=Run Jenkins in a Docker container — part 2 — socat&url=https://goatsintrees.net/run-jenkins-in-a-docker-container-part-2-socat/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fab fa-twitter"></i>
+            </a>
+        </li>
+
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://facebook.com/sharer.php?u=https://goatsintrees.net/run-jenkins-in-a-docker-container-part-2-socat/" onclick="window.open(this.href, 'facebook-share', 'width=550,height=435');return false;">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+        </li>
+
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=https://goatsintrees.net/run-jenkins-in-a-docker-container-part-2-socat/" onclick="window.open(this.href, 'width=550,height=435');return false;">
+                <i class="fab fa-linkedin-in"></i>
+            </a>
+        </li>
+
+    </ul>
+</div>
+
+
+<!-- Related Post -->
+<!-- Related Posts
+================================================== -->
+<div class=" related-posts ">  
+
+    
+    <h2 class="text-center mb-4">Explore more like this</h2>
+    
+    
+    <div class="d-flex justify-content-center align-items-center">
+    
+    <!-- Categories -->
+    
+    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/categories#DevOps">DevOps</a>                
+    
+
+    <!-- Tags -->  
+    
+                    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/tags#Continuous-Integration">Continuous Integration</a>               
+                    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/tags#Docker">Docker</a>               
+                    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/tags#Jenkins">Jenkins</a>               
+    
+
+    </div>
+
+    
+    
+    
+    <div class="blog-grid-container">
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/get-started-with-ci-cd-using-buddy/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/get-started-with-ci-cd-using-buddy/1_YrnfLDXcCVVbt1IZmbARKg.png"
+                    alt="Get started with CI/CD using Buddy">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/get-started-with-ci-cd-using-buddy/">Get started with CI/CD using Buddy</a>
+                
+            </h2>
+            <h4 class="card-text">Part 2 of "Comparing CI/CD Tools". In this introduction to Buddy, we'll explore how easy it is to build and deploy a simple Python Flask application to AWS Elastic Beanstalk....</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">02 Nov 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/get-started-with-ci-cd-using-github-actions/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/get-started-with-ci-cd-using-github-actions/1_BZ_jv-xjX_FfJR5fQH_6UQ.png"
+                    alt="Get Started With CI/CD Using GitHub Actions">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/get-started-with-ci-cd-using-github-actions/">Get Started With CI/CD Using GitHub Actions</a>
+                
+            </h2>
+            <h4 class="card-text">Part 1 of "Comparing CI/CD Tools". In this introduction to GitHub Actions, we'll explore how easy it is to build and deploy a simple Python Flask application to AWS Elastic...</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">25 Oct 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/run-jenkins-in-a-docker-container-part-3-run-as-root-user/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/run-jenkins-in-a-docker-container-part-1-docker-in-docker/1_hXoxUTXNSD9nVoYnZQ59TA.png"
+                    alt="Run Jenkins in a Docker container — part 3 — run as root user">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/run-jenkins-in-a-docker-container-part-3-run-as-root-user/">Run Jenkins in a Docker container — part 3 — run as root user</a>
+                
+            </h2>
+            <h4 class="card-text">Guide for developers to get up and running with Jenkins running in Docker (on Windows).</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">13 Oct 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+                
+        </div>        
+</div>
+
+<!-- Review with LD-JSON, adapt it for your needs if you like, but make sure you test the generated HTML source code first: 
+https://search.google.com/structured-data/testing-tool/u/0/
+================================================== -->
+
+            </div>
+
+            
+            <!-- Newsletter
+    ================================================== -->
+            <div class="newsletter text-center">
+                <span class="h4"><img src="/assets/images/goat-logo.png" class="newsletter-logo"
+                        alt="Goats in Trees"> &nbsp; Never miss a <b>story</b> from us, subscribe to our
+                    newsletter</span>
+                <form action="https://goatsintrees.us8.list-manage.com/subscribe/post?u=f1ba23fce94cc889510e995fd&amp;id=b045064b1d" method="post" name="mc-embedded-subscribe-form"
+                    class="wj-contact-form validate" target="_blank" novalidate>
+                    <div class="mc-field-group d-inline-flex">
+                        <input type="email" placeholder="Your e-mail" name="EMAIL" class="required email" id="mce-EMAIL"
+                            autocomplete="on" required>
+                        <input type="submit" value="Subscribe" name="subscribe" class="heart">
+                    </div>
+                </form>
+            </div>
+            
+
+        </div>
+
+        <!-- Begin Footer
+================================================== -->
+        <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 text-center text-lg-left">
+                        Copyright © 2020 Goats in Trees
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- End Footer
+================================================== -->
+
+    </div> <!-- /.site-content -->
+
+    <!-- Scripts (if you need bootstrap.js, please add it yourself. I didn't use it for performance reasons, it was not needed in this theme)
+================================================== -->
+
+    <script src="/assets/js/prism.js"></script>
+
+    <script src="/assets/js/theme.js"></script>
+
+    
+
+</body>
+
+</html>

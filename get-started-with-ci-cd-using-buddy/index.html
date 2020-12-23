@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" href="/assets/images/goat-logo.png">
+
+    <title>Get started with CI/CD using Buddy | Goats in Trees</title>
+
+    <!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Get started with CI/CD using Buddy | Goats in Trees</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Get started with CI/CD using Buddy" />
+<meta name="author" content="davelms" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Welcome to the second part of a series of articles comparing CI/CD platforms. To help evaluate, compare and contrast the tools currently dominating the market, the goal will be to automate the deployment of a Flask application onto AWS Elastic Beanstalk. A new deployment will need to occur after every push to main branch, and during the series this same requirement will be implemented across several CI/CD tools." />
+<meta property="og:description" content="Welcome to the second part of a series of articles comparing CI/CD platforms. To help evaluate, compare and contrast the tools currently dominating the market, the goal will be to automate the deployment of a Flask application onto AWS Elastic Beanstalk. A new deployment will need to occur after every push to main branch, and during the series this same requirement will be implemented across several CI/CD tools." />
+<link rel="canonical" href="https://goatsintrees.net/get-started-with-ci-cd-using-buddy/" />
+<meta property="og:url" content="https://goatsintrees.net/get-started-with-ci-cd-using-buddy/" />
+<meta property="og:site_name" content="Goats in Trees" />
+<meta property="og:image" content="https://goatsintrees.net/assets/images/get-started-with-ci-cd-using-buddy/1_YrnfLDXcCVVbt1IZmbARKg.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-11-02T21:50:55+00:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://goatsintrees.net/assets/images/get-started-with-ci-cd-using-buddy/1_YrnfLDXcCVVbt1IZmbARKg.png" />
+<meta property="twitter:title" content="Get started with CI/CD using Buddy" />
+<script type="application/ld+json">
+{"url":"https://goatsintrees.net/get-started-with-ci-cd-using-buddy/","@type":"BlogPosting","image":"https://goatsintrees.net/assets/images/get-started-with-ci-cd-using-buddy/1_YrnfLDXcCVVbt1IZmbARKg.png","headline":"Get started with CI/CD using Buddy","dateModified":"2020-11-02T21:50:55+00:00","datePublished":"2020-11-02T21:50:55+00:00","author":{"@type":"Person","name":"davelms"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://goatsintrees.net/get-started-with-ci-cd-using-buddy/"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://goatsintrees.net/assets/images/goat-logo.png"},"name":"davelms"},"description":"Welcome to the second part of a series of articles comparing CI/CD platforms. To help evaluate, compare and contrast the tools currently dominating the market, the goal will be to automate the deployment of a Flask application onto AWS Elastic Beanstalk. A new deployment will need to occur after every push to main branch, and during the series this same requirement will be implemented across several CI/CD tools.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link href="/assets/css/prism.css" rel="stylesheet">
+
+    <link href="/assets/css/theme.css" rel="stylesheet">
+
+    <script src="/assets/js/jquery.min.js"></script>
+
+</head>
+
+
+<!-- change your GA id in _config.yml -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-209086-18"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'UA-209086-18');
+</script>
+
+
+
+
+<body>
+    <!-- defer loading of font and font awesome -->
+    <noscript id="deferred-styles">
+        <link href="https://fonts.googleapis.com/css?family=Sen:400,700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
+            integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    </noscript>
+
+    <!-- Begin Sidebar Navigation
+================================================== -->
+
+    <div class="sidebar">
+    </div>
+    <div class="nav-icon">
+        <div class="hamburger-bar"></div>
+    </div>
+    <div id="blackover-nav" class="blackover"></div>
+    <nav id="menu">
+        <ul>
+            <h3>Navigation</h3>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <script src="/assets/js/lunr.js"></script>
+
+<style>
+    
+</style>
+
+<div class="wrap-search">
+    <div class="d-flex align-items-center ml-auto">
+        <i class="fas fa-search show-search"></i>
+        <form class="bd-search ml-3" onSubmit="return lunr_search(document.getElementById('lunrsearch').value);">
+            <input type="text" class="form-control bigradius text-small launch-modal-search" id="lunrsearch" name="q" maxlength="255" value="" placeholder="Type and enter..."/>
+        </form>
+    </div>
+</div>
+
+<div id="lunrsearchresults">
+    <ul></ul>
+</div>
+
+<script src="/assets/js/lunrsearchengine.js"></script>
+
+
+    <!-- End Sidebar Navigation
+================================================== -->
+
+    <div class="site-content ">
+
+        <div class="container">
+
+            <!-- Site Logo/Name
+    ================================================== -->
+
+            <a class="navbar-brand" href="/">
+                <img src="/assets/images/goat-logo.png" alt="Goats in Trees">
+            </a>
+
+
+            <!-- Site Tag
+    ================================================== -->
+            
+
+            <!-- Content
+    ================================================== -->
+            <div class="main-content">
+                <div class="entry-header">
+    <!-- Post Title -->
+    <h1 class="posttitle">Get started with CI/CD using Buddy</h1>
+    <!-- Author & Date  Box -->
+    
+    
+    <div class="d-flex align-items-center mt-4">
+        <div>
+            
+            <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                alt="Dave">
+            
+        </div>
+        <div>
+            Written by <a target="_blank" class="text-dark" href="https://www.davelms.co.uk">Dave</a> on
+            <span class="post-date"><time class="post-date"
+                    datetime="2020-11-02">02 Nov 2020</time></span>
+            
+        </div>
+    </div>
+    
+</div>
+
+<!-- Adsense under title if enabled from _config.yml (change your pub id and slot) -->
+
+
+<!-- Featured Image -->
+
+<div class="entry-featured-image">
+    
+    <img class="featured-image "
+        src="/assets/images/get-started-with-ci-cd-using-buddy/1_YrnfLDXcCVVbt1IZmbARKg.png"
+        alt="Get started with CI/CD using Buddy">
+    
+    
+</div>
+
+
+<!-- Subtitle -->
+
+<div class="article-post">
+    <h2 class="subtitle"> Part 2 of "Comparing CI/CD Tools". In this introduction to Buddy, we'll explore how easy it is to build and deploy a simple Python Flask application to AWS Elastic Beanstalk. </h2>
+</div>
+
+
+<!-- Content -->
+<!-- Post, Page Content
+================================================== -->
+<div class="article-post">
+    <!-- Toc if any -->
+    
+    <!-- End Toc -->
+    <p>Welcome to the second part of a series of articles <strong>comparing CI/CD platforms</strong>. To help evaluate, compare and contrast the tools currently dominating the market, the goal will be to automate the deployment of a Flask application onto AWS Elastic Beanstalk. A new deployment will need to occur after every push to main branch, and during the series this same requirement will be implemented across several CI/CD tools.</p>
+
+<p>Our first article looked at GitHub Actions, which you can read below.</p>
+
+<p><a href="/get-started-with-ci-cd-using-github-actions/">Get Started With CI/CD Using GitHub Actions</a></p>
+
+<p>Next up, part 2 will focus on <a href="https://buddy.works">Buddy</a> — to be found online at <a href="https://buddy.works">https://buddy.works</a>. I’ll document the steps taken along the way to achieve the goal with Buddy, and there’s a write up of the positives and negatives in a conclusion at the end of this article.</p>
+
+<h2 id="our-application">Our application</h2>
+
+<p><strong>The Flask application</strong></p>
+
+<p>Our <a href="https://github.com/davelms/python-github-actions-demo">Flask application</a> is a simple “Hello World” example, and for the purposes of demonstrating running unit tests within the pipeline, we have included a test case as well.</p>
+
+<p><strong>AWS Elastic Beanstalk</strong></p>
+
+<p>Our Flask application is going to be deployed to AWS Elastic Beanstalk which is a service that automates the deployment and scaling of a web application. It takes in our source code and takes care of all the infrastructure configuration.</p>
+
+<h2 id="introduction-to-buddy">Introduction to Buddy</h2>
+
+<p>The Buddy homepage boasts some very impressive stats: <strong>“87% faster CI/CD adoption time by teams”</strong> and <strong>“12 seconds of average deployment time”</strong>.</p>
+
+<p>It’s not hard to see why — there is a <strong>low barrier to adoption</strong> and pretty much anyone could get started with Buddy within minutes. What I like straight off the bat is the fact the initial steer for users is to create the pipeline via the GUI, which will be a huge draw for many — with the fallback of configuring as code for your DevOps folks (we do love our yaml).</p>
+
+<p>Once you’re into the nuts and bolts, here are a few core concepts of Buddy.</p>
+
+<h3 id="pipeline">Pipeline</h3>
+
+<p>The core concept of the Buddy platform is the <strong>pipeline</strong> that allows you to build, test and deploy your application on a single push to a chosen branch.</p>
+
+<p>Pipelines can also be triggered manually or on a timer, and they can be chained (pipeline A &gt; pipeline B &gt; pipeline C).</p>
+
+<h3 id="action">Action</h3>
+
+<p>A pipeline is made up of a series of steps and on Buddy these are called <strong>actions.</strong> An action will run in a Docker container, and each action consists of a small series of shell commands — such as building and running unit tests for an application, uploading to a server, sending notifications, and so on.</p>
+
+<p>You have access to configuring <strong>environment variables</strong> for each action, and can configure and integrate with associated services such as a database.</p>
+
+<p>Environment variables can also be configured at the workspace or project level, not just at the pipeline/action level, so your options are powerful there.</p>
+
+<h3 id="execution">Execution</h3>
+
+<p>An <strong>execution</strong> is a single run of a pipeline on the Buddy platform. Every run is saved and you can review the <strong>execution history</strong> to see who or what triggered the pipeline, when was it and for which git revision.</p>
+
+<h3 id="integrations">Integrations</h3>
+
+<p>Integrations are third-party services that you can integrate with your Buddy projects, like repository and website hosting services, testing tools and notification apps.</p>
+
+<p>Examples include GitHub, AWS, Heroku, Slack, GitLab, Cloudflare, Firebase, and much more.</p>
+
+<p>Although not technically called an “integration” within the Buddy ecosystem, there are many built-in actions that build out common use-cases for integrating with third party platforms. And while I was writing this article, they added a few more.</p>
+
+<h2 id="steps">Steps</h2>
+
+<p>These are the steps we will follow to create our CI/CD pipeline.</p>
+
+<ol>
+  <li>
+    <p>Create an empty repository in GitHub.</p>
+  </li>
+  <li>
+    <p>Sign up for an account on Buddy.</p>
+  </li>
+  <li>
+    <p>Create a project and set up an initial pipeline. Our pipeline will run after every <code>push</code> event on the <code>main</code> branch.</p>
+  </li>
+  <li>
+    <p>Extend our pipeline to deploy to Elastic Beanstalk.</p>
+  </li>
+  <li>
+    <p>Try out the yaml helper and configuration.</p>
+  </li>
+</ol>
+
+<h3 id="step-1-create-github-repository-and-initial-workflow">Step 1. Create GitHub repository and initial workflow</h3>
+
+<p>Create your GitHub repository and upload your initial application code. My demonstration code is a simple “Hello World” Flask application, a test case, and a requirements.txt for defining the dependencies.</p>
+
+<p>If you are following along your initial structure should contain three files:</p>
+
+<ol>
+  <li>
+    <p><a href="https://github.com/davelms/python-github-actions-demo/blob/main/application.py">application.py</a></p>
+  </li>
+  <li>
+    <p><a href="https://github.com/davelms/python-github-actions-demo/blob/main/test_application.py">test_application.py</a></p>
+  </li>
+  <li>
+    <p><a href="https://github.com/davelms/python-github-actions-demo/blob/main/requirements.txt">requirements.txt</a></p>
+  </li>
+</ol>
+
+<p><em>Alternative</em>. I went with GitHub, but you don’t have to. You can create your repository directly within the Buddy platform; use Bitbucket or GitLab; or bring your own Git hosting.</p>
+
+<h3 id="step-2-sign-up-for-a-buddy-account">Step 2. Sign up for a Buddy account</h3>
+
+<p>Head over to <a href="https://buddy.works">https://buddy.works</a> and register. I used my GitHub account to register and gave Buddy access to my source code repositories.</p>
+
+<p>You will automatically be put onto a 14-day free trial of their Pro Plan ($75 per month), but there is also a Free Plan which is sufficient for developers, freelancers, and more than enough to get a good look at the platform.</p>
+
+<h3 id="step-3-set-up-our-first-pipeline">Step 3. Set up our first pipeline</h3>
+
+<p>Under the Free Plan you’ll be able to create 5 projects. Once registered and signed in, you’ll find yourself on the workspace dashboard where you can “<strong>Create a new project</strong>”. Let’s do that now.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-buddy/1tl9hcfv27Q0t_mVamty_sw.png" alt="" /></p>
+
+<p>Select your repository and Buddy will auto-detect the language as Python and give you the option to set up your pipeline. Keep going through the GUI — it’s the default option and we’ll look at the yaml option later.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-buddy/1pSelFJkq3TzsnD4n-V5IFg.png" alt="" /></p>
+
+<p>We want to trigger our pipeline after every push to the <code>main</code> branch, so select the “on push” option and ensure that the correct branch is selected — Buddy will pre-populate and it was all correct for me without needing any changes.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-buddy/1P4j1WI8EAv84UubSQ1dc4w.png" alt="" /></p>
+
+<p>After creating your pipeline, the next step is to add an <strong>action</strong>. You’ll see that Buddy has auto-selected Python and is making a suggestion to use it. Let’s follow that and select Python.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-buddy/102EBKX987gxTEXUY64FNfQ.png" alt="" /></p>
+
+<p>Buddy will pre-populate the out-of-the-box Python action and we’re going to do a few small tweaks.</p>
+
+<ol>
+  <li>
+    <p>Firstly, update the version of Python. The default on Buddy is 3.5, but we’re going to bump this to 3.6.12. You can pick 3.7.x and 3.8.x as well.</p>
+  </li>
+  <li>
+    <p>Next let’s change the Action name from “Execute: nosetests” to “Execute: test_application.py”. You see this under the Action tab.</p>
+  </li>
+  <li>
+    <p>Finally, update the script commands per that shown below.</p>
+  </li>
+</ol>
+
+<pre><code class="language-shell">pip install -r requirements.txt
+python test_application.py
+</code></pre>
+
+<p>At this stage you can <strong>save your action</strong>. Before you do, check out the other tabs while you are here. For example, you will see that Buddy will automatically create a <strong>pip cache to save your dependencies</strong> — this is a good feature, one we typically would want anyway, and so by being enabled by default this saves users from having to spend the time to configure it.</p>
+
+<p>On saving, you will see your pipeline has the single primary action we just created.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-buddy/1GO11-Hez2S_h_jmZv_57UA.png" alt="" /></p>
+
+<p>Once saved, we now want to manually “<strong>Run pipeline</strong>” which you will find in the top right of the UI screen. In this section, you’ll also notice “Badge” (which you can configure in your README markdown file if you have one) and “Slack handle” options for notifications. Run the pipeline and you should see it run quickly and successfully.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-buddy/1onqUHjUCxbifa9zCaKKvkw.png" alt="" /></p>
+
+<p>Click through for the logs of the execution.</p>
+
+<p>Well done, at this stage you have successfully linked your source code repository, downloaded (and cached) dependencies, and tested your application works correctly.</p>
+
+<h3 id="step-4-deploy-flask-application-to-elastic-beanstalk">Step 4. Deploy Flask application to Elastic Beanstalk</h3>
+
+<p>Now that we have a successful “build &amp; test”, we want to deploy the application for testing purposes. We’re going to do this by adding a new action to our existing pipeline which will run after the first action is successful.</p>
+
+<p>Back in the pipeline click the cog underneath our first Action to append a new one. You will notice how you can add pre- and post- actions and chain a workflow together — very nice visualization.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-buddy/15oNJGrojnO3Dbc-87W8Sog.png" alt="" /></p>
+
+<p>You could scroll down here, but let’s use the “Filter actions…” box and search for “AWS”. Here you will find many targets, one of which is Elastic Beanstalk.</p>
+
+<p>First time through you’ll be asked to create a new “<strong>AWS Integration</strong>”, so paste in your Access Key ID and Secret Access Key and save.</p>
+
+<p><em>(remember, AWS security best practice would be to create a dedicated User with programmatic access and having permissions just to deploy to AWS Elastic Beanstalk).</em></p>
+
+<p>Now we want to configure our options for our AWS Elastic Beanstalk application. Keep the defaults and under Application drop down select “Create an application” — the Buddy platform will direct you to AWS to complete this part — or select an existing Application if you have one.</p>
+
+<p>Here’s my configuration, ready to be saved.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-buddy/132IYBdAMAB7HnhJGoIU06A.png" alt="" /></p>
+
+<p>And my complete pipeline now looks like this.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-buddy/1bL9o-Y0jadyo-I5vL3lvbA.png" alt="" /></p>
+
+<p>Run the pipeline again, and within a minute you should see your Flask application up and running in AWS Elastic Beanstalk.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-buddy/1lbDOMUm9pa_kzGoop8LL2g.png" alt="" /></p>
+
+<p>Well done, you’ve successfully run a build, test, deploy to Elastic Beanstalk, all thanks to the <strong>Buddy</strong> platform — it’s probably taken longer to read than do the work; I would estimate getting to this stage for most users would be 2–3 minutes maximum.</p>
+
+<p>Now let’s test the <strong>trigger</strong> on code push. I’ve made a small edit to my example application to change the message to “Hello World!”.</p>
+
+<p>Within seconds of push, the pipeline was running in <strong>Buddy</strong>, and less than a minute later it had finished. Refresh our browser and we can see the new message is being displayed.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-buddy/1J3ppGuKjcWAW4rVK2IlCXg.png" alt="" /></p>
+
+<p>That’s the end of the demonstration. You should have successfully built and deployed your application to Elastic Beanstalk and been through the cycle of a code change and seen that change reflected in AWS almost immediately.</p>
+
+<h3 id="did-we-see-yaml">Did we see YAML?</h3>
+
+<p><strong>Yes</strong>, there’s a YAML option as well as the UI-generated process. You can build your pipeline from scratch, or in our case, since we already have our pipeline created we can use the option to “Export the current pipelines to YAML”.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-buddy/1idYOgVTcu77I_06_7HeDOQ.png" alt="" /></p>
+
+<p>If you choose to configure your pipeline using YAML, you have to save this file as <code>buddy.yml</code> in the root of the source code repository. Let’s do that now.</p>
+
+<p>You’ll also need to toggle from “GUI” to “YML” via the “YAML configuration” tab. By default Buddy is all GUI-driven, but you switch to a “pipelines as code” model very easily.</p>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-buddy/16yNfoeYpGa4umfSqQPuvwQ.png" alt="" /></p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Before this week, I hadn’t come across Buddy but it’s very much got the feel of a big-player. The ease of use, the feature set, the speed of deployment, the number of integrations — I could go on — it’s got a lot going for it.</p>
+
+<p>Back to their website claims — <strong>“87% faster CI/CD adoption time by teams”</strong> and <strong>“12 seconds of average deployment time”</strong> — to be honest, I believe both to be true. Having used many different platforms over the years, Buddy has definitely been one of the quickest to get started with and I’d expect engineers of all disciplines and experience to be up and running within minutes.</p>
+
+<p><em>Article first written November 2020 and things change over time. At the time of writing, here were my findings…</em></p>
+
+<h2 id="-positives">+ Positives</h2>
+
+<ul>
+  <li>
+    <p><strong>Free tier</strong> to get started. Not overly generous, but sufficient. You get 500MB of storage and 120 executions per month. Noticeable that Buddy don’t feature “execution minutes” in their pricing model.</p>
+  </li>
+  <li>
+    <p>A huge list of ready-made <strong>integrations</strong> with GitHub, AWS, Heroku, Slack, GitLab, Cloudflare, Firebase, and many more.</p>
+  </li>
+  <li>
+    <p>Provides <strong>git repository hosting</strong> for a fully integrated service. Although not tied — so hosting at GitHub works just as well.</p>
+  </li>
+  <li>
+    <p>All the core facets of a pipeline are catered for including my basic “must have” options to <strong>trigger on code updates</strong>, manual “<strong>push button</strong>” steps, and a scheduler option to <strong>run pipelines on a timer</strong>.</p>
+  </li>
+  <li>
+    <p>The <strong>extensive documentation</strong> is awesome — both layman and developer focussed and very well presented. I was amazed at how much content there was and found <strong>step-by-step examples</strong> for pretty much every scenario I could think of.</p>
+  </li>
+  <li>
+    <p>To be honest — the documentation is so good that it makes articles such as this largely redundant — on top of which, <strong>the platform is so intuitive</strong> the documentation might not even be that necessary in most cases.</p>
+  </li>
+</ul>
+
+<h3 id="neutral">Neutral</h3>
+
+<ul>
+  <li>There’s a feature around <strong>monitoring pipelines</strong> which is more than intriguing, if not a little puzzling. At first this felt out-of-place under the banner of a CI/CD, and I was concerned if this could dilute the platform — since Buddy see it as a means to <em>“monitor your websites and services for downtimes and get notified whenever taking action is required”</em>. On the one hand, there’s power in all-in-one platforms but on the other hand, I also like platforms that do just what they say on the tin where their focus is to do one thing and do it excellently. I also like picking the best tool for the job, so my natural inclination is to avoid the multi-purpose options. In Buddy defence here, their web page title is “The DevOps Automation Platform” so this feature clearly fits into that domain — yet the site shouts “CI/CD” everywhere else — maybe Buddy would do well spinning this off and maturing their service observability, monitoring, and alerting separately. With that written, I then thought about it over the last week and I began to see how you might be able to chain pipelines and use the concept of service monitoring into a workflow — perhaps as a canary or to verify a deployment to trigger a switchover of traffic. Good feature, but makes my neutral list for now while I sit on the fence.</li>
+</ul>
+
+<h2 id="--negatives">- Negatives</h2>
+
+<ul>
+  <li>
+    <p>Once you burned your Free Plan limit of 120 executions in a month there is a big step in terms of pricing — “free” jumps to $75 per month and then $200 per month. Definitely a lot of value in the platform to justify, just feels for me like an intermediary price point is required.</p>
+  </li>
+  <li>
+    <p>In my particular use-case, directing me to AWS to manually set up my Elastic Beanstalk Application and Environment felt a touch clunky — given the high expectations of “low touch” set by this stage — so I’m sure a seamless fully-integrated EB experience won’t be too long away.</p>
+  </li>
+  <li>
+    <p>I got an error using the yaml that was auto-generated via the yaml helper. Although it worked first time through, I was hoping Buddy would pick it up automatically on a new project pointing at a repository already containing a <code>buddy.yml</code> file. I got the error below with the same repository used throughout the demonstration. <em>At the time of writing, I have pinged the Buddy team to ask why this might be the case.</em></p>
+  </li>
+</ul>
+
+<p><img src="/assets/images/get-started-with-ci-cd-using-buddy/0_u2aFeQtSmyOV0JMm.png" alt="" /></p>
+
+<h2 id="a-note-from-the-author">A note from the author</h2>
+
+<p>Thank you for reading this article — I hope you found it useful and please read the remainder of the series as I compare other CI/CD tools.</p>
+
+<p><a href="https://github.com/davelms/python-github-actions-demo">All source code</a> for this demonstration can be downloaded at GitHub.</p>
+
+<p>You can follow me on <a href="https://twitter.com/davelms">Twitter</a> and connect on <a href="https://www.linkedin.com/in/davelms/">LinkedIn</a>.</p>
+
+</div>
+
+<!-- Rating -->
+
+
+<!-- Author Box if enabled from _config.yml -->
+<!-- Author Box -->
+
+
+<div class="d-flex authorbox align-items-center">
+    <div class="col-md-2 mr-4 text-center">
+        
+        <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x" alt="Dave">
+        
+    </div>
+    <div class="col-md-10"> 
+        <a target="_blank" class="text-dark h4" href="https://www.davelms.co.uk">About Dave</a>   <a target="_blank" href="https://twitter.com/davelms" class="btn-sm"><i class="fab fa-twitter"></i></a>        
+        <span class="author-description d-block mt-2">DevOps | AWS | GCP.  Editor of Goats in Trees.</span>            
+    </div>
+</div>
+
+
+
+<!-- Comments if not disabled with comments: false -->
+<!-- Comments
+================================================== -->
+
+
+<!-- Share -->
+<div class="share">
+    <p>
+        Share
+    </p>
+    <ul>
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://twitter.com/intent/tweet?text=Get started with CI/CD using Buddy&url=https://goatsintrees.net/get-started-with-ci-cd-using-buddy/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fab fa-twitter"></i>
+            </a>
+        </li>
+
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://facebook.com/sharer.php?u=https://goatsintrees.net/get-started-with-ci-cd-using-buddy/" onclick="window.open(this.href, 'facebook-share', 'width=550,height=435');return false;">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+        </li>
+
+        <li class="ml-1 mr-1">
+            <a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=https://goatsintrees.net/get-started-with-ci-cd-using-buddy/" onclick="window.open(this.href, 'width=550,height=435');return false;">
+                <i class="fab fa-linkedin-in"></i>
+            </a>
+        </li>
+
+    </ul>
+</div>
+
+
+<!-- Related Post -->
+<!-- Related Posts
+================================================== -->
+<div class=" related-posts ">  
+
+    
+    <h2 class="text-center mb-4">Explore more like this</h2>
+    
+    
+    <div class="d-flex justify-content-center align-items-center">
+    
+    <!-- Categories -->
+    
+    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/categories#DevOps">DevOps</a>                
+    
+
+    <!-- Tags -->  
+    
+                    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/tags#Buddy">Buddy</a>               
+                    
+    <a class="smoothscroll badge badge-primary text-capitalize" href="/tags#Continuous-Integration">Continuous Integration</a>               
+    
+
+    </div>
+
+    
+    
+    
+    <div class="blog-grid-container">
+        
+        
+            
+            
+        
+            
+        
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/get-started-with-ci-cd-using-github-actions/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/get-started-with-ci-cd-using-github-actions/1_BZ_jv-xjX_FfJR5fQH_6UQ.png"
+                    alt="Get Started With CI/CD Using GitHub Actions">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/get-started-with-ci-cd-using-github-actions/">Get Started With CI/CD Using GitHub Actions</a>
+                
+            </h2>
+            <h4 class="card-text">Part 1 of "Comparing CI/CD Tools". In this introduction to GitHub Actions, we'll explore how easy it is to build and deploy a simple Python Flask application to AWS Elastic...</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">25 Oct 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/run-jenkins-in-a-docker-container-part-3-run-as-root-user/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/run-jenkins-in-a-docker-container-part-1-docker-in-docker/1_hXoxUTXNSD9nVoYnZQ59TA.png"
+                    alt="Run Jenkins in a Docker container — part 3 — run as root user">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/run-jenkins-in-a-docker-container-part-3-run-as-root-user/">Run Jenkins in a Docker container — part 3 — run as root user</a>
+                
+            </h2>
+            <h4 class="card-text">Guide for developers to get up and running with Jenkins running in Docker (on Windows).</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">13 Oct 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+            
+        
+        
+        
+            
+            
+        
+            
+        
+            
+            <!-- begin post -->
+
+
+<div class="blog-grid-item">
+    <div class="card h-100">
+        <div class="maxthumb">
+            <a href="/run-jenkins-in-a-docker-container-part-2-socat/">
+                
+
+                
+                <img class="img-thumb"
+                    src="/assets/images/run-jenkins-in-a-docker-container-part-1-docker-in-docker/1_hXoxUTXNSD9nVoYnZQ59TA.png"
+                    alt="Run Jenkins in a Docker container — part 2 — socat">
+                
+
+                
+            </a>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">
+                <a class="text-dark" href="/run-jenkins-in-a-docker-container-part-2-socat/">Run Jenkins in a Docker container — part 2 — socat</a>
+                
+            </h2>
+            <h4 class="card-text">Guide for developers to get up and running with Jenkins running in Docker (on Windows).</h4>
+        </div>
+        <div class="card-footer bg-white">
+            <div class="wrapfooter">
+                
+                <span class="meta-footer-thumb">
+                    
+                    <img class="author-thumb" src="https://www.gravatar.com/avatar/519b6d839ac5d2ae8bdaa85b8152da40?s=250&d=mm&r=x"
+                        alt="Dave">
+                    
+                </span>
+                <span class="author-meta">
+                    <span class="post-name"><a target="_blank"
+                            href="https://www.davelms.co.uk">Dave</a></span>
+                    
+                    <span class="post-date">13 Oct 2020</span>
+                </span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end post -->
+            
+            
+                
+        </div>        
+</div>
+
+<!-- Review with LD-JSON, adapt it for your needs if you like, but make sure you test the generated HTML source code first: 
+https://search.google.com/structured-data/testing-tool/u/0/
+================================================== -->
+
+            </div>
+
+            
+            <!-- Newsletter
+    ================================================== -->
+            <div class="newsletter text-center">
+                <span class="h4"><img src="/assets/images/goat-logo.png" class="newsletter-logo"
+                        alt="Goats in Trees"> &nbsp; Never miss a <b>story</b> from us, subscribe to our
+                    newsletter</span>
+                <form action="https://goatsintrees.us8.list-manage.com/subscribe/post?u=f1ba23fce94cc889510e995fd&amp;id=b045064b1d" method="post" name="mc-embedded-subscribe-form"
+                    class="wj-contact-form validate" target="_blank" novalidate>
+                    <div class="mc-field-group d-inline-flex">
+                        <input type="email" placeholder="Your e-mail" name="EMAIL" class="required email" id="mce-EMAIL"
+                            autocomplete="on" required>
+                        <input type="submit" value="Subscribe" name="subscribe" class="heart">
+                    </div>
+                </form>
+            </div>
+            
+
+        </div>
+
+        <!-- Begin Footer
+================================================== -->
+        <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 text-center text-lg-left">
+                        Copyright © 2020 Goats in Trees
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- End Footer
+================================================== -->
+
+    </div> <!-- /.site-content -->
+
+    <!-- Scripts (if you need bootstrap.js, please add it yourself. I didn't use it for performance reasons, it was not needed in this theme)
+================================================== -->
+
+    <script src="/assets/js/prism.js"></script>
+
+    <script src="/assets/js/theme.js"></script>
+
+    
+
+</body>
+
+</html>
